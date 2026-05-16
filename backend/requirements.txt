@@ -6,5 +6,5 @@ openpyxl
 motor==3.1.1
 pymongo==4.3.3
 python-dotenv==1.0.1
-faster-whisper
 requests
+pydub

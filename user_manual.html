@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Intelligence Platform - User Manual</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-color: #060814;
+            --card-bg: rgba(13, 18, 36, 0.75);
+            --card-border: rgba(255, 255, 255, 0.06);
+            --accent-gradient: linear-gradient(135deg, #6366F1 0%, #A855F7 100%);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        p, li, td {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-secondary);
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(8, 11, 24, 0.95);
+            border-right: 1px solid var(--card-border);
+            padding: 2rem 1.5rem;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+            z-index: 100;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 3rem;
+            max-width: calc(100% - var(--sidebar-width));
+        }
+
+        /* Typography & Utilities */
+        .gradient-text {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+        }
+
+        .badge.primary {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+            color: #818CF8;
+        }
+
+        /* Sidebar Navigation */
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent-gradient);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .nav-links a i {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Section Styling */
+        section {
+            margin-bottom: 6rem;
+            scroll-margin-top: 3rem;
+        }
+
+        .section-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        /* Cards & Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: #818CF8;
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        /* Specific Component Styles */
+        /* Cover Page */
+        .cover-page {
+            height: calc(100vh - 6rem);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, rgba(6, 8, 20, 0) 70%);
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 6rem;
+            position: relative;
+        }
+
+        .cover-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--accent-gradient);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .cover-logo i {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+
+        .cover-page h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .cover-page p.tagline {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        .cover-meta {
+            display: flex;
+            gap: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Mockup Frame */
+        .mockup-frame {
+            background: #0D1117;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.5rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 0.5rem;
+        }
+
+        .mockup-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #EF4444;
+        }
+        .mockup-dot:nth-child(2) { background: #F59E0B; }
+        .mockup-dot:nth-child(3) { background: #10B981; }
+
+        .mockup-content {
+            background: #060814;
+            height: 400px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mockup-content::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .mockup-text {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Tables */
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+        }
+
+        .styled-table th, .styled-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+        }
+
+        .styled-table th {
+            background: rgba(255, 255, 255, 0.02);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .styled-table td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            font-size: 0.95rem;
+        }
+
+        .styled-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Lead Intelligence Cards */
+        .lead-card {
+            border-left: 4px solid transparent;
+        }
+
+        .lead-card.hot { border-left-color: #EF4444; }
+        .lead-card.warm { border-left-color: #F59E0B; }
+        .lead-card.cold { border-left-color: #3B82F6; }
+
+        .lead-score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Steps */
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Widgets (Dashboard Overview) */
+        .widget {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .widget-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .widget-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .widget-trend {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .widget-trend.up { color: var(--success); }
+        .widget-trend.down { color: var(--danger); }
+
+        /* Print Styles */
+        @media print {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; max-width: 100%; padding: 1rem; }
+            body { background: white; color: black; }
+            .card { background: #f8fafc; border: 1px solid #e2e8f0; color: black; }
+            .mockup-frame { background: #f8fafc; border: 1px solid #e2e8f0; }
+            .mockup-content { background: #f1f5f9; color: #64748b; }
+            h1, h2, h3, h4, p, li, td { color: black !important; }
+            .gradient-text { background: none; -webkit-text-fill-color: black; }
+            .cover-page { border: none; height: auto; padding: 4rem 0; }
+            .badge { border: 1px solid #cbd5e1; color: black; }
+            section { page-break-before: always; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <i data-lucide="mic"></i>
+                </div>
+                <div class="logo-text">VoiceAI</div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#cover" class="active"><i data-lucide="file-text"></i>Cover Page</a></li>
+                <li><a href="#welcome"><i data-lucide="sparkles"></i>Welcome</a></li>
+                <li><a href="#overview"><i data-lucide="grid"></i>Product Overview</a></li>
+                <li><a href="#requirements"><i data-lucide="terminal"></i>System Requirements</a></li>
+                <li><a href="#login"><i data-lucide="log-in"></i>Login & Access</a></li>
+                <li><a href="#dashboard"><i data-lucide="layout-dashboard"></i>Dashboard Overview</a></li>
+                <li><a href="#voice-config"><i data-lucide="settings-2"></i>Voice Config</a></li>
+                <li><a href="#data-management"><i data-lucide="database"></i>Data Management</a></li>
+                <li><a href="#monitoring"><i data-lucide="activity"></i>Live Monitoring</a></li>
+                <li><a href="#lead-intel"><i data-lucide="brain"></i>Lead Intelligence</a></li>
+                <li><a href="#voice-intel"><i data-lucide="message-square"></i>Voice Note Intel</a></li>
+                <li><a href="#analytics"><i data-lucide="bar-chart-2"></i>Reports & Analytics</a></li>
+                <li><a href="#troubleshooting"><i data-lucide="help-circle"></i>Troubleshooting</a></li>
+                <li><a href="#faq"><i data-lucide="message-circle"></i>FAQ</a></li>
+                <li><a href="#support"><i data-lucide="life-buoy"></i>Support</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            
+            <!-- 1. Cover Page -->
+            <section id="cover" class="cover-page">
+                <div class="cover-logo">
+                    <i data-lucide="mic"></i>
+                </div>
+                <h1>AI Voice Intelligence Platform</h1>
+                <p class="tagline">Automate Human-Like Customer Conversations at Scale</p>
+                <div class="cover-meta">
+                    <span>Version 1.0</span>
+                    <span>|</span>
+                    <span>Enterprise Edition</span>
+                    <span>|</span>
+                    <span>Client-Ready Documentation</span>
+                </div>
+                
+                <div class="mockup-frame">
+                    <div class="mockup-header">
+                        <div class="mockup-dot"></div>
+                        <div class="mockup-dot"></div>
+                        <div class="mockup-dot"></div>
+                    </div>
+                    <div class="mockup-content">
+                        <div class="mockup-text">
+                            <i data-lucide="layout-dashboard" style="width: 48px; height: 48px; color: #818CF8;"></i>
+                            <span>Premium Dashboard Mockup Placeholder</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Welcome / Introduction -->
+            <section id="welcome">
+                <div class="section-header">
+                    <span class="badge primary">Introduction</span>
+                    <h2>Welcome to AI Voice Intelligence</h2>
+                    <p>Revolutionizing customer engagement with advanced AI voice agents.</p>
+                </div>
+                <div class="card">
+                    <p style="font-size: 1.1rem; line-height: 1.8;">
+                        This AI platform automates customer conversations using advanced voice AI agents for calling, lead qualification, conversation analytics, and customer engagement. Built for the modern enterprise, it bridges the gap between human empathy and machine efficiency, allowing your business to scale communication without losing the personal touch.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 3. Product Overview -->
+            <section id="overview">
+                <div class="section-header">
+                    <span class="badge primary">Features</span>
+                    <h2>Product Overview</h2>
+                    <p>Core capabilities designed for enterprise scale.</p>
+                </div>
+                <div class="grid-4">
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="phone-call"></i></div>
+                        <h3>AI Voice Calling</h3>
+                        <p>Autonomous outbound and inbound calling with low latency.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="eye"></i></div>
+                        <h3>Real-Time Monitoring</h3>
+                        <p>Listen in and view live transcripts of active calls.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="gauge"></i></div>
+                        <h3>Live Telemetry</h3>
+                        <p>Visual operational metrics updating in real-time.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="zap"></i></div>
+                        <h3>Lead Intelligence</h3>
+                        <p>Automatic categorization and scoring of lead responses.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="music"></i></div>
+                        <h3>Voice Note Intel</h3>
+                        <p>Analyze incoming voice notes for intent and sentiment.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="pie-chart"></i></div>
+                        <h3>Analytics & Reports</h3>
+                        <p>Deep insights into campaign and agent performance.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="sliders"></i></div>
+                        <h3>Agent Config</h3>
+                        <p>Customize voice, tone, and logic for every agent.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="refresh-cw"></i></div>
+                        <h3>CRM Integration</h3>
+                        <p>Seamless two-way sync with major CRM platforms.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. System Requirements -->
+            <section id="requirements">
+                <div class="section-header">
+                    <span class="badge primary">Setup</span>
+                    <h2>System Requirements</h2>
+                    <p>Ensure your environment is optimized for the best experience.</p>
+                </div>
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Requirement</th>
+                            <th>Specification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Browser Support</strong></td>
+                            <td>Google Chrome (v90+), Microsoft Edge (v90+), Safari (v14+), Firefox (v85+)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Internet Requirements</strong></td>
+                            <td>Stable broadband connection (minimum 10 Mbps down/up, low latency)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Audio Requirements</strong></td>
+                            <td>High-quality USB headset with noise-canceling microphone (recommended)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Screen Resolution</strong></td>
+                            <td>Optimized for 1920x1080 (Minimum supported: 1280x720)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Browser Permissions</strong></td>
+                            <td>Requires active permission for Microphone access and Desktop Notifications</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 5. Login & Access -->
+            <section id="login">
+                <div class="section-header">
+                    <span class="badge primary">Get Started</span>
+                    <h2>Login & Access</h2>
+                    <p>Accessing your AI Voice Intelligence dashboard.</p>
+                </div>
+                <div class="grid-2">
+                    <div class="steps-container">
+                        <div class="step-item">
+                            <div class="step-number">01</div>
+                            <div class="step-content">
+                                <h4>Open Application</h4>
+                                <p>Navigate to your organization's custom portal URL.</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">02</div>
+                            <div class="step-content">
+                                <h4>Enter Credentials</h4>
+                                <p>Input your enterprise email and secure password.</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">03</div>
+                            <div class="step-content">
+                                <h4>Login</h4>
+                                <p>Click the "Sign In" button or use Single Sign-On (SSO).</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">04</div>
+                            <div class="step-content">
+                                <h4>Access Dashboard</h4>
+                                <p>Upon authentication, you will be redirected to the main terminal.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mockup-frame">
+                        <div class="mockup-header">
+                            <div class="mockup-dot"></div>
+                            <div class="mockup-dot"></div>
+                            <div class="mockup-dot"></div>
+                        </div>
+                        <div class="mockup-content" style="height: 250px;">
+                            <div class="mockup-text">
+                                <i data-lucide="shield-check" style="width: 32px; height: 32px; color: #818CF8;"></i>
+                                <span>Login UI Screenshot Placeholder</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Dashboard Overview -->
+            <section id="dashboard">
+                <div class="section-header">
+                    <span class="badge primary">Interface</span>
+                    <h2>Dashboard Overview</h2>
+                    <p>Understand the widgets and telemetry on your command center.</p>
+                </div>
+                <div class="grid-4" style="margin-bottom: 2rem;">
+                    <div class="widget">
+                        <span class="widget-title">Total Calls</span>
+                        <span class="widget-value">1,245</span>
+                        <span class="widget-trend up"><i data-lucide="trending-up"></i> +12% vs yesterday</span>
+                    </div>
+                    <div class="widget">
+                        <span class="widget-title">Active Agents</span>
+                        <span class="widget-value">24</span>
+                        <span class="widget-trend up"><i data-lucide="trending-up"></i> Full capacity</span>
+                    </div>
+                    <div class="widget">
+                        <span class="widget-title">Conversion Rate</span>
+                        <span class="widget-value">18.4%</span>
+                        <span class="widget-trend down"><i data-lucide="trending-down"></i> -0.5% vs last week</span>
+                    </div>
+                    <div class="widget">
+                        <span class="widget-title">Funnel Efficiency</span>
+                        <span class="widget-value">72%</span>
+                        <span class="widget-trend up"><i data-lucide="trending-up"></i> +2% optimal</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Dashboard Widgets Explained</h3>
+                    <p style="margin-bottom: 1rem;">Your dashboard provides a high-density, real-time overview of your voice operations.</p>
+                    <ul style="list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                        <li><strong style="color: var(--text-primary);">Total Calls:</strong> Cumulative count of calls processed in the active period.</li>
+                        <li><strong style="color: var(--text-primary);">Active Agents:</strong> Number of AI models currently handling conversations.</li>
+                        <li><strong style="color: var(--text-primary);">Live Telemetry:</strong> Scrolling feed of system events and connection states.</li>
+                        <li><strong style="color: var(--text-primary);">Real-Time Activity:</strong> Active call streams with waveform visualization.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 7. Voice Configuration -->
+            <section id="voice-config">
+                <div class="section-header">
+                    <span class="badge primary">Customization</span>
+                    <h2>Voice Configuration</h2>
+                    <p>Fine-tune the acoustics and personality of your AI agents.</p>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem;">
+                            <li>
+                                <h4 style="color: var(--accent-primary);"><i data-lucide="waveform" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 0.5rem;"></i>Voice Model Setup</h4>
+                                <p>Select from a library of premium neural voices or clone your own brand voice.</p>
+                            </li>
+                            <li>
+                                <h4 style="color: var(--accent-primary);"><i data-lucide="fast-forward" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 0.5rem;"></i>Speaking Speed</h4>
+                                <p>Adjust the words-per-minute rate to match the persona (default is 150 WPM).</p>
+                            </li>
+                            <li>
+                                <h4 style="color: var(--accent-primary);"><i data-lucide="globe" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 0.5rem;"></i>Accent Selection</h4>
+                                <p>Choose regional accents to sound local and build trust with clients.</p>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem;">
+                            <li>
+                                <h4 style="color: var(--accent-primary);"><i data-lucide="smile" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 0.5rem;"></i>Tone Customization</h4>
+                                <p>Set the emotional baseline: Professional, Empathetic, Enthusiastic, or Urgent.</p>
+                            </li>
+                            <li>
+                                <h4 style="color: var(--accent-primary);"><i data-lucide="clock" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 0.5rem;"></i>Response Timing</h4>
+                                <p>Configure turn-taking latency (default is 200ms for natural conversation).</p>
+                            </li>
+                            <li>
+                                <h4 style="color: var(--accent-primary);"><i data-lucide="languages" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 0.5rem;"></i>Language Selection</h4>
+                                <p>Supports multi-lingual deployment with automatic language detection.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Lead Upload & Data Management -->
+            <section id="data-management">
+                <div class="section-header">
+                    <span class="badge primary">Data</span>
+                    <h2>Lead Upload & Data Management</h2>
+                    <p>Ingest data seamlessly to power your calling campaigns.</p>
+                </div>
+                <div class="grid-3">
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="file-text"></i></div>
+                        <h3>CSV & Excel Upload</h3>
+                        <p>Drag and drop standard spreadsheets. Automated column mapping maps headers automatically.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="link"></i></div>
+                        <h3>CRM Synchronization</h3>
+                        <p>Native integration with Salesforce, HubSpot, and Zoho for continuous lead feeding.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="check-circle"></i></div>
+                        <h3>Validation & Confirmation</h3>
+                        <p>Platform scrubs numbers against DNC lists and checks for formatting errors before import.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. Live Call Monitoring -->
+            <section id="monitoring">
+                <div class="section-header">
+                    <span class="badge primary">Operations</span>
+                    <h2>Live Call Monitoring</h2>
+                    <p>Observe live operations and intervene when necessary.</p>
+                </div>
+                <div class="mockup-frame">
+                    <div class="mockup-header">
+                        <div class="mockup-dot"></div>
+                        <div class="mockup-dot"></div>
+                        <div class="mockup-dot"></div>
+                        <span style="margin-left: auto; color: #EF4444; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+                            <span style="width: 8px; height: 8px; background: #EF4444; border-radius: 50%;"></span> LIVE
+                        </span>
+                    </div>
+                    <div class="mockup-content" style="height: 350px;">
+                        <div class="mockup-text" style="width: 80%; align-items: flex-start;">
+                            <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; width: 100%;">
+                                <span style="color: #818CF8; font-size: 0.8rem;">[AI Agent]</span> Hello! I'm calling from VoiceAI. Am I speaking with John?
+                            </div>
+                            <div style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 8px; width: 100%; margin-top: 0.5rem; text-align: right;">
+                                <span style="color: #10B981; font-size: 0.8rem;">[Lead]</span> Yes, this is John. What is this about?
+                            </div>
+                            <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; width: 100%; margin-top: 0.5rem;">
+                                <span style="color: #818CF8; font-size: 0.8rem;">[AI Agent]</span> Great! I'm calling to discuss the interest you showed in our automated solutions...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-3" style="margin-top: 2rem;">
+                    <div class="card">
+                        <h4>Live Transcripts</h4>
+                        <p>Words are transcribed in real-time as the conversation happens with high accuracy.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Sentiment Tracking</h4>
+                        <p>Dynamic color indicators show if the caller is Happy, Frustrated, or Neutral.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Barge-In / Takeover</h4>
+                        <p>Supervisors can take over the call from the AI agent with a single click if needed.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. Lead Intelligence -->
+            <section id="lead-intel">
+                <div class="section-header">
+                    <span class="badge primary">AI Insights</span>
+                    <h2>Lead Intelligence</h2>
+                    <p>Automated categorization based on deep conversation analysis.</p>
+                </div>
+                <div class="grid-3">
+                    <div class="card lead-card hot">
+                        <div class="lead-score">92</div>
+                        <h3>HOT Leads</h3>
+                        <p>High intent detected. Prospect asked about pricing, timeline, or requested a demo. Recommended for immediate human follow-up.</p>
+                    </div>
+                    <div class="card lead-card warm">
+                        <div class="lead-score">65</div>
+                        <h3>WARM Leads</h3>
+                        <p>Expressed interest but not ready to purchase. Needs nurturing. Scheduled for automated email follow-up in 3 days.</p>
+                    </div>
+                    <div class="card lead-card cold">
+                        <div class="lead-score">24</div>
+                        <h3>COLD Leads</h3>
+                        <p>No interest or wrong number. Automatically moved to the archive or recycling pool for future campaigns.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 11. Voice Note Intelligence -->
+            <section id="voice-intel">
+                <div class="section-header">
+                    <span class="badge primary">Inbound Analysis</span>
+                    <h2>Voice Note Intelligence</h2>
+                    <p>Process asynchronous voice messages for intent and sentiment.</p>
+                </div>
+                <div class="steps-container">
+                    <div class="step-item">
+                        <div class="step-number">01</div>
+                        <div class="step-content">
+                            <h4>Upload & Ingest</h4>
+                            <p>Clients send voice notes via API, WhatsApp, or email attachments.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">02</div>
+                        <div class="step-content">
+                            <h4>Speech-to-Text Conversion</h4>
+                            <p>Proprietary algorithms transcribe the audio with 98% accuracy, handling accents and background noise.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">03</div>
+                        <div class="step-content">
+                            <h4>Intent Classification</h4>
+                            <p>AI parses the text to determine the core request (e.g., Support, Sales, Complaint, Inquiry).</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">04</div>
+                        <div class="step-content">
+                            <h4>Summary & Action</h4>
+                            <p>Generates a concise bulleted summary and populates actions directly into your CRM.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 12. Reports & Analytics -->
+            <section id="analytics">
+                <div class="section-header">
+                    <span class="badge primary">Performance</span>
+                    <h2>Reports & Analytics</h2>
+                    <p>Measure, analyze, and optimize your voice operations.</p>
+                </div>
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h3>Campaign Performance Dashboard</h3>
+                    <p style="margin-bottom: 1.5rem;">Access deep-dive analytics to understand return on investment and agent efficiency.</p>
+                    <div class="grid-2">
+                        <div>
+                            <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
+                                <li><strong style="color: var(--text-primary);">Total Calls:</strong> 54,200 (MoM +15%)</li>
+                                <li><strong style="color: var(--text-primary);">Average Duration:</strong> 2m 45s</li>
+                                <li><strong style="color: var(--text-primary);">Success Rate:</strong> 22.4% connection to goal</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
+                                <li><strong style="color: var(--text-primary);">Total Talk Time:</strong> 2,480 hours</li>
+                                <li><strong style="color: var(--text-primary);">Cost Per Minute:</strong> $0.05 (70% savings vs human)</li>
+                                <li><strong style="color: var(--text-primary);">Top Persona:</strong> "Samantha" (Empathetic)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>Conversion Insights</h4>
+                        <p>Analyze which script paths lead to successful outcomes and replicate them.</p>
+                    </div>
+                    <div class="card">
+                        <h4>Export & Share</h4>
+                        <p>Download reports in PDF, CSV, or automatically push data to BI tools via webhooks.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 13. Troubleshooting -->
+            <section id="troubleshooting">
+                <div class="section-header">
+                    <span class="badge primary">Help</span>
+                    <h2>Troubleshooting</h2>
+                    <p>Quick solutions to common operational issues.</p>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4 style="color: #F59E0B; margin-bottom: 0.5rem;"><i data-lucide="phone-off" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 0.5rem;"></i>Calls Ending Unexpectedly</h4>
+                        <p>Check your carrier SIP registration and ensure your balance is sufficient. Check the "Logs" tab for specific disconnect reason codes.</p>
+                    </div>
+                    <div class="card">
+                        <h4 style="color: #F59E0B; margin-bottom: 0.5rem;"><i data-lucide="volume-x" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 0.5rem;"></i>No Audio Issues</h4>
+                        <p>Ensure browser microphone permissions are enabled. Refresh the page to re-initialize the WebRTC audio context.</p>
+                    </div>
+                    <div class="card">
+                        <h4 style="color: #F59E0B; margin-bottom: 0.5rem;"><i data-lucide="loader" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 0.5rem;"></i>Dashboard Loading Problems</h4>
+                        <p>Clear browser cache or try in Incognito mode. Ensure your firewall is not blocking the WebSocket domain connection.</p>
+                    </div>
+                    <div class="card">
+                        <h4 style="color: #F59E0B; margin-bottom: 0.5rem;"><i data-lucide="wifi-off" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 0.5rem;"></i>Connection Failures</h4>
+                        <p>Verify internet connection. If using a VPN, try disconnecting or whitelisting the platform domain.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 14. FAQ -->
+            <section id="faq">
+                <div class="section-header">
+                    <span class="badge primary">Q&A</span>
+                    <h2>Frequently Asked Questions</h2>
+                    <p>Common questions from enterprise administrators.</p>
+                </div>
+                <div class="card">
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 1.5rem;">
+                        <li>
+                            <h4 style="color: var(--text-primary);">Can I create multiple AI agents?</h4>
+                            <p>Yes, enterprise accounts can create unlimited agents with different voices and logic profiles.</p>
+                        </li>
+                        <li>
+                            <h4 style="color: var(--text-primary);">How do I export reports?</h4>
+                            <p>Go to the "Reports & Analytics" section and click the "Export" button in the top right corner.</p>
+                        </li>
+                        <li>
+                            <h4 style="color: var(--text-primary);">Does it support inbound and outbound calls?</h4>
+                            <p>Yes, the platform handles both automated outbound campaigns and inbound customer service routing.</p>
+                        </li>
+                        <li>
+                            <h4 style="color: var(--text-primary);">Is custom voice creation supported?</h4>
+                            <p>Yes, you can upload a 30-second audio clip of your voice to create a clone (requires Enterprise Add-on).</p>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 15. Support Section -->
+            <section id="support">
+                <div class="section-header">
+                    <span class="badge primary">Contact</span>
+                    <h2>Support & Contact</h2>
+                    <p>We are here to help you maximize your platform utility.</p>
+                </div>
+                <div class="grid-3">
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="mail"></i></div>
+                        <h3>Email Support</h3>
+                        <p>support@voiceai.enterprise.com<br>Response within 2 hours for priority clients.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="phone"></i></div>
+                        <h3>Direct Phone</h3>
+                        <p>+1 (888) VOICE-AI<br>Available Mon-Fri, 9am - 6pm EST.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon"><i data-lucide="globe"></i></div>
+                        <h3>Web Portal</h3>
+                        <p>help.voiceai.enterprise.com<br>Search our knowledge base and open tickets.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer style="margin-top: 5rem; padding-top: 2rem; border-top: 1px solid var(--card-border); text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                &copy; 2026 AI Voice Intelligence Platform. All rights reserved.
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        // Simple active state handler for sidebar
+        const links = document.querySelectorAll('.nav-links a');
+        links.forEach(link => {
+            link.addEventListener('click', (e) => {
+                links.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

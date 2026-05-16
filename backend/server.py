@@ -1,56 +1,51 @@
 # server.py
 import os
-import openpyxl
+import sys
+import warnings
+
+# Suppress pydub RuntimeWarnings
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="pydub")
+
+# Configure FFmpeg paths at the very start to suppress pydub warnings
+USER_FFMPEG_BIN = r"C:\Users\brijb\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.1-full_build\bin"
+if os.path.exists(USER_FFMPEG_BIN):
+    os.environ["PATH"] += os.pathsep + USER_FFMPEG_BIN
+
 import time
+import json
+import uuid
+import asyncio
+import requests
+import mimetypes
 import subprocess
-import wave
-from datetime import datetime, timedelta
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from datetime import datetime
+from fastapi import FastAPI, UploadFile, File, HTTPException, Body, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.concurrency import run_in_threadpool
-from process_audio import process_uploaded_audio, get_weekly_excel_file
+from process_audio import process_uploaded_audio, get_weekly_excel_file, analyze_transcript_text
 import mongodb
-
-# -------------------------------------------------------
-# APP
-# -------------------------------------------------------
-app = FastAPI(
-    description="Audio processing backend using FastAPI + MongoDB",
-    version="1.0.1"
-)
 from fastapi.responses import FileResponse
-import os
+from dotenv import load_dotenv
 
-@app.get("/download/overall")
-def download_overall_calls():
-    file_path = "results/analytics_results.xlsx"
-    return FileResponse(
-        file_path,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        filename="overall_calls.xlsx"
-    )
+from contextlib import asynccontextmanager
 
-@app.get("/download/weekly-calls")
-def download_weekly_calls():
-    file_path = get_weekly_excel_file()  # your existing helper
-    return FileResponse(
-        file_path,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        filename="weekly_calls.xlsx"
-    )
+# Load env values
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env.local"))
 
-@app.get("/download/weekly-sales")
-def download_weekly_sales():
-    file_path = "results/sales_crm.xlsx"
-    return FileResponse(
-        file_path,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        filename="weekly_sales.xlsx"
-    )
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
+    await mongodb.ensure_indexes()
+    print("--- PROVIDER CONFIG ---")
+    print(f"OpenRouter Analysis: {os.environ.get('OPENROUTER_MODEL', 'Not Set')} (Key: {bool(os.environ.get('OPENROUTER_API_KEY'))})")
+    print(f"OpenAI Analysis: gpt-4o (Key: {bool(os.environ.get('OPENAI_API_KEY'))})")
+    yield
+    # Shutdown logic (if any)
 
-# -------------------------------------------------------
-# CORS
-# -------------------------------------------------------
+app = FastAPI(lifespan=lifespan)
+
+# Enable CORS for frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -58,317 +53,263 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# -------------------------------------------------------
-# STARTUP
-# -------------------------------------------------------
-@app.on_event("startup")
-async def startup_event():
-    db = mongodb.get_db()
-    try:
-        await db.command("ping")
-        print("MongoDB Connected")
-    except:
-        print("MongoDB NOT Connected")
 
-    try:
-        await db.calls.create_index("expiresAt", expireAfterSeconds=0)
-    except:
-        pass
+BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
 
-# -------------------------------------------------------
-# WEEK START (MONDAY 00:00 UTC)
-# -------------------------------------------------------
-def start_of_current_week():
-    now = datetime.utcnow()
-    start = now - timedelta(days=now.weekday())
-    return start.replace(hour=0, minute=0, second=0, microsecond=0)
+# Startup logic moved to lifespan context manager above
 
-
-def get_audio_duration_seconds(file_path: str):
-    # First try ffprobe for broad format coverage (mp3, m4a, wav, etc.).
-    try:
-        result = subprocess.run(
-            [
-                "ffprobe",
-                "-v",
-                "error",
-                "-show_entries",
-                "format=duration",
-                "-of",
-                "default=noprint_wrappers=1:nokey=1",
-                file_path,
-            ],
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
-        if result.returncode == 0:
-            value = (result.stdout or "").strip()
-            duration = float(value)
-            if duration > 0:
-                return duration
-    except Exception:
-        pass
-
-    # Fallback for WAV if ffprobe is unavailable.
-    try:
-        with wave.open(file_path, "rb") as wav_file:
-            frames = wav_file.getnframes()
-            rate = wav_file.getframerate()
-            if rate > 0:
-                duration = frames / float(rate)
-                if duration > 0:
-                    return duration
-    except Exception:
-        pass
-
-    return None
-
-# -------------------------------------------------------
-# PROCESS AUDIO
-# -------------------------------------------------------
-@app.post("/process-audio")
-async def process_audio_api(file: UploadFile = File(...)):
-    temp_path = None
-    try:
-        timestamp = int(time.time() * 1000)
-        temp_path = f"temp_{timestamp}_{file.filename}"
-
-        with open(temp_path, "wb") as f:
-            f.write(await file.read())
-
-        duration_seconds = get_audio_duration_seconds(temp_path)
-        result = await run_in_threadpool(process_uploaded_audio, temp_path)
-
-        now = datetime.utcnow()
-        unique_call_id = f"call_{timestamp}"
-
-        doc = {
-            "call_id": unique_call_id,
-            "customer_id": result.get("customer_id", "NA"),
-            "sentiment": str(result.get("sentiment", "neutral")).lower(),
-            "sentiment_confidence": result.get("sentiment_confidence"),
-            "sentiment_reason": result.get("sentiment_reason"),
-            "emotion": result.get("emotion"),
-            "summary": result.get("summary"),
-            "transcript": result.get("transcript"),
-            "raw_transcript": result.get("raw_transcript"),
-            "refined_transcript": result.get("refined_transcript"),
-            "transcript_provider": result.get("transcript_provider"),
-            "transcript_refined": result.get("transcript_refined"),
-            "transcript_refiner": result.get("transcript_refiner"),
-            "analysis_provider": result.get("analysis_provider"),
-            "tags": list(set(result.get("intents", []))),   # ⭐ Deduplicate tags
-            "analysis": result.get("analysis", {}),
-            "analysis_raw": result.get("analysis_raw", ""),
-            "duration_seconds": duration_seconds,
-            "created_at": now,
-            "expiresAt": now + timedelta(days=30)
-        }
-
-        db = mongodb.get_db()
-        await db.calls.insert_one(doc)
-
-        if temp_path and os.path.exists(temp_path):
-            os.remove(temp_path)
-
-        return {"status": "ok", "call_id": unique_call_id}
-
-    except Exception as e:
-        if temp_path and os.path.exists(temp_path):
-            os.remove(temp_path)
-        raise HTTPException(status_code=500, detail=str(e))
-
-# -------------------------------------------------------
-# SUMMARY STATS
-# -------------------------------------------------------
-@app.get("/stats/summary")
-async def get_summary():
-    db = mongodb.get_db()
-
-    total_calls = await db.calls.count_documents({})
-    positive_calls = await db.calls.count_documents({"sentiment": "positive"})
-
-    rate = round((positive_calls / total_calls) * 100, 2) if total_calls > 0 else 0
-
-    return {
-        "total_calls": total_calls,
-        "positive_calls": positive_calls,
-        "conversion_rate": rate
-    }
-
-# -------------------------------------------------------
-# ⭐ WEEKLY STATS + CORRECT TRENDING TOPICS
-# -------------------------------------------------------
-@app.get("/stats/weekly")
-async def get_weekly_stats():
-    db = mongodb.get_db()
-    start_week = start_of_current_week()
-    now = datetime.utcnow()
-
-    # Weekly counts
-    total = await db.calls.count_documents({"created_at": {"$gte": start_week}})
-    positive = await db.calls.count_documents(
-        {"created_at": {"$gte": start_week}, "sentiment": "positive"}
-    )
-
-    rate = round((positive / total) * 100, 2) if total > 0 else 0
-
-    # -------------------------------------------------------
-    # ⭐ FIX: Count each topic only ONCE per call
-    # -------------------------------------------------------
-    pipeline = [
-        {"$match": {"created_at": {"$gte": start_week}}},
-        {"$project": {"tags": 1}},  
-        {"$project": {"unique_tags": {"$setUnion": ["$tags", []]}}},  # remove duplicates inside call
-        {"$unwind": "$unique_tags"},  
-        {"$group": {"_id": "$unique_tags", "count": {"$sum": 1}}},  # count 1 per call
-        {"$sort": {"count": -1}},
-        {"$limit": 10}
-    ]
-
-    trending = await db.calls.aggregate(pipeline).to_list(length=10)
-
-    return {
-        "period": "current_week",
-        "week_start": start_week.isoformat() + "Z",
-        "week_end": now.isoformat() + "Z",
-        "total_calls": total,
-        "positive_calls": positive,
-        "conversion_rate": rate,
-        "topics": trending
-    }
-
-# -------------------------------------------------------
-# CALLS (CURRENT WEEK ONLY)
-# -------------------------------------------------------
 @app.get("/calls")
-async def get_calls(limit: int = 50, skip: int = 0):
+async def get_calls(limit: int = 20, skip: int = 0):
     db = mongodb.get_db()
-    start_week = start_of_current_week()
-
-    cursor = (
-        db.calls.find({"created_at": {"$gte": start_week}})
-        .sort("created_at", -1)
-        .skip(skip)
-        .limit(limit)
-    )
-
-    results = []
+    cursor = db.calls.find().sort("created_at", -1).skip(skip).limit(limit)
+    calls = []
     async for d in cursor:
         d["_id"] = None
-        if isinstance(d.get("created_at"), datetime):
-            d["created_at"] = d["created_at"].isoformat() + "Z"
-        results.append(d)
+        calls.append(d)
+    return calls
 
-    return results
-
-# -------------------------------------------------------
-# SINGLE CALL
-# -------------------------------------------------------
 @app.get("/calls/{call_id}")
 async def get_call(call_id: str):
     db = mongodb.get_db()
     doc = await db.calls.find_one({"call_id": call_id})
-
     if not doc:
         raise HTTPException(status_code=404, detail="Call not found")
-
     doc["_id"] = None
-    if isinstance(doc.get("created_at"), datetime):
-        doc["created_at"] = doc["created_at"].isoformat() + "Z"
-
     return doc
 
-@app.get("/stats/weekly")
-async def get_weekly_stats():
+@app.post("/calls/trigger")
+async def trigger_bolna_call(payload: dict = Body(...)):
+    phone_number = payload.get("phone_number")
+    lead_id = payload.get("lead_id")
+
+    api_key = os.environ.get("BOLNA_API_KEY", "").strip()
+    agent_id = os.environ.get("BOLNA_AGENT_ID", "").strip()
+
+    if not api_key or not agent_id:
+        raise HTTPException(status_code=400, detail="Bolna.ai API Key or Agent ID not configured")
+
     db = mongodb.get_db()
-    start_week = start_of_current_week()
-    now = datetime.utcnow()
-
-    # ---------------------------
-    # Weekly call counts
-    # ---------------------------
-    total = await db.calls.count_documents({
-        "created_at": {"$gte": start_week}
+    
+    # Always fetch latest BASE_URL to ensure it reflects current ngrok/tunnel
+    current_base_url = os.environ.get("BASE_URL", "http://localhost:8000").strip()
+    
+    await db.calls.insert_one({
+        "call_id": lead_id,
+        "customer_id": phone_number,
+        "customer_name": "Phone Lead",
+        "transcript": "",
+        "status": "Initiating",
+        "created_at": datetime.utcnow(),
+        "language": "English/Hindi"
     })
 
-    positive = await db.calls.count_documents({
-        "created_at": {"$gte": start_week},
-        "sentiment": "positive"
-    })
-
-    rate = round((positive / total) * 100, 2) if total > 0 else 0
-
-    # ---------------------------
-    # ⭐ FINAL FIXED TRENDING TOPICS ⭐
-    # ---------------------------
-    # Guarantee:
-    #   - Only calls from this week
-    #   - Only unique topics per call
-    #   - Total topic count can NEVER exceed total calls
-    #
-    pipeline = [
-        {"$match": {"created_at": {"$gte": start_week}}},
-        
-        # remove duplicates inside a single call (e.g., ["billing","billing"])
-        {"$project": {"unique_tags": {"$setUnion": ["$tags", []]}}},
-        
-        {"$unwind": "$unique_tags"},
-
-        # group by tag but count only 1 per call
-        {"$group": {
-            "_id": "$unique_tags",
-            "count": {"$sum": 1}
-        }},
-
-        {"$sort": {"count": -1}},
-        {"$limit": 10}
-    ]
-
-    trending = await db.calls.aggregate(pipeline).to_list(length=10)
-
-    # Extra safety: ensure count never exceeds weekly total calls
-    for t in trending:
-        if t["count"] > total:
-            t["count"] = total
-
-    return {
-        "period": "current_week",
-        "week_start": start_week.isoformat() + "Z",
-        "week_end": now.isoformat() + "Z",
-        "total_calls": total,
-        "positive_calls": positive,
-        "conversion_rate": rate,
-        "topics": trending
+    url = "https://api.bolna.ai/call"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
     }
-    # -------------------------------------------------------
-# NEW API → GET CALLS BY TOPIC
-# -------------------------------------------------------
-@app.get("/calls/topic/{topic_name}")
-async def get_calls_by_topic(topic_name: str):
+    
+    bolna_payload = {
+        "agent_id": agent_id,
+        "recipient_phone_number": phone_number,
+        "webhook_url": f"{current_base_url}/webhooks/bolna",
+        "user_data": {
+            "lead_id": lead_id,
+            "customer_name": "Phone Lead",
+            "agent_name": "AI Agent"
+        }
+    }
+
+    try:
+        print(f"Triggering Bolna call to {phone_number} with webhook_url: {bolna_payload['webhook_url']}")
+        response = requests.post(url, json=bolna_payload, headers=headers, timeout=30)
+        
+        if not response.ok:
+            await db.calls.update_one({"call_id": lead_id}, {"$set": {"status": "Failed"}})
+            raise HTTPException(status_code=response.status_code, detail=f"Bolna Error: {response.text}")
+        
+        bolna_data = response.json()
+        execution_id = bolna_data.get("execution_id")
+        
+        if execution_id:
+            # Start a background polling task as a fallback for webhooks
+            asyncio.create_task(poll_bolna_execution(execution_id, lead_id, api_key))
+            
+        return bolna_data
+    except Exception as e:
+        await db.calls.update_one({"call_id": lead_id}, {"$set": {"status": "Error"}})
+        raise HTTPException(status_code=500, detail=f"API Error: {str(e)}")
+
+async def poll_bolna_execution(execution_id: str, lead_id: str, api_key: str):
+    """
+    Polls Bolna API for transcript updates in case webhooks fail.
+    """
     db = mongodb.get_db()
-    start_week = start_of_current_week()
+    url = f"https://api.bolna.ai/executions/{execution_id}"
+    headers = {"Authorization": f"Bearer {api_key}"}
+    
+    log_msg = f"Starting polling fallback for Execution {execution_id} (Lead: {lead_id})"
+    print(log_msg)
+    with open("bolna_polling.log", "a") as f:
+        f.write(f"{datetime.utcnow().isoformat()} - {log_msg}\n")
+    
+    # Poll for up to 10 minutes
+    for i in range(60): 
+        try:
+            await asyncio.sleep(10)
+            # Use run_in_threadpool for blocking requests.get
+            response = await run_in_threadpool(requests.get, url, headers=headers, timeout=15)
+            
+            if response.ok:
+                # Force UTF-8 decoding for Hindi/International characters
+                response.encoding = 'utf-8'
+                data = response.json()
+                transcript = data.get("transcript", "")
+                status = data.get("status", "Active")
+                
+                with open("bolna_polling.log", "a") as f:
+                    f.write(f"{datetime.utcnow().isoformat()} - Poll {i}: Status={status}, TranscriptLen={len(transcript)}\n")
 
-    cursor = (
-        db.calls.find({
-            "created_at": {"$gte": start_week},
-            "tags": topic_name
-        }).sort("created_at", -1)
-    )
+                if transcript:
+                    update_data = {
+                        "transcript": transcript,
+                        "last_poll_at": datetime.utcnow().isoformat() + "Z"
+                    }
+                    
+                    if status.lower() in ["completed", "finished", "ended"]:
+                        print(f"Polling: Call {lead_id} completed. Triggering analysis...")
+                        analysis_result = await run_in_threadpool(analyze_transcript_text, transcript)
+                        if analysis_result:
+                            update_data.update({
+                                "status": "Analyzed",
+                                "summary": analysis_result.get("summary"),
+                                "sentiment": analysis_result.get("sentiment"),
+                                "analysis": analysis_result
+                            })
+                        else:
+                            update_data["status"] = "Completed"
+                        
+                        await db.calls.update_one({"call_id": lead_id}, {"$set": update_data})
+                        break # Stop polling
+                    else:
+                        update_data["status"] = "Active"
+                        await db.calls.update_one({"call_id": lead_id}, {"$set": update_data})
+            else:
+                with open("bolna_polling.log", "a") as f:
+                    f.write(f"{datetime.utcnow().isoformat()} - Poll {i}: API Error {response.status_code}\n")
+                    
+        except Exception as e:
+            err_msg = f"Polling error for {lead_id}: {str(e)}"
+            print(err_msg)
+            with open("bolna_polling.log", "a") as f:
+                f.write(f"{datetime.utcnow().isoformat()} - {err_msg}\n")
+    
+    print(f"Finished polling fallback for {lead_id}")
 
-    results = []
-    async for doc in cursor:
+@app.post("/webhooks/bolna")
+async def bolna_webhook(data: dict = Body(...)):
+    db = mongodb.get_db()
+    
+    # Save to log file
+    with open("bolna_webhook.log", "a") as f:
+        f.write(f"{datetime.utcnow().isoformat()} - {json.dumps(data)}\n")
+        
+    print(f"WEBHOOK RECEIVED FROM BOLNA: {json.dumps(data)[:300]}...")
+    
+    user_data = data.get("user_data") or {}
+    if isinstance(user_data, str):
+        try: user_data = json.loads(user_data)
+        except: user_data = {}
+            
+    lead_id = user_data.get("lead_id") or data.get("lead_id") or data.get("call_id")
+    transcript = data.get("transcript") or data.get("conversation_history") or data.get("telephony_data", {}).get("transcript", "")
+    status = data.get("status", "Active")
+    
+    if not lead_id:
+        phone = data.get("recipient_phone_number") or data.get("telephony_data", {}).get("to_number")
+        if phone:
+            phone_clean = phone.replace('+', '').strip()
+            potential_call = await db.calls.find_one({
+                "customer_id": {"$regex": f"{phone_clean}$"}, 
+                "status": {"$in": ["Initiating", "Active"]}
+            })
+            if potential_call:
+                lead_id = potential_call["call_id"]
+
+    if lead_id:
+        update_data = {
+            "transcript": transcript,
+            "last_webhook_at": datetime.utcnow().isoformat() + "Z"
+        }
+        
+        if status.lower() in ["completed", "finished", "ended"]:
+            print(f"Call {lead_id} completed. Triggering AI Analysis...")
+            try:
+                analysis_result = await run_in_threadpool(analyze_transcript_text, transcript)
+                if analysis_result:
+                    update_data.update({
+                        "status": "Analyzed",
+                        "summary": analysis_result.get("summary"),
+                        "sentiment": analysis_result.get("sentiment"),
+                        "analysis": analysis_result
+                    })
+                else:
+                    update_data["status"] = "Completed"
+            except Exception as e:
+                print(f"Analysis failed for {lead_id}: {str(e)}")
+                update_data["status"] = "Completed"
+        else:
+            update_data["status"] = "Active"
+
+        await db.calls.update_one({"call_id": lead_id}, {"$set": update_data})
+    return {"status": "success"}
+
+@app.post("/process-audio")
+async def process_audio_api(
+    file: UploadFile = File(...), 
+    agent_name: str = Form("AI Agent"),
+    employee_id: str = Form(None),
+    employee_email: str = Form(None)
+):
+    temp_path = None
+    try:
+        timestamp = int(time.time() * 1000)
+        temp_path = f"temp_{timestamp}_{file.filename}"
+        with open(temp_path, "wb") as f:
+            f.write(await file.read())
+        
+        result = await run_in_threadpool(process_uploaded_audio, temp_path)
+        now = datetime.utcnow()
+        unique_call_id = f"call_{timestamp}"
+        doc = {
+            "call_id": unique_call_id,
+            "customer_id": result.get("analysis", {}).get("customer_name") or "Phone Lead",
+            "customer_name": result.get("analysis", {}).get("customer_name") or "Phone Lead",
+            "agent_name": agent_name,
+            "employee_id": employee_id,
+            "employee_email": employee_email,
+            "sentiment": str(result.get("sentiment", "neutral")).lower(),
+            "summary": result.get("summary"),
+            "transcript": result.get("transcript"),
+            "analysis": result.get("analysis", {}),
+            "created_at": now,
+            "status": "Analyzed"
+        }
+        db = mongodb.get_db()
+        await db.calls.insert_one(doc)
         doc["_id"] = None
-        if isinstance(doc.get("created_at"), datetime):
-            doc["created_at"] = doc["created_at"].isoformat() + "Z"
-        results.append(doc)
+        if temp_path and os.path.exists(temp_path): os.remove(temp_path)
+        return doc
+    except Exception as e:
+        print(f"ERROR PROCESSING AUDIO: {str(e)}")
+        if temp_path and os.path.exists(temp_path): os.remove(temp_path)
+        raise HTTPException(status_code=500, detail=str(e))
 
-    return {"topic": topic_name, "count": len(results), "calls": results}
+@app.get("/download/{report_type}")
+async def download_report(report_type: str):
+    # Mock download for demo
+    return {"status": "success", "message": f"{report_type} report ready"}
 
-# -------------------------------------------------------
-# RUN
-# -------------------------------------------------------
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

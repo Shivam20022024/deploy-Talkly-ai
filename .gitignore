@@ -12,6 +12,7 @@ __pycache__/
 venv/
 env/
 ENV/
+.venv/
 
 # Environment variables
 .env
@@ -56,3 +57,5 @@ Thumbs.db
 # ======================
 *.log
 *.tmp
+scratch/
+backend/transcripts/

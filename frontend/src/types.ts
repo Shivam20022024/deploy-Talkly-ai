@@ -1,97 +1,28 @@
-// ===============================
-// Sentiment Enum (UI Convenience)
-// ===============================
-export enum CallSentiment {
-  POSITIVE = "Positive",
-  NEUTRAL = "Neutral",
-  NEGATIVE = "Negative",
+export type LeadTemperature = "Hot" | "Warm" | "Cold";
+
+export interface PropertyRequirements {
+  budget?: string;
+  location?: string;
+  propertyType?: string;
+  timeline?: string;
+  loanRequired?: boolean;
+  investmentPurpose?: "Self-Use" | "Investment" | "N/A";
 }
 
-// ===============================
-// Data Shape Returned by Backend
-// (For GET /calls and GET /calls/{id})
-// ===============================
-export interface CallFromAPI {
-  call_id: string;
-  customer_id?: string;
-  duration_seconds?: number;
-  duration?: string;
-  sentiment?: string;
-  sentiment_confidence?: number;
-  sentiment_reason?: string;
-  emotion?: string;
-  summary?: string;
-  transcript?: string;
-  raw_transcript?: string;
-  refined_transcript?: string;
-  transcript_provider?: string;
-  transcript_refined?: boolean;
-  transcript_refiner?: string;
-  analysis_provider?: string;
-  tags?: string[];
-  analysis?: any;  
-  created_at?: string;
-  excel_path?: string;
-  transcript_path?: string;
-  analysis_raw?: string;
+export interface Objection {
+  type: string;
+  severity: "High" | "Medium" | "Low";
+  content: string;
 }
 
-// ===============================
-// Data Returned by POST /process-audio
-// (AI Processing Pipeline Output)
-// ===============================
-export interface APIAnalysisResponse {
-  call_id: string;
-  customer_id?: string;
-
-  transcript: string;
-  raw_transcript?: string;
-  refined_transcript?: string;
-  transcript_provider?: string;
-  transcript_refined?: boolean;
-  transcript_refiner?: string;
-  summary: string;
-  sentiment: string;
-  sentiment_confidence?: number;
-  sentiment_reason?: string;
-  emotion: string;
-
-  intents: string[];
-  analysis_provider?: string;
-
-  analysis: {
-    call_summary?: string;
-    customer_intent?: string;
-    key_points?: string[];
-    intent_detection?: string[];
-    sentiment_emotion?: {
-      sentiment: string;
-      emotion: string;
-    };
-    action_items?: string[];
-    root_cause?: any;
-    [k: string]: any;
-  };
-
-  qa?: {
-    score: number;
-    checks: {
-      rule: string;
-      passed: boolean;
-      note?: string;
-    }[];
-  };
-
-  analysis_raw?: string;
-
-  // Optional backend fields
-  excel_path?: string;
-  transcript_path?: string;
-  created_at?: string;
+export interface FollowUpRecommendation {
+  type: "WhatsApp" | "Email" | "Callback" | "Meeting";
+  content: string;
+  draft?: string;
+  priority: "High" | "Medium" | "Low";
 }
 
-
-  export interface CallInteraction {
+export interface CallInteraction {
   id: string;
   customerId?: string;
   customerName?: string;
@@ -101,33 +32,70 @@ export interface APIAnalysisResponse {
   durationSeconds?: number;
   sentiment: string;
   sentimentConfidence?: number;
+  emotion?: string;
   tags: string[];
   summary: string;
   transcript: string;
-  rawTranscript?: string;
-  refinedTranscript?: string;
-  transcriptProvider?: string;
-  transcriptRefined?: boolean;
-  transcriptRefiner?: string;
+  language: string;
+  languageConfidence?: number;
+  englishTranslation?: string;
+  
+  // AI Intelligence
+  leadTemperature: LeadTemperature;
+  intentScore: number; // 0-100
+  intentLabel?: string;
+  conversionProbability: number; // 0-100
+  propertyRequirements: PropertyRequirements;
+  objections: Objection[];
+  followUpRecommendations: FollowUpRecommendation[];
+  actionItems: string[];
+  
+  // Agent Analytics
+  agentPerformance?: {
+    talkRatio: number; // 0-1
+    interruptionCount: number;
+    closingStrength: number;
+    objectionHandlingScore: number;
+  };
+  
+  status: "Analyzed" | "Pending" | "Failed";
+}
+
+export interface CallFromAPI {
+  call_id: string;
+  customer_id?: string;
+  duration_seconds?: number;
+  duration?: string;
+  sentiment?: string;
   emotion?: string;
-  sentimentReason?: string;
-  analysisProvider?: string;
-  analysis?: any;
-  converted?: boolean;
+  summary?: string;
+  language?: string;
+  customer_name?: string;
+  agent_name?: string;
+  analysis?: {
+    customer_name?: string;
+    lead_temperature?: LeadTemperature;
+    intent_score?: number;
+    intent_label?: string;
+    conversion_probability?: number;
+    property_requirements?: PropertyRequirements;
+    objections?: Objection[];
+    follow_up_recommendations?: FollowUpRecommendation[];
+    action_items?: string[];
+    language_detected?: string;
+    english_translation?: string;
+    agent_performance?: any;
+    [k: string]: any;
+  };
+  created_at?: string;
 }
 
-// ===============================
-// Analytics View Type
-// ===============================
-export interface AnalyticsData {
-  totalCalls: number;
-  connectionRate: number;
-  avgDuration: string;
-  conversionRate: number;
-  volumeData: { name: string; calls: number }[];
-}
-
-// ===============================
-// View Routing
-// ===============================
-export type ViewState = "HOME" | "ANALYTICS" | "CALL_DETAIL";
+export type ViewState = 
+  | "DASHBOARD" 
+  | "LEADS" 
+  | "WHATSAPP_ANALYZER" 
+  | "LIVE_CALL" 
+  | "AGENT_ANALYTICS"
+  | "CALL_DETAIL"
+  | "LANDING"
+  | "LOGIN";
