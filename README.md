@@ -1,41 +1,92 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# TalklyAI - Revenue Intelligence Platform
 
-# Voice AI
+TalklyAI is an enterprise-grade conversation intelligence platform that transforms unstructured customer conversations into actionable sales intelligence. It helps sales teams detect buyer intent, automate lead scoring, and coach agents at scale.
 
-AI Voice Agent project with automation and multi-language support.
+## 🚀 Key Features
 
----
-
-## 🚀 Features
-- AI Voice Interaction
-- Backend API (Python)
-- Frontend (React + Vite)
-- Multi-language support
-
----
+- **Voice Intelligence**: Industry-leading transcription and entity extraction for complex sales cycles.
+- **Lead Intelligence**: Dynamic lead scoring that adapts to conversation context and intent markers.
+- **Agent Performance**: Real-time benchmarking against top performers with automated feedback loops.
+- **Live Conversation Monitoring**: Real-time oversight for managers to assist in high-stakes deal negotiations.
+- **Premium Login Page**: A secure, glassmorphic login interface for authorized access.
 
 ## 🛠 Tech Stack
-- Python (FastAPI / Flask)
-- React + Vite
-- Node.js
-- MongoDB (optional)
 
----
+### Frontend
+- **Framework**: React 18 with TypeScript
+- **Styling**: TailwindCSS
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Build Tool**: Vite
 
-## ⚙️ Run Locally
+### Backend
+- **Framework**: Python with FastAPI (Uvicorn)
+- **Database**: SQLite
+- **AI Integration**: Custom analysis pipeline for transcripts
+
+## 📁 Project Structure
+
+```text
+voice-ai/
+├── frontend/             # React application
+│   ├── src/
+│   │   ├── components/   # Reusable UI components (Sidebar, Tables, etc.)
+│   │   ├── views/        # Page views (Dashboard, Login, Landing, etc.)
+│   │   ├── contexts/     # Auth Context and state management
+│   │   └── App.tsx       # Main application & state-based routing
+└── backend/              # Python FastAPI server
+    ├── server.py         # API entry point
+    ├── requirements.txt  # Python dependencies
+    └── transcripts/      # Stored transcript data
+```
+
+## ⚙️ Local Setup
 
 ### Prerequisites
-- Node.js
-- Python 3.11+
-
----
+- Node.js (v16+)
+- Python (v3.11+)
 
 ### 1. Backend Setup
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv .venv
+   # On Windows:
+   .venv\Scripts\activate
+   # On macOS/Linux:
+   source .venv/bin/activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Start the server:
+   ```bash
+   python server.py
+   ```
 
-```bash
-cd backend
-python -m venv venv
-.\venv\Scripts\activate
-pip install -r ..\requirements.txt
+### 2. Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## 🔐 Access Credentials
+
+For demonstration purposes, you can use the following credentials on the login page:
+- **Email**: `admin@talkly.ai`
+- **Password**: `admin`
+
+---
+Built for modern sales teams.
