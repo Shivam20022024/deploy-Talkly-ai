@@ -12,7 +12,7 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#0D0B14] text-white overflow-hidden font-sans">
+    <div className="flex h-screen bg-gray-50 dark:bg-[#0D0B14] text-gray-900 dark:text-white overflow-hidden font-sans transition-colors">
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
@@ -28,7 +28,7 @@ export default function DashboardLayout({
 
       <div className="flex flex-col flex-1 overflow-hidden w-full">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto bg-[#0D0B14]">
+        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#0D0B14] transition-colors">
           {children}
         </main>
       </div>
