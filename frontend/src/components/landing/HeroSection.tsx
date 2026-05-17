@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { SparklesCore } from '../sparkles';
+import { BorderBeam } from '../ui/border-beam';
 
 const SparklesComponent = React.memo(() => (
   <SparklesCore
@@ -160,7 +161,7 @@ export const HeroSection = ({ onStart }: { onStart?: () => void }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-3xl sm:text-4xl md:text-4xl lg:text-6xl font-bold tracking-tight text-white mb-3 md:mb-4"
+          className="text-3xl sm:text-4xl md:text-4xl lg:text-6xl font-semibold tracking-tight text-white mb-3 md:mb-4"
         >
           Revenue <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">Intelligence</span>
         </motion.h1>
@@ -171,7 +172,7 @@ export const HeroSection = ({ onStart }: { onStart?: () => void }) => {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="text-xs sm:text-sm md:text-base text-gray-400 max-w-lg md:max-w-2xl mx-auto mb-6 sm:mb-8 md:mb-10 leading-relaxed px-2"
         >
-          Unlock AI-driven insights to accelerate your sales pipeline, close deals faster, and drive predictable revenue growth.
+         TalklyAI transforms unstructured customer conversations into actionable sales intelligence. Detect buyer intent, automate lead scoring, and coach agents at scale.
         </motion.p>
 
         <motion.div
@@ -208,6 +209,14 @@ export const HeroSection = ({ onStart }: { onStart?: () => void }) => {
           className="w-full max-w-[1200px] mx-auto mt-10 sm:mt-12 md:mt-12 relative z-20 -mb-40 sm:-mb-60 md:-mb-80 lg:-mb-90"
         >
           <div className="p-2 sm:p-3 md:p-5 rounded-xl sm:rounded-2xl md:rounded-[32px] bg-[#ffffff05] border border-white/10 backdrop-blur-md shadow-2xl relative z-10">
+            <BorderBeam
+              size={180}
+              duration={3}
+              initialOffset={50}
+              className="from-transparent via-[#DBB7F2] to-transparent"
+
+
+            />
             <div className="relative w-full aspect-[16/9] rounded-lg sm:rounded-xl overflow-hidden border border-white/10 bg-[#060610] shadow-[0_0_40px_rgba(219,183,242,0.15)]">
               <Image
                 src="/hero/Dashboard.png"

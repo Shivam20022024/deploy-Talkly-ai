@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
-import { Check } from 'lucide-react';
+import { AlertTriangle, BarChart3, Brain, Mic } from 'lucide-react';
+import { SectionBadge } from './SectionBadge';
 
 export const ValuePropSection = () => {
   const containerVariants: Variants = {
@@ -10,71 +11,125 @@ export const ValuePropSection = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.12,
       },
     },
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
   };
 
+  const stats = [
+    { value: '80%', label: 'of sales data is lost in unrecorded calls' },
+    { value: '2%', label: 'of total call volume gets reviewed by managers' },
+    { value: '67%', label: 'of leads are prioritized on gut-feeling alone' },
+  ];
+
+  const cards = [
+    {
+      icon: <Brain className="w-5 h-5" />,
+      title: 'Buyer Intent',
+      desc: 'Surface high-intent signals from every conversation to prioritize deals that are ready to close.',
+    },
+    {
+      icon: <AlertTriangle className="w-5 h-5" />,
+      title: 'Objection Mapping',
+      desc: 'Automatically track pricing concerns, trust blockers, and competitive mentions across all calls.',
+    },
+    {
+      icon: <BarChart3 className="w-5 h-5" />,
+      title: 'Sentiment Analysis',
+      desc: 'Monitor the emotional pulse of every deal to spot risks before they become lost revenue.',
+    },
+    {
+      icon: <Mic className="w-5 h-5" />,
+      title: 'Voice Intelligence',
+      desc: 'AI-powered analysis of client voice notes transformed into actionable, coachable insights.',
+    },
+  ];
+
   return (
-    <section className="py-32 px-8 bg-slate-50/50 dark:bg-slate-900/50">
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-24 items-center">
-        <motion.div 
+    <section className="relative pt-52 sm:pt-52 md:pt-76 lg:pt-[20rem] pb-24 sm:pb-32 md:pb-20 px-4 md:px-8 bg-[#0A0A1C] overflow-hidden">
+      {/* Subtle radial glow behind content */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[900px] md:h-[900px] rounded-full bg-[#DBB7F2]/[0.03] blur-[120px] pointer-events-none" />
+
+      <div className="max-w-6xl mx-auto relative z-10">
+        {/* Section header – centered */}
+        <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: '-80px' }}
           variants={containerVariants}
-          className="space-y-8"
+          className="text-center max-w-2xl mx-auto mb-16 md:mb-20"
         >
-          <motion.h2 variants={itemVariants} className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
-            Your Conversations are <br /> 
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-              Unstructured Revenue Data.
+          <motion.div variants={itemVariants}>
+            <SectionBadge label="The Problem" className="mb-6" />
+          </motion.div>
+          <motion.h2
+            variants={itemVariants}
+            className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-white leading-tight mb-5"
+          >
+            Your Conversations are{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+              Unstructured Revenue Data
             </span>
           </motion.h2>
-          <motion.p variants={itemVariants} className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-lg font-medium">
+          <motion.p
+            variants={itemVariants}
+            className="text-sm sm:text-base text-gray-400 leading-relaxed"
+          >
             Most sales teams only capture 20% of what happens in a call. The remaining 80%—the intent, the objections, the sentiment—is lost forever. TalklyAI builds the bridge between conversation and conversion.
           </motion.p>
-          <motion.div variants={containerVariants} className="space-y-6 pt-4">
-            {[
-              '80% of sales data is lost in unrecorded calls.',
-              'Managers can only review 2% of total call volume.',
-              'Lead prioritization is often based on gut-feeling.'
-            ].map((text, i) => (
-              <motion.div variants={itemVariants} key={i} className="flex items-center gap-4">
-                <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center border border-blue-200 dark:border-blue-800/50">
-                  <Check size={14} className="text-blue-600 dark:text-blue-400" />
-                </div>
-                <p className="text-md font-bold text-slate-800 dark:text-slate-200">{text}</p>
-              </motion.div>
-            ))}
-          </motion.div>
         </motion.div>
 
-        <motion.div 
+        {/* Stats row */}
+        <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: '-60px' }}
           variants={containerVariants}
-          className="grid grid-cols-2 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-16 md:mb-10"
         >
-          {[
-            { title: 'Buyer Intent', desc: 'Identify high-intent signals instantly.' },
-            { title: 'Objection Mapping', desc: 'Track every pricing and trust roadblock.' },
-            { title: 'Sentiment Analysis', desc: 'Monitor the emotional pulse of deals.' },
-            { title: 'Voice Note Intelligence', desc: 'AI-powered analysis of client voice notes for actionable insights.' }
-          ].map((item, i) => (
-            <motion.div 
-              variants={itemVariants} 
-              key={i} 
-              className="p-8 rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/20 dark:shadow-none hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300 group cursor-default"
+          {stats.map((stat, i) => (
+            <motion.div
+              variants={itemVariants}
+              key={i}
+              className="relative text-center py-6 sm:py-8 px-6 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm"
             >
-              <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{item.title}</h4>
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">{item.desc}</p>
+              <span className="block text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#DBB7F2] to-[#7A668A] mb-2">
+                {stat.value}
+              </span>
+              <p className="text-xs sm:text-sm text-gray-500 font-medium leading-snug">{stat.label}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Feature cards grid */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-60px' }}
+          variants={containerVariants}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5"
+        >
+          {cards.map((item, i) => (
+            <motion.div
+              variants={itemVariants}
+              key={i}
+              className="group relative p-6 sm:p-7 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.06] hover:border-[#DBB7F2]/20 hover:shadow-[0_0_40px_rgba(219,183,242,0.06)]"
+            >
+              {/* Icon */}
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#DBB7F2]/15 to-[#7A668A]/10 border border-[#DBB7F2]/10 flex items-center justify-center text-[#DBB7F2] mb-5 group-hover:from-[#DBB7F2]/25 group-hover:to-[#7A668A]/15 group-hover:border-[#DBB7F2]/20 transition-all duration-300">
+                {item.icon}
+              </div>
+              <h4 className="text-base font-semibold text-white mb-2 group-hover:text-[#DBB7F2] transition-colors duration-300">
+                {item.title}
+              </h4>
+              <p className="text-sm text-gray-500 leading-relaxed font-medium">
+                {item.desc}
+              </p>
             </motion.div>
           ))}
         </motion.div>

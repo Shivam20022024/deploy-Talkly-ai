@@ -1,185 +1,242 @@
 'use client';
 
 import React from 'react';
-import { motion, Variants } from 'framer-motion';
+import { motion, Variants, useInView } from 'framer-motion';
 import { PhoneIncoming, Sparkles, Layers, Target, LayoutDashboard } from 'lucide-react';
+import { SectionBadge } from './SectionBadge';
+
+/* ── Animated visual blocks for each step ── */
+
+const WaveformVisual = () => (
+  <div className="flex items-end justify-center gap-[3px] h-16">
+    {[...Array(12)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="w-1 rounded-full bg-gradient-to-t from-[#7A668A] to-[#DBB7F2]"
+        animate={{ height: [6, 20 + Math.random() * 28, 10, 30 + Math.random() * 20, 6] }}
+        transition={{ duration: 1.4 + Math.random() * 0.6, repeat: Infinity, delay: i * 0.08, ease: 'easeInOut' }}
+      />
+    ))}
+  </div>
+);
+
+const QuoteVisual = () => (
+  <div className="relative">
+    <div className="absolute -top-2 -left-1 text-[#DBB7F2]/20 text-3xl font-serif">"</div>
+    <motion.p
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 1, delay: 0.3 }}
+      className="text-xs italic text-gray-500 leading-relaxed pl-4"
+    >
+      I&apos;m looking for a 3BHK property in Gurgaon under 2 crore with modern amenities...
+    </motion.p>
+  </div>
+);
+
+const TagsVisual = () => {
+  const tags = ['High Intent', '₹2 Cr Budget', 'Gurgaon', 'Ready to Move', '3BHK', 'Modern'];
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {tags.map((tag, i) => (
+        <motion.span
+          key={i}
+          initial={{ opacity: 0, scale: 0.8, y: 10 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, delay: 0.15 * i, ease: 'easeOut' }}
+          className="px-2.5 py-1 rounded-md text-[10px] font-semibold tracking-wide uppercase bg-[#DBB7F2]/[0.08] border border-[#DBB7F2]/15 text-[#DBB7F2]/70"
+        >
+          {tag}
+        </motion.span>
+      ))}
+    </div>
+  );
+};
+
+const ScoreVisual = () => (
+  <div className="flex items-center gap-4">
+    <div className="relative w-16 h-16">
+      <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(219,183,242,0.08)" strokeWidth="4" />
+        <motion.circle
+          cx="32" cy="32" r="28" fill="none" stroke="url(#scoreGrad)" strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray={175.9}
+          initial={{ strokeDashoffset: 175.9 }}
+          whileInView={{ strokeDashoffset: 175.9 * (1 - 0.92) }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5, delay: 0.3, ease: 'easeOut' }}
+        />
+        <defs>
+          <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#7A668A" />
+            <stop offset="100%" stopColor="#DBB7F2" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <motion.span
+          className="text-sm font-bold text-[#DBB7F2]"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.8 }}
+        >
+          92
+        </motion.span>
+      </div>
+    </div>
+    <div>
+      <p className="text-xs font-bold text-[#DBB7F2]/80 uppercase tracking-widest">Hot Lead</p>
+      <p className="text-[10px] text-gray-600 mt-0.5">Auto-prioritized</p>
+    </div>
+  </div>
+);
+
+const CRMVisual = () => (
+  <div className="space-y-2.5">
+    {['CRM Sync', 'Task Created', 'Team Notified'].map((label, i) => (
+      <motion.div
+        key={i}
+        initial={{ opacity: 0, x: -10 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4, delay: 0.3 + i * 0.2 }}
+        className="flex items-center gap-2.5"
+      >
+        <motion.div
+          initial={{ scale: 0 }}
+          whileInView={{ scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.3, delay: 0.5 + i * 0.2, type: 'spring' }}
+          className="w-4 h-4 rounded-full bg-[#DBB7F2]/10 border border-[#DBB7F2]/20 flex items-center justify-center"
+        >
+          <motion.svg
+            initial={{ pathLength: 0, opacity: 0 }}
+            whileInView={{ pathLength: 1, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3, delay: 0.7 + i * 0.2 }}
+            className="w-2.5 h-2.5 text-[#DBB7F2]"
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </motion.svg>
+        </motion.div>
+        <span className="text-xs text-gray-500 font-medium">{label}</span>
+      </motion.div>
+    ))}
+  </div>
+);
+
+/* ── Main Section ── */
 
 export const WorkflowSection = () => {
+  const steps = [
+    { icon: PhoneIncoming, num: '01', title: 'Customer Speaks', desc: 'Every call, voice note, and conversation is captured in real time with zero manual effort.', visual: <QuoteVisual /> },
+    { icon: Sparkles, num: '02', title: 'AI Processing', desc: 'TalklyAI analyzes tone, intent, sentiment, and context across every interaction instantly.', visual: <WaveformVisual /> },
+    { icon: Layers, num: '03', title: 'Intelligence Extraction', desc: 'Unstructured conversations are transformed into structured, queryable data points.', visual: <TagsVisual /> },
+    { icon: Target, num: '04', title: 'Lead Qualification', desc: 'High-value leads are automatically scored and prioritized based on real conversation signals.', visual: <ScoreVisual /> },
+    { icon: LayoutDashboard, num: '05', title: 'Team Action', desc: 'Insights flow directly into your CRM, triggering tasks and notifications for your sales team.', visual: <CRMVisual /> },
+  ];
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.15 } },
   };
 
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+  const cardVariants: Variants = {
+    hidden: { opacity: 0, y: 40, scale: 0.97 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] } },
   };
 
   return (
-    <section className="py-32 px-8 relative overflow-hidden bg-slate-900 text-white">
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
-      
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-24 space-y-6">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold tracking-tight text-white"
+    <section className="relative py-24 sm:py-32 md:py-40 px-4 md:px-8 bg-[#0A0A1C] overflow-hidden">
+      {/* Ambient glows */}
+      <div className="absolute top-1/4 left-0 w-[400px] h-[400px] rounded-full bg-[#DBB7F2]/[0.015] blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] rounded-full bg-[#7A668A]/[0.02] blur-[120px] pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto relative z-10">
+        {/* Header */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-80px' }}
+          variants={containerVariants}
+          className="text-center max-w-2xl mx-auto mb-16 md:mb-24"
+        >
+          <motion.div variants={cardVariants}>
+            <SectionBadge label="How It Works" className="mb-6" />
+          </motion.div>
+          <motion.h2
+            variants={cardVariants}
+            className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-white leading-tight mb-5"
           >
-            How TalklyAI Turns <br /> 
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
-              Conversations Into Intelligence
+            From Conversations to{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+              Actionable Intelligence
             </span>
           </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-slate-400 max-w-2xl mx-auto font-medium"
+          <motion.p
+            variants={cardVariants}
+            className="text-sm sm:text-base text-gray-400 leading-relaxed"
           >
-            From raw customer conversations to actionable business insights in real time.
+            Five steps. Fully automated. From raw customer conversations to closed deals.
           </motion.p>
-        </div>
+        </motion.div>
 
-        <motion.div 
+        {/* Steps grid */}
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-1 md:grid-cols-5 gap-6 relative"
+          viewport={{ once: true, margin: '-40px' }}
+          className="space-y-5 sm:space-y-6"
         >
-          {/* Connecting Line */}
-          <div className="hidden md:block absolute top-[150px] left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-slate-800 via-blue-500/50 to-slate-800 z-0"></div>
+          {steps.map((step, i) => (
+            <motion.div
+              key={i}
+              variants={cardVariants}
+              className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-[#DBB7F2]/15 transition-all duration-500 overflow-hidden"
+            >
+              {/* Hover glow accent */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#DBB7F2]/[0.04] blur-[80px]" />
+              </div>
 
-          {/* Step 1: Customer Conversation */}
-          <motion.div variants={itemVariants} className="space-y-6 relative z-10">
-            <div className="h-[320px] rounded-3xl bg-slate-800/50 border border-slate-700/50 p-6 backdrop-blur-xl hover:bg-slate-800 hover:border-slate-600 transition-all group flex flex-col justify-between shadow-2xl">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-                    <PhoneIncoming size={18} className="text-blue-400" />
+              <div className="relative flex flex-col md:flex-row md:items-center gap-5 md:gap-8 p-6 sm:p-8">
+                {/* Step number */}
+                <div className="flex-shrink-0 flex items-center gap-4 md:gap-0 md:flex-col md:w-16">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#DBB7F2]/[0.08] to-[#7A668A]/[0.04] border border-[#DBB7F2]/10 flex items-center justify-center group-hover:from-[#DBB7F2]/15 group-hover:to-[#7A668A]/10 group-hover:border-[#DBB7F2]/20 transition-all duration-500">
+                    <span className="text-sm font-bold text-[#DBB7F2]/60 group-hover:text-[#DBB7F2] transition-colors duration-500">
+                      {step.num}
+                    </span>
                   </div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-slate-300">Incoming</span>
+                  {/* Connector line – visible only on mobile between number and content */}
+                  <step.icon size={16} className="md:hidden text-[#DBB7F2]/40" />
                 </div>
-                <div className="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50">
-                  <p className="text-sm italic text-slate-400">"I'm looking for a 3BHK property in Gurgaon under 2 crore."</p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h4 className="text-base font-bold text-white">1. Customer Speaks</h4>
-                <p className="text-xs leading-relaxed text-slate-400 font-medium">Customers interact through calls or voice notes.</p>
-              </div>
-            </div>
-          </motion.div>
 
-          {/* Step 2: AI Analysis */}
-          <motion.div variants={itemVariants} className="space-y-6 relative z-10">
-            <div className="h-[320px] rounded-3xl bg-slate-800/50 border border-slate-700/50 p-6 backdrop-blur-xl hover:bg-slate-800 hover:border-slate-600 transition-all group flex flex-col justify-between shadow-2xl">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
-                    <Sparkles size={18} className="text-indigo-400" />
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <step.icon size={16} strokeWidth={1.8} className="hidden md:block text-[#DBB7F2]/40 group-hover:text-[#DBB7F2]/70 transition-colors duration-500" />
+                    <h4 className="text-base sm:text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+                      {step.title}
+                    </h4>
                   </div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-slate-300">Analysis</span>
+                  <p className="text-sm text-gray-500 font-medium leading-relaxed group-hover:text-gray-400 transition-colors duration-500 max-w-lg">
+                    {step.desc}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2 h-16 px-2">
-                  {[...Array(6)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      animate={{ height: [8, 32, 16, 40, 8] }}
-                      transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.15 }}
-                      className="flex-1 bg-indigo-500/60 rounded-full w-2"
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h4 className="text-base font-bold text-white">2. AI Processing</h4>
-                <p className="text-xs leading-relaxed text-slate-400 font-medium">TalklyAI listens and analyzes every interaction instantly.</p>
-              </div>
-            </div>
-          </motion.div>
 
-          {/* Step 3: Intelligence Extraction */}
-          <motion.div variants={itemVariants} className="space-y-6 relative z-10">
-            <div className="h-[320px] rounded-3xl bg-slate-800/50 border border-slate-700/50 p-6 backdrop-blur-xl hover:bg-slate-800 hover:border-slate-600 transition-all group flex flex-col justify-between shadow-2xl">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
-                    <Layers size={18} className="text-purple-400" />
-                  </div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-slate-300">Extraction</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {['High Intent', '2 Cr Budget', 'Gurgaon', 'Ready Move'].map((tag, i) => (
-                    <div key={i} className="px-2 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg text-[10px] font-bold text-purple-300 text-center">
-                      {tag}
-                    </div>
-                  ))}
+                {/* Animated visual */}
+                <div className="flex-shrink-0 md:w-52 lg:w-60 mt-2 md:mt-0 pl-0 md:pl-4 md:border-l md:border-white/[0.04]">
+                  {step.visual}
                 </div>
               </div>
-              <div className="space-y-2">
-                <h4 className="text-base font-bold text-white">3. Data Extraction</h4>
-                <p className="text-xs leading-relaxed text-slate-400 font-medium">Transforms unstructured chats into structured points.</p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Step 4: Lead Qualification */}
-          <motion.div variants={itemVariants} className="space-y-6 relative z-10">
-            <div className="h-[320px] rounded-3xl bg-slate-800/50 border border-slate-700/50 p-6 backdrop-blur-xl hover:bg-slate-800 hover:border-slate-600 transition-all group flex flex-col justify-between shadow-2xl">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                    <Target size={18} className="text-emerald-400" />
-                  </div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-slate-300">Scoring</span>
-                </div>
-                <div className="bg-emerald-500/10 border border-emerald-500/20 p-5 rounded-2xl text-center">
-                  <p className="text-3xl font-black text-emerald-400">🔥 HOT</p>
-                  <p className="text-xs font-bold text-emerald-500/80 uppercase tracking-widest mt-2">Score: 92/100</p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h4 className="text-base font-bold text-white">4. Qualification</h4>
-                <p className="text-xs leading-relaxed text-slate-400 font-medium">High-value leads are automatically prioritized.</p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Step 5: Sales Action */}
-          <motion.div variants={itemVariants} className="space-y-6 relative z-10">
-            <div className="h-[320px] rounded-3xl bg-slate-800/50 border border-slate-700/50 p-6 backdrop-blur-xl hover:bg-slate-800 hover:border-slate-600 transition-all group flex flex-col justify-between shadow-2xl">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-                    <LayoutDashboard size={18} className="text-blue-400" />
-                  </div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-slate-300">Action</span>
-                </div>
-                <div className="space-y-3 bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50">
-                  <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      whileInView={{ width: '88%' }}
-                      transition={{ duration: 1, delay: 0.5 }}
-                      className="h-full bg-blue-500"
-                    ></motion.div>
-                  </div>
-                  <p className="text-xs font-medium text-slate-400">Push to CRM: <span className="text-blue-400">Success</span></p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h4 className="text-base font-bold text-white">5. Team Action</h4>
-                <p className="text-xs leading-relaxed text-slate-400 font-medium">Teams take faster, smarter action to close deals.</p>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          ))}
         </motion.div>
       </div>
     </section>

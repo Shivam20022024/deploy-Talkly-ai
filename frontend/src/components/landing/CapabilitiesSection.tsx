@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
 import { Mic, Target, Activity, Clock, Workflow, Lock } from 'lucide-react';
+import { SectionBadge } from './SectionBadge';
 
 export const CapabilitiesSection = () => {
   const capabilities = [
@@ -11,68 +12,113 @@ export const CapabilitiesSection = () => {
     { icon: Activity, title: 'Agent Performance', desc: 'Real-time benchmarking against top performers with automated feedback loops.' },
     { icon: Clock, title: 'Live Monitoring', desc: 'Real-time oversight for managers to assist in high-stakes deal negotiations.' },
     { icon: Workflow, title: 'Workflow Automation', desc: 'Seamlessly push extracted requirements and scores directly into your CRM.' },
-    { icon: Lock, title: 'Enterprise Security', desc: 'Enterprise-grade security with role-based access control and end-to-end encryption.' },
+    { icon: Lock, title: 'Enterprise Security', desc: 'Enterprise-grade security with role-based access and end-to-end encryption.' },
   ];
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
+      transition: { staggerChildren: 0.08 },
+    },
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } }
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
   };
 
   return (
-    <section className="py-32 px-8 bg-white dark:bg-slate-950">
-      <div className="max-w-7xl mx-auto">
-        <div className="max-w-3xl mb-24 space-y-6">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight"
-          >
-            Your Complete Sales <br /> 
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-              Conversation Intelligence Stack
-            </span>
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-slate-600 dark:text-slate-400 font-medium"
-          >
-            Voice intelligence, lead scoring, agent coaching, live conversation monitoring, and AI-powered business insights—all in one platform.
-          </motion.p>
-        </div>
+    <section className="relative py-24 sm:py-32 md:py-20 px-4 md:px-8 bg-[#0A0A1C] overflow-hidden">
+      {/* Subtle ambient glow */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-[#DBB7F2]/[0.02] blur-[100px] pointer-events-none" />
 
-        <motion.div 
+      <div className="max-w-5xl mx-auto relative z-10">
+        {/* Section header */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-80px' }}
+          variants={containerVariants}
+          className="text-center max-w-2xl mx-auto mb-14 md:mb-20"
+        >
+          <motion.div variants={itemVariants}>
+            <SectionBadge label="Capabilities" className="mb-6" />
+          </motion.div>
+          <motion.h2
+            variants={itemVariants}
+            className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-white leading-tight mb-5"
+          >
+            Your Complete{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+              Conversation Intelligence
+            </span>{' '}
+            Stack
+          </motion.h2>
+          <motion.p
+            variants={itemVariants}
+            className="text-sm sm:text-base text-gray-400 leading-relaxed"
+          >
+            Voice intelligence, lead scoring, agent coaching, live monitoring, and AI-powered insights—all in one platform.
+          </motion.p>
+        </motion.div>
+
+        {/* Capability cards – divider-separated grid */}
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+          viewport={{ once: true, margin: '-60px' }}
+          className="max-w-5xl mx-auto"
         >
-          {capabilities.map((item, i) => (
-            <motion.div 
-              key={i} 
-              variants={itemVariants}
-              className="p-10 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 hover:border-blue-200 dark:hover:border-blue-500/30 transition-all duration-300 group"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center mb-8 border border-slate-200 dark:border-slate-700 shadow-sm text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white dark:group-hover:bg-blue-500 dark:group-hover:text-white group-hover:scale-110 transition-all duration-300">
-                <item.icon size={26} strokeWidth={2.5} />
-              </div>
-              <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{item.title}</h4>
-              <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">{item.desc}</p>
-            </motion.div>
-          ))}
+          {/* Row 1 */}
+          <div className="grid grid-cols-1 sm:grid-cols-3">
+            {capabilities.slice(0, 3).map((item, i) => (
+              <motion.div
+                key={i}
+                variants={itemVariants}
+                className={`p-6 sm:p-8 group cursor-default hover:bg-white/[0.02] transition-all duration-300 ${i < 2 ? 'sm:border-r border-white/[0.06]' : ''}`}
+              >
+                <p className="text-sm sm:text-[15px] leading-relaxed">
+                  <item.icon
+                    size={15}
+                    strokeWidth={1.8}
+                    className="inline-block mr-2 -mt-0.5 text-[#DBB7F2]/50 group-hover:text-[#DBB7F2] transition-colors duration-300"
+                  />
+                  <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+                    {item.title}.
+                  </span>{' '}
+                  <span className="text-gray-500 font-medium group-hover:text-gray-400 transition-colors duration-300">{item.desc}</span>
+                </p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Horizontal divider */}
+          <div className="h-px bg-white/[0.06]" />
+
+          {/* Row 2 */}
+          <div className="grid grid-cols-1 sm:grid-cols-3">
+            {capabilities.slice(3, 6).map((item, i) => (
+              <motion.div
+                key={i + 3}
+                variants={itemVariants}
+                className={`p-6 sm:p-8 group cursor-default hover:bg-white/[0.02] transition-all duration-300 ${i < 2 ? 'sm:border-r border-white/[0.06]' : ''}`}
+              >
+                <p className="text-sm sm:text-[15px] leading-relaxed">
+                  <item.icon
+                    size={15}
+                    strokeWidth={1.8}
+                    className="inline-block mr-2 -mt-0.5 text-[#DBB7F2]/50 group-hover:text-[#DBB7F2] transition-colors duration-300"
+                  />
+                  <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+                    {item.title}.
+                  </span>{' '}
+                  <span className="text-gray-500 font-medium group-hover:text-gray-400 transition-colors duration-300">{item.desc}</span>
+                </p>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
