@@ -31,7 +31,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         });
         onLoginSuccess();
       } else {
-        setError('Invalid email or password. Use admin@talkly.ai / admin');
+        setError('Invalid email or password.');
       }
       setIsLoading(false);
     }, 1000);
@@ -64,6 +64,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             </div>
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">Welcome Back</h1>
             <p className="text-slate-500 text-sm font-medium">Log in to your TalklyAI account</p>
+            <div className="mt-4 p-2.5 bg-blue-50/50 rounded-xl border border-blue-100/50 flex items-center justify-center gap-2">
+              <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">Demo:</span>
+              <code className="text-xs text-blue-700 font-mono font-medium">admin@talkly.ai</code>
+              <span className="text-blue-300">/</span>
+              <code className="text-xs text-blue-700 font-mono font-medium">admin</code>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
