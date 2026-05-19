@@ -191,6 +191,7 @@ const Dashboard = () => {
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-gray-600 dark:text-gray-300">
               <ActivityRow 
+                id="call_1779052739265"
                 leadType="Phone Lead"
                 callId="#call_1779052739265"
                 language="English/Hindi"
@@ -202,6 +203,7 @@ const Dashboard = () => {
                 icon={Phone} 
               />
               <ActivityRow 
+                id="chat_928374928"
                 leadType="Website Chat"
                 callId="#chat_928374928"
                 language="English"
@@ -213,6 +215,7 @@ const Dashboard = () => {
                 icon={MessageSquare} 
               />
               <ActivityRow 
+                id="call_1779052745123"
                 leadType="Phone Lead"
                 callId="#call_1779052745123"
                 language="Hindi"
@@ -224,6 +227,7 @@ const Dashboard = () => {
                 icon={Phone} 
               />
               <ActivityRow 
+                id="wa_99128374"
                 leadType="WhatsApp Bot"
                 callId="#wa_99128374"
                 language="English"
@@ -260,7 +264,7 @@ const MetricCard = ({ icon: Icon, label, value, trend, trendColor = "text-purple
   </div>
 );
 
-const ActivityRow = ({ leadType, callId, language, temperature, intentScore, conversionProb, budget, location, icon: Icon }: any) => (
+const ActivityRow = ({ id, leadType, callId, language, temperature, intentScore, conversionProb, budget, location, icon: Icon }: any) => (
   <tr className="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors group cursor-pointer">
     <td className="px-5 py-4">
       <div className="flex items-center gap-3">
@@ -309,9 +313,12 @@ const ActivityRow = ({ leadType, callId, language, temperature, intentScore, con
         <button className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white p-1.5 rounded bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
           <MoreHorizontal className="w-4 h-4" />
         </button>
-        <button className="text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white p-1.5 rounded bg-purple-50 dark:bg-[#DBB7F2]/10 border border-purple-100 dark:border-[#DBB7F2]/20 hover:bg-purple-100 dark:hover:bg-[#DBB7F2]/20 transition-colors">
-          <ChevronRight className="w-4 h-4 text-purple-600 dark:text-[#DBB7F2]" />
-        </button>
+        <Link
+          href={`/lead-intelligence/${id}`}
+          className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-purple-600 dark:text-[#DBB7F2] p-1.5 rounded bg-purple-50 dark:bg-[#DBB7F2]/10 border border-purple-100 dark:border-[#DBB7F2]/20 hover:bg-purple-600 hover:text-white dark:hover:bg-[#DBB7F2]/20 transition-colors group/btn"
+        >
+          <ArrowUpRight className="w-4 h-4 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5 transition-transform" />
+        </Link>
       </div>
     </td>
   </tr>

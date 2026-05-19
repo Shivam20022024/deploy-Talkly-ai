@@ -1,11 +1,9 @@
 'use client';
 
 import React from 'react';
-import { motion, Variants, useInView } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { PhoneIncoming, Sparkles, Layers, Target, LayoutDashboard } from 'lucide-react';
 import { SectionBadge } from './SectionBadge';
-
-/* ── Animated visual blocks for each step ── */
 
 const WaveformVisual = () => (
   <div className="flex items-end justify-center gap-[3px] h-16">
@@ -22,11 +20,9 @@ const WaveformVisual = () => (
 
 const QuoteVisual = () => (
   <div className="relative">
-    <div className="absolute -top-2 -left-1 text-[#DBB7F2]/20 text-3xl font-serif">"</div>
+    <div className="absolute -top-2 -left-1 text-purple-300 dark:text-[#DBB7F2]/20 text-3xl font-serif">"</div>
     <motion.p
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
+      initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
       transition={{ duration: 1, delay: 0.3 }}
       className="text-xs italic text-gray-500 leading-relaxed pl-4"
     >
@@ -46,7 +42,7 @@ const TagsVisual = () => {
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.15 * i, ease: 'easeOut' }}
-          className="px-2.5 py-1 rounded-md text-[10px] font-semibold tracking-wide uppercase bg-[#DBB7F2]/[0.08] border border-[#DBB7F2]/15 text-[#DBB7F2]/70"
+          className="px-2.5 py-1 rounded-md text-[10px] font-semibold tracking-wide uppercase bg-purple-100 dark:bg-[#DBB7F2]/[0.08] border border-purple-200 dark:border-[#DBB7F2]/15 text-purple-600 dark:text-[#DBB7F2]/70"
         >
           {tag}
         </motion.span>
@@ -62,8 +58,7 @@ const ScoreVisual = () => (
         <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(219,183,242,0.08)" strokeWidth="4" />
         <motion.circle
           cx="32" cy="32" r="28" fill="none" stroke="url(#scoreGrad)" strokeWidth="4"
-          strokeLinecap="round"
-          strokeDasharray={175.9}
+          strokeLinecap="round" strokeDasharray={175.9}
           initial={{ strokeDashoffset: 175.9 }}
           whileInView={{ strokeDashoffset: 175.9 * (1 - 0.92) }}
           viewport={{ once: true }}
@@ -78,19 +73,15 @@ const ScoreVisual = () => (
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <motion.span
-          className="text-sm font-bold text-[#DBB7F2]"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          className="text-sm font-bold text-purple-600 dark:text-[#DBB7F2]"
+          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
           transition={{ delay: 0.8 }}
-        >
-          92
-        </motion.span>
+        >92</motion.span>
       </div>
     </div>
     <div>
-      <p className="text-xs font-bold text-[#DBB7F2]/80 uppercase tracking-widest">Hot Lead</p>
-      <p className="text-[10px] text-gray-600 mt-0.5">Auto-prioritized</p>
+      <p className="text-xs font-bold text-purple-600 dark:text-[#DBB7F2]/80 uppercase tracking-widest">Hot Lead</p>
+      <p className="text-[10px] text-gray-500 dark:text-gray-600 mt-0.5">Auto-prioritized</p>
     </div>
   </div>
 );
@@ -100,25 +91,19 @@ const CRMVisual = () => (
     {['CRM Sync', 'Task Created', 'Team Notified'].map((label, i) => (
       <motion.div
         key={i}
-        initial={{ opacity: 0, x: -10 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
+        initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
         transition={{ duration: 0.4, delay: 0.3 + i * 0.2 }}
         className="flex items-center gap-2.5"
       >
         <motion.div
-          initial={{ scale: 0 }}
-          whileInView={{ scale: 1 }}
-          viewport={{ once: true }}
+          initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }}
           transition={{ duration: 0.3, delay: 0.5 + i * 0.2, type: 'spring' }}
-          className="w-4 h-4 rounded-full bg-[#DBB7F2]/10 border border-[#DBB7F2]/20 flex items-center justify-center"
+          className="w-4 h-4 rounded-full bg-purple-100 dark:bg-[#DBB7F2]/10 border border-purple-200 dark:border-[#DBB7F2]/20 flex items-center justify-center"
         >
           <motion.svg
-            initial={{ pathLength: 0, opacity: 0 }}
-            whileInView={{ pathLength: 1, opacity: 1 }}
-            viewport={{ once: true }}
+            initial={{ pathLength: 0, opacity: 0 }} whileInView={{ pathLength: 1, opacity: 1 }} viewport={{ once: true }}
             transition={{ duration: 0.3, delay: 0.7 + i * 0.2 }}
-            className="w-2.5 h-2.5 text-[#DBB7F2]"
+            className="w-2.5 h-2.5 text-purple-600 dark:text-[#DBB7F2]"
             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -129,8 +114,6 @@ const CRMVisual = () => (
     ))}
   </div>
 );
-
-/* ── Main Section ── */
 
 export const WorkflowSection = () => {
   const steps = [
@@ -152,86 +135,70 @@ export const WorkflowSection = () => {
   };
 
   return (
-    <section className="relative py-24 sm:py-32 md:py-40 px-4 md:px-8 bg-[#0A0A1C] overflow-hidden">
-      {/* Ambient glows */}
-      <div className="absolute top-1/4 left-0 w-[400px] h-[400px] rounded-full bg-[#DBB7F2]/[0.015] blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] rounded-full bg-[#7A668A]/[0.02] blur-[120px] pointer-events-none" />
+    <section className="relative py-24 sm:py-32 md:py-40 px-4 md:px-8 bg-white dark:bg-[#0A0A1C] overflow-hidden">
+      <div className="absolute top-1/4 left-0 w-[400px] h-[400px] rounded-full bg-purple-100/40 dark:bg-[#DBB7F2]/[0.015] blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] rounded-full bg-purple-50/60 dark:bg-[#7A668A]/[0.02] blur-[120px] pointer-events-none" />
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
         <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }}
           variants={containerVariants}
           className="text-center max-w-2xl mx-auto mb-16 md:mb-24"
         >
-          <motion.div variants={cardVariants}>
-            <SectionBadge label="How It Works" className="mb-6" />
-          </motion.div>
-          <motion.h2
-            variants={cardVariants}
-            className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-white leading-tight mb-5"
-          >
+          <motion.div variants={cardVariants}><SectionBadge label="How It Works" className="mb-6" /></motion.div>
+          <motion.h2 variants={cardVariants} className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-gray-900 dark:text-white leading-tight mb-5">
             From Conversations to{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9B72C5] to-[#C49EE0] dark:from-[#DBB7F2] dark:to-[#EDDBF9]">
               Actionable Intelligence
             </span>
           </motion.h2>
-          <motion.p
-            variants={cardVariants}
-            className="text-sm sm:text-base text-gray-400 leading-relaxed"
-          >
+          <motion.p variants={cardVariants} className="text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed">
             Five steps. Fully automated. From raw customer conversations to closed deals.
           </motion.p>
         </motion.div>
 
-        {/* Steps grid */}
+        {/* Steps */}
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
+          variants={containerVariants} initial="hidden" whileInView="visible"
           viewport={{ once: true, margin: '-40px' }}
           className="space-y-5 sm:space-y-6"
         >
           {steps.map((step, i) => (
             <motion.div
-              key={i}
-              variants={cardVariants}
-              className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-[#DBB7F2]/15 transition-all duration-500 overflow-hidden"
+              key={i} variants={cardVariants}
+              className="group relative rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50 dark:bg-white/[0.02] hover:bg-white dark:hover:bg-white/[0.04] hover:border-purple-200 dark:hover:border-[#DBB7F2]/15 shadow-sm dark:shadow-none hover:shadow-md dark:hover:shadow-none transition-all duration-500 overflow-hidden"
             >
-              {/* Hover glow accent */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#DBB7F2]/[0.04] blur-[80px]" />
+                <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-purple-100/30 dark:bg-[#DBB7F2]/[0.04] blur-[80px]" />
               </div>
 
               <div className="relative flex flex-col md:flex-row md:items-center gap-5 md:gap-8 p-6 sm:p-8">
                 {/* Step number */}
                 <div className="flex-shrink-0 flex items-center gap-4 md:gap-0 md:flex-col md:w-16">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#DBB7F2]/[0.08] to-[#7A668A]/[0.04] border border-[#DBB7F2]/10 flex items-center justify-center group-hover:from-[#DBB7F2]/15 group-hover:to-[#7A668A]/10 group-hover:border-[#DBB7F2]/20 transition-all duration-500">
-                    <span className="text-sm font-bold text-[#DBB7F2]/60 group-hover:text-[#DBB7F2] transition-colors duration-500">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-purple-50 dark:bg-gradient-to-br dark:from-[#DBB7F2]/[0.08] dark:to-[#7A668A]/[0.04] border border-purple-100 dark:border-[#DBB7F2]/10 flex items-center justify-center group-hover:bg-purple-100 dark:group-hover:from-[#DBB7F2]/15 dark:group-hover:to-[#7A668A]/10 dark:group-hover:border-[#DBB7F2]/20 transition-all duration-500">
+                    <span className="text-sm font-bold text-purple-400 dark:text-[#DBB7F2]/60 group-hover:text-purple-600 dark:group-hover:text-[#DBB7F2] transition-colors duration-500">
                       {step.num}
                     </span>
                   </div>
-                  {/* Connector line – visible only on mobile between number and content */}
-                  <step.icon size={16} className="md:hidden text-[#DBB7F2]/40" />
+                  <step.icon size={16} className="md:hidden text-purple-400 dark:text-[#DBB7F2]/40" />
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2.5 mb-2">
-                    <step.icon size={16} strokeWidth={1.8} className="hidden md:block text-[#DBB7F2]/40 group-hover:text-[#DBB7F2]/70 transition-colors duration-500" />
-                    <h4 className="text-base sm:text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+                    <step.icon size={16} strokeWidth={1.8} className="hidden md:block text-purple-400 dark:text-[#DBB7F2]/40 group-hover:text-purple-600 dark:group-hover:text-[#DBB7F2]/70 transition-colors duration-500" />
+                    <h4 className="text-base sm:text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#9B72C5] to-[#C49EE0] dark:from-[#DBB7F2] dark:to-[#EDDBF9]">
                       {step.title}
                     </h4>
                   </div>
-                  <p className="text-sm text-gray-500 font-medium leading-relaxed group-hover:text-gray-400 transition-colors duration-500 max-w-lg">
+                  <p className="text-sm text-gray-500 font-medium leading-relaxed group-hover:text-gray-600 dark:group-hover:text-gray-400 transition-colors duration-500 max-w-lg">
                     {step.desc}
                   </p>
                 </div>
 
-                {/* Animated visual */}
-                <div className="flex-shrink-0 md:w-52 lg:w-60 mt-2 md:mt-0 pl-0 md:pl-4 md:border-l md:border-white/[0.04]">
+                {/* Visual */}
+                <div className="flex-shrink-0 md:w-52 lg:w-60 mt-2 md:mt-0 pl-0 md:pl-4 md:border-l md:border-gray-100 dark:md:border-white/[0.04]">
                   {step.visual}
                 </div>
               </div>

@@ -8,12 +8,7 @@ import { SectionBadge } from './SectionBadge';
 export const ValuePropSection = () => {
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.12,
-      },
-    },
+    visible: { opacity: 1, transition: { staggerChildren: 0.12 } },
   };
 
   const itemVariants: Variants = {
@@ -28,77 +23,46 @@ export const ValuePropSection = () => {
   ];
 
   const cards = [
-    {
-      icon: <Brain className="w-5 h-5" />,
-      title: 'Buyer Intent',
-      desc: 'Surface high-intent signals from every conversation to prioritize deals that are ready to close.',
-    },
-    {
-      icon: <AlertTriangle className="w-5 h-5" />,
-      title: 'Objection Mapping',
-      desc: 'Automatically track pricing concerns, trust blockers, and competitive mentions across all calls.',
-    },
-    {
-      icon: <BarChart3 className="w-5 h-5" />,
-      title: 'Sentiment Analysis',
-      desc: 'Monitor the emotional pulse of every deal to spot risks before they become lost revenue.',
-    },
-    {
-      icon: <Mic className="w-5 h-5" />,
-      title: 'Voice Intelligence',
-      desc: 'AI-powered analysis of client voice notes transformed into actionable, coachable insights.',
-    },
+    { icon: <Brain className="w-5 h-5" />, title: 'Buyer Intent', desc: 'Surface high-intent signals from every conversation to prioritize deals that are ready to close.' },
+    { icon: <AlertTriangle className="w-5 h-5" />, title: 'Objection Mapping', desc: 'Automatically track pricing concerns, trust blockers, and competitive mentions across all calls.' },
+    { icon: <BarChart3 className="w-5 h-5" />, title: 'Sentiment Analysis', desc: 'Monitor the emotional pulse of every deal to spot risks before they become lost revenue.' },
+    { icon: <Mic className="w-5 h-5" />, title: 'Voice Intelligence', desc: 'AI-powered analysis of client voice notes transformed into actionable, coachable insights.' },
   ];
 
   return (
-    <section className="relative pt-52 sm:pt-52 md:pt-76 lg:pt-[20rem] pb-24 sm:pb-32 md:pb-20 px-4 md:px-8 bg-[#0A0A1C] overflow-hidden">
-      {/* Subtle radial glow behind content */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[900px] md:h-[900px] rounded-full bg-[#DBB7F2]/[0.03] blur-[120px] pointer-events-none" />
+    <section className="relative pt-52 sm:pt-52 md:pt-76 lg:pt-[20rem] pb-24 sm:pb-32 md:pb-20 px-4 md:px-8 bg-gray-50 dark:bg-[#0A0A1C] overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[900px] md:h-[900px] rounded-full bg-purple-200/20 dark:bg-[#DBB7F2]/[0.03] blur-[120px] pointer-events-none" />
 
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Section header – centered */}
         <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }}
           variants={containerVariants}
           className="text-center max-w-2xl mx-auto mb-16 md:mb-20"
         >
-          <motion.div variants={itemVariants}>
-            <SectionBadge label="The Problem" className="mb-6" />
-          </motion.div>
-          <motion.h2
-            variants={itemVariants}
-            className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-white leading-tight mb-5"
-          >
+          <motion.div variants={itemVariants}><SectionBadge label="The Problem" className="mb-6" /></motion.div>
+          <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-gray-900 dark:text-white leading-tight mb-5">
             Your Conversations are{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9B72C5] to-[#C49EE0] dark:from-[#DBB7F2] dark:to-[#EDDBF9]">
               Unstructured Revenue Data
             </span>
           </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            className="text-sm sm:text-base text-gray-400 leading-relaxed"
-          >
+          <motion.p variants={itemVariants} className="text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed">
             Most sales teams only capture 20% of what happens in a call. The remaining 80%—the intent, the objections, the sentiment—is lost forever. TalklyAI builds the bridge between conversation and conversion.
           </motion.p>
         </motion.div>
 
-        {/* Stats row */}
+        {/* Stats */}
         <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-60px' }}
           variants={containerVariants}
           className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-16 md:mb-10"
         >
           {stats.map((stat, i) => (
             <motion.div
-              variants={itemVariants}
-              key={i}
-              className="relative text-center py-6 sm:py-8 px-6 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm"
+              variants={itemVariants} key={i}
+              className="relative text-center py-6 sm:py-8 px-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.06] shadow-sm dark:shadow-none backdrop-blur-sm"
             >
-              <span className="block text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#DBB7F2] to-[#7A668A] mb-2">
+              <span className="block text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#9B72C5] to-[#7A668A] dark:from-[#DBB7F2] dark:to-[#7A668A] mb-2">
                 {stat.value}
               </span>
               <p className="text-xs sm:text-sm text-gray-500 font-medium leading-snug">{stat.label}</p>
@@ -106,28 +70,24 @@ export const ValuePropSection = () => {
           ))}
         </motion.div>
 
-        {/* Feature cards grid */}
+        {/* Feature Cards */}
         <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-60px' }}
           variants={containerVariants}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5"
         >
           {cards.map((item, i) => (
             <motion.div
-              variants={itemVariants}
-              key={i}
-              className="group relative p-6 sm:p-7 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.06] hover:border-[#DBB7F2]/20 hover:shadow-[0_0_40px_rgba(219,183,242,0.06)]"
+              variants={itemVariants} key={i}
+              className="group relative p-6 sm:p-7 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.06] shadow-sm dark:shadow-none backdrop-blur-sm transition-all duration-300 hover:bg-gray-50 dark:hover:bg-white/[0.06] hover:border-purple-200 dark:hover:border-[#DBB7F2]/20 hover:shadow-md dark:hover:shadow-[0_0_40px_rgba(219,183,242,0.06)]"
             >
-              {/* Icon */}
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#DBB7F2]/15 to-[#7A668A]/10 border border-[#DBB7F2]/10 flex items-center justify-center text-[#DBB7F2] mb-5 group-hover:from-[#DBB7F2]/25 group-hover:to-[#7A668A]/15 group-hover:border-[#DBB7F2]/20 transition-all duration-300">
+              <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-gradient-to-br dark:from-[#DBB7F2]/15 dark:to-[#7A668A]/10 border border-purple-100 dark:border-[#DBB7F2]/10 flex items-center justify-center text-purple-600 dark:text-[#DBB7F2] mb-5 transition-all duration-300 group-hover:bg-purple-100 dark:group-hover:from-[#DBB7F2]/25 dark:group-hover:to-[#7A668A]/15 dark:group-hover:border-[#DBB7F2]/20">
                 {item.icon}
               </div>
-              <h4 className="text-base font-semibold text-white mb-2 group-hover:text-[#DBB7F2] transition-colors duration-300">
+              <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-purple-700 dark:group-hover:text-[#DBB7F2] transition-colors duration-300">
                 {item.title}
               </h4>
-              <p className="text-sm text-gray-500 leading-relaxed font-medium">
+              <p className="text-sm text-gray-500 dark:text-gray-500 leading-relaxed font-medium">
                 {item.desc}
               </p>
             </motion.div>

@@ -17,10 +17,7 @@ export const CapabilitiesSection = () => {
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08 },
-    },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
   };
 
   const itemVariants: Variants = {
@@ -29,92 +26,73 @@ export const CapabilitiesSection = () => {
   };
 
   return (
-    <section className="relative py-24 sm:py-32 md:py-20 px-4 md:px-8 bg-[#0A0A1C] overflow-hidden">
-      {/* Subtle ambient glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-[#DBB7F2]/[0.02] blur-[100px] pointer-events-none" />
+    <section className="relative py-24 sm:py-32 md:py-20 px-4 md:px-8 bg-gray-50 dark:bg-[#0A0A1C] overflow-hidden">
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-purple-200/20 dark:bg-[#DBB7F2]/[0.02] blur-[100px] pointer-events-none" />
 
       <div className="max-w-5xl mx-auto relative z-10">
-        {/* Section header */}
+        {/* Header */}
         <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }}
           variants={containerVariants}
           className="text-center max-w-2xl mx-auto mb-14 md:mb-20"
         >
-          <motion.div variants={itemVariants}>
-            <SectionBadge label="Capabilities" className="mb-6" />
-          </motion.div>
-          <motion.h2
-            variants={itemVariants}
-            className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-white leading-tight mb-5"
-          >
+          <motion.div variants={itemVariants}><SectionBadge label="Capabilities" className="mb-6" /></motion.div>
+          <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-gray-900 dark:text-white leading-tight mb-5">
             Your Complete{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9B72C5] to-[#C49EE0] dark:from-[#DBB7F2] dark:to-[#EDDBF9]">
               Conversation Intelligence
-            </span>{' '}
-            Stack
+            </span>{' '}Stack
           </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            className="text-sm sm:text-base text-gray-400 leading-relaxed"
-          >
+          <motion.p variants={itemVariants} className="text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed">
             Voice intelligence, lead scoring, agent coaching, live monitoring, and AI-powered insights—all in one platform.
           </motion.p>
         </motion.div>
 
-        {/* Capability cards – divider-separated grid */}
+        {/* Grid */}
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
+          variants={containerVariants} initial="hidden" whileInView="visible"
           viewport={{ once: true, margin: '-60px' }}
-          className="max-w-5xl mx-auto"
+          className="max-w-5xl mx-auto bg-white dark:bg-transparent rounded-2xl border border-gray-200 dark:border-transparent shadow-sm dark:shadow-none overflow-hidden"
         >
           {/* Row 1 */}
-          <div className="grid grid-cols-1 sm:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 dark:divide-white/[0.06]">
             {capabilities.slice(0, 3).map((item, i) => (
               <motion.div
-                key={i}
-                variants={itemVariants}
-                className={`p-6 sm:p-8 group cursor-default hover:bg-white/[0.02] transition-all duration-300 ${i < 2 ? 'sm:border-r border-white/[0.06]' : ''}`}
+                key={i} variants={itemVariants}
+                className="p-6 sm:p-8 group cursor-default hover:bg-purple-50/50 dark:hover:bg-white/[0.02] transition-all duration-300"
               >
                 <p className="text-sm sm:text-[15px] leading-relaxed">
                   <item.icon
-                    size={15}
-                    strokeWidth={1.8}
-                    className="inline-block mr-2 -mt-0.5 text-[#DBB7F2]/50 group-hover:text-[#DBB7F2] transition-colors duration-300"
+                    size={15} strokeWidth={1.8}
+                    className="inline-block mr-2 -mt-0.5 text-purple-400 dark:text-[#DBB7F2]/50 group-hover:text-purple-600 dark:group-hover:text-[#DBB7F2] transition-colors duration-300"
                   />
-                  <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+                  <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#9B72C5] to-[#C49EE0] dark:from-[#DBB7F2] dark:to-[#EDDBF9]">
                     {item.title}.
                   </span>{' '}
-                  <span className="text-gray-500 font-medium group-hover:text-gray-400 transition-colors duration-300">{item.desc}</span>
+                  <span className="text-gray-500 font-medium group-hover:text-gray-600 dark:group-hover:text-gray-400 transition-colors duration-300">{item.desc}</span>
                 </p>
               </motion.div>
             ))}
           </div>
 
-          {/* Horizontal divider */}
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px bg-gray-100 dark:bg-white/[0.06]" />
 
           {/* Row 2 */}
-          <div className="grid grid-cols-1 sm:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 dark:divide-white/[0.06]">
             {capabilities.slice(3, 6).map((item, i) => (
               <motion.div
-                key={i + 3}
-                variants={itemVariants}
-                className={`p-6 sm:p-8 group cursor-default hover:bg-white/[0.02] transition-all duration-300 ${i < 2 ? 'sm:border-r border-white/[0.06]' : ''}`}
+                key={i + 3} variants={itemVariants}
+                className="p-6 sm:p-8 group cursor-default hover:bg-purple-50/50 dark:hover:bg-white/[0.02] transition-all duration-300"
               >
                 <p className="text-sm sm:text-[15px] leading-relaxed">
                   <item.icon
-                    size={15}
-                    strokeWidth={1.8}
-                    className="inline-block mr-2 -mt-0.5 text-[#DBB7F2]/50 group-hover:text-[#DBB7F2] transition-colors duration-300"
+                    size={15} strokeWidth={1.8}
+                    className="inline-block mr-2 -mt-0.5 text-purple-400 dark:text-[#DBB7F2]/50 group-hover:text-purple-600 dark:group-hover:text-[#DBB7F2] transition-colors duration-300"
                   />
-                  <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">
+                  <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#9B72C5] to-[#C49EE0] dark:from-[#DBB7F2] dark:to-[#EDDBF9]">
                     {item.title}.
                   </span>{' '}
-                  <span className="text-gray-500 font-medium group-hover:text-gray-400 transition-colors duration-300">{item.desc}</span>
+                  <span className="text-gray-500 font-medium group-hover:text-gray-600 dark:group-hover:text-gray-400 transition-colors duration-300">{item.desc}</span>
                 </p>
               </motion.div>
             ))}

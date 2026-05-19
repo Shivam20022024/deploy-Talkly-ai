@@ -13,9 +13,7 @@ export const Navbar = () => {
 
   useEffect(() => {
     setMounted(true);
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -30,48 +28,48 @@ export const Navbar = () => {
 
   return (
     <>
-      <motion.nav 
+      <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`fixed left-0 right-0 z-[100] transition-all duration-300 mx-auto max-w-5xl px-4  ${
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className={`fixed left-0 right-0 z-[100] transition-all duration-300 mx-auto max-w-5xl px-4 ${
           isScrolled ? 'top-4' : 'top-6'
         }`}
       >
-        <div className={`flex items-center justify-between h-16 md:h-16 px-4 rounded-2xl transition-all duration-300 ${
-          isScrolled 
-            ? 'bg-[#181623]/90 backdrop-blur-xl border border-white/10 shadow-lg shadow-purple-900/20' 
-            : 'bg-[#181623]/60 backdrop-blur-md border border-white/5 shadow-sm'
+        <div className={`flex items-center justify-between h-16 px-4 rounded-2xl transition-all duration-300 ${
+          isScrolled
+            ? 'bg-white/90 dark:bg-[#181623]/90 backdrop-blur-xl border border-gray-200 dark:border-white/10 shadow-lg shadow-gray-300/40 dark:shadow-purple-900/20'
+            : 'bg-white/70 dark:bg-[#181623]/60 backdrop-blur-md border border-gray-200/60 dark:border-white/5 shadow-sm'
         }`}>
-          {/* Logo - Left */}
+          {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer">
             <div className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm bg-gradient-to-br from-[#DBB7F2] to-[#7A668A]">
               <span className="text-[#181623] font-black text-lg">T</span>
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">
-              Talkly<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DBB7F2] to-[#EDDBF9]">AI</span>
+            <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+              Talkly<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9B72C5] to-[#C49EE0] dark:from-[#DBB7F2] dark:to-[#EDDBF9]">AI</span>
             </span>
           </div>
 
-          {/* Nav Links - Center (Desktop) */}
+          {/* Nav Links – Desktop */}
           <div className="hidden md:flex items-center justify-center flex-1 mx-8 gap-8">
             {navLinks.map((link) => (
-              <a 
-                key={link.name} 
+              <a
+                key={link.name}
                 href={link.href}
-                className="text-sm font-semibold text-gray-400 hover:text-[#DBB7F2] transition-colors"
+                className="text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-[#7A668A] dark:hover:text-[#DBB7F2] transition-colors"
               >
                 {link.name}
               </a>
             ))}
           </div>
 
-          {/* Actions - Right (Desktop) */}
+          {/* Actions – Desktop */}
           <div className="hidden md:flex flex-shrink-0 items-center gap-4">
             {mounted && (
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2 text-gray-400 hover:text-[#DBB7F2] hover:bg-white/5 rounded-full transition-colors"
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-[#7A668A] dark:hover:text-[#DBB7F2] hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
                 aria-label="Toggle theme"
               >
                 {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
@@ -82,19 +80,19 @@ export const Navbar = () => {
             </button>
           </div>
 
-          {/* Mobile Actions */}
+          {/* Actions – Mobile */}
           <div className="md:hidden flex items-center gap-2">
             {mounted && (
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2 text-gray-400 hover:text-[#DBB7F2] hover:bg-white/5 rounded-full transition-colors"
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-[#7A668A] dark:hover:text-[#DBB7F2] hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
               >
                 {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
               </button>
             )}
-            <button 
+            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-400 hover:text-white p-2"
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white p-2"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -103,7 +101,7 @@ export const Navbar = () => {
         </div>
       </motion.nav>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -111,7 +109,7 @@ export const Navbar = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-4 top-28 z-[90] md:hidden rounded-2xl bg-[#181623]/95 backdrop-blur-xl shadow-2xl border border-white/10 overflow-hidden"
+            className="fixed inset-x-4 top-28 z-[90] md:hidden rounded-2xl bg-white/95 dark:bg-[#181623]/95 backdrop-blur-xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden"
           >
             <div className="px-4 pt-4 pb-6 space-y-2">
               {navLinks.map((link) => (
@@ -119,7 +117,7 @@ export const Navbar = () => {
                   key={link.name}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-3 rounded-xl text-base font-semibold text-gray-300 hover:text-[#DBB7F2] hover:bg-white/5 transition-colors"
+                  className="block px-4 py-3 rounded-xl text-base font-semibold text-gray-600 dark:text-gray-300 hover:text-[#7A668A] dark:hover:text-[#DBB7F2] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                 >
                   {link.name}
                 </a>
