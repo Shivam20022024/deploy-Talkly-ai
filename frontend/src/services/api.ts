@@ -1,7 +1,7 @@
 // src/services/api.ts
-import { APIAnalysisResponse, CallFromAPI } from "../types";
+import { CallFromAPI } from "../types";
 
-const BASE = (import.meta.env as any).VITE_API_URL || "http://localhost:8000";
+const BASE = ((import.meta as any).env as any).VITE_API_URL || "http://localhost:8000";
 
 async function handleJSON(res: Response) {
   if (!res.ok) {
@@ -44,7 +44,26 @@ export const api = {
     return handleJSON(res);
   },
 
-  downloadOverallExcel: () => { window.open(`${BASE}/download/overall`, "_blank"); },
+  downloadOverallExcel: async () => {
+    const res = await fetch(`${BASE}/download/overall`);
+    if (!res.ok) throw new Error("Failed to download report");
+    
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+        const json = await res.json();
+        throw new Error(json.message || "Failed to generate report (JSON returned)");
+    }
+    
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "TalklyAI_RealEstate_Report.xlsx";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  },
   downloadWeeklyCallsExcel: () => { window.open(`${BASE}/download/weekly-calls`, "_blank"); },
   downloadWeeklySalesExcel: () => { window.open(`${BASE}/download/weekly-sales`, "_blank"); },
 };

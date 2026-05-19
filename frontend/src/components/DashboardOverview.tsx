@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { 
   TrendingUp, 
   Users, 
@@ -6,7 +7,8 @@ import {
   Target, 
   BarChart3, 
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Loader2
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -28,6 +30,8 @@ interface DashboardOverviewProps {
 }
 
 const DashboardOverview: React.FC<DashboardOverviewProps> = ({ interactions }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const hotLeads = interactions.filter(i => i.leadTemperature === 'Hot').length;
   const avgIntent = interactions.length > 0 
     ? Math.round(interactions.reduce((acc, i) => acc + i.intentScore, 0) / interactions.length) 
@@ -59,8 +63,18 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ interactions }) =
     return { name: day, calls: count };
   });
 
-  const handleDownloadReport = () => {
-    api.downloadOverallExcel();
+  const handleDownloadReport = async () => {
+    try {
+      setIsDownloading(true);
+      toast.loading("Generating report...", { id: "report-toast" });
+      await api.downloadOverallExcel();
+      toast.success("Report downloaded successfully!", { id: "report-toast" });
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Failed to generate report", { id: "report-toast" });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -73,10 +87,18 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ interactions }) =
         <div className="flex gap-3">
           <button className="btn btn-outline">Last 7 Days</button>
           <button 
-            className="btn btn-primary"
+            className="btn btn-primary flex items-center gap-2 disabled:opacity-70"
             onClick={handleDownloadReport}
+            disabled={isDownloading}
           >
-            Download Report
+            {isDownloading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Generating Report...
+              </>
+            ) : (
+              "Download Report"
+            )}
           </button>
         </div>
       </div>

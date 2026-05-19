@@ -19,13 +19,14 @@ import requests
 import mimetypes
 import subprocess
 from datetime import datetime
-from fastapi import FastAPI, UploadFile, File, HTTPException, Body, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, Body, Form, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.concurrency import run_in_threadpool
 from process_audio import process_uploaded_audio, get_weekly_excel_file, analyze_transcript_text
 import mongodb
 from fastapi.responses import FileResponse
 from dotenv import load_dotenv
+from report_service import generate_multi_sheet_report
 
 from contextlib import asynccontextmanager
 
@@ -305,10 +306,35 @@ async def process_audio_api(
         if temp_path and os.path.exists(temp_path): os.remove(temp_path)
         raise HTTPException(status_code=500, detail=str(e))
 
+def cleanup_file(path: str):
+    try:
+        if os.path.exists(path):
+            os.remove(path)
+    except Exception as e:
+        print(f"Failed to cleanup temp file {path}: {e}")
+
 @app.get("/download/{report_type}")
-async def download_report(report_type: str):
-    # Mock download for demo
-    return {"status": "success", "message": f"{report_type} report ready"}
+async def download_report(report_type: str, background_tasks: BackgroundTasks):
+    db = mongodb.get_db()
+    cursor = db.calls.find().sort("created_at", -1)
+    calls_data = []
+    async for d in cursor:
+        d["_id"] = None
+        calls_data.append(d)
+        
+    try:
+        temp_file_path = await run_in_threadpool(generate_multi_sheet_report, calls_data)
+        background_tasks.add_task(cleanup_file, temp_file_path)
+        
+        filename = "TalklyAI_RealEstate_Report.xlsx"
+        return FileResponse(
+            temp_file_path,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            filename=filename
+        )
+    except Exception as e:
+        print(f"Error generating report: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate report")
 
 if __name__ == "__main__":
     import uvicorn

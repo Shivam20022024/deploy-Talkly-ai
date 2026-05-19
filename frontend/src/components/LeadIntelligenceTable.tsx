@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { 
   Search, 
   Filter, 
@@ -48,6 +49,22 @@ const LeadIntelligenceTable: React.FC<LeadIntelligenceTableProps> = ({ interacti
     }
   };
 
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      toast.loading("Generating report...", { id: "export-toast" });
+      await api.downloadOverallExcel();
+      toast.success("Report downloaded successfully!", { id: "export-toast" });
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Failed to export report", { id: "export-toast" });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="animate-fade-in">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -73,10 +90,11 @@ const LeadIntelligenceTable: React.FC<LeadIntelligenceTableProps> = ({ interacti
               Filters
             </button>
             <button 
-              className="btn btn-outline py-2 flex items-center gap-2"
-              onClick={() => api.downloadOverallExcel()}
+              className="btn btn-outline py-2 flex items-center gap-2 disabled:opacity-50"
+              onClick={handleExport}
+              disabled={isExporting}
             >
-              <Download size={16} />
+              {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
               Export
             </button>
           </div>

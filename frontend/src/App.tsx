@@ -11,6 +11,7 @@ import LoginPage from "./views/LoginPage";
 import { ViewState, CallInteraction, CallFromAPI } from "./types";
 import { api } from "./services/api";
 import { useAuth } from "./contexts/AuthContext";
+import { Toaster } from "react-hot-toast";
 
 function formatDuration(seconds?: number): string {
   if (typeof seconds !== "number" || Number.isNaN(seconds) || seconds <= 0) {
@@ -40,7 +41,7 @@ function mapApiCallToInteraction(apiCall: any): CallInteraction {
     language: String(apiCall.language || analysis.language_detected || "English"),
     
     // AI Intelligence
-    leadTemperature: String(analysis.lead_temperature || apiCall.lead_temperature || "Warm"),
+    leadTemperature: String(analysis.lead_temperature || apiCall.lead_temperature || "Warm") as "Hot" | "Warm" | "Cold",
     intentScore: Number(analysis.intent_score || apiCall.intent_score || 0) || 0,
     intentLabel: String(analysis.intent_label || "General Inquiry"),
     conversionProbability: Number(analysis.conversion_probability || apiCall.conversion_probability || 0) || 0,
@@ -62,7 +63,7 @@ function mapApiCallToInteraction(apiCall: any): CallInteraction {
       objectionHandlingScore: Number(analysis.agent_performance?.objectionHandlingScore || apiCall.agent_performance?.objectionHandlingScore || 0) || 0
     },
     
-    status: String(apiCall.status || "Pending")
+    status: String(apiCall.status || "Pending") as "Analyzed" | "Pending" | "Failed"
   };
 }
 
@@ -178,6 +179,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <Toaster position="top-right" />
       <Sidebar currentView={currentView === 'CALL_DETAIL' ? 'LEADS' : currentView} onNavigate={navigateTo} />
       
       <main className="main-content">

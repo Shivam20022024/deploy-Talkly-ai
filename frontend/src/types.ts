@@ -72,6 +72,8 @@ export interface CallFromAPI {
   language?: string;
   customer_name?: string;
   agent_name?: string;
+  transcript?: string;
+  status?: string;
   analysis?: {
     customer_name?: string;
     lead_temperature?: LeadTemperature;
