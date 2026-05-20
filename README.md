@@ -105,5 +105,14 @@ For demonstration purposes, you can use the following credentials on the login p
 - **Email**: `admin@talkly.ai`
 - **Password**: `admin`
 
+Future roadmap
+
+CRM integration
+Property inventory sync
+Payment workflows
+Document automation
+Broker portal
+Post-sales workflows
+
 ---
 Built for modern sales teams.
