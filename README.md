@@ -4,7 +4,7 @@ TalklyAI is an enterprise-grade conversation intelligence platform that transfor
 
 ## 📢 Recent Updates
 
-### New Feature Update: Create Account Page Added & Code Uploaded to GitHub
+### New Feature Update: Create Account Page Added
 
 We’ve introduced a new Create Account (User Registration) page to improve the onboarding experience for new users.
 
