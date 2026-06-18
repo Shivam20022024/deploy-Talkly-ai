@@ -20,8 +20,11 @@ const PAGE_TITLES: Record<string, string> = {
 
 export const Topbar = ({ onMenuClick }: TopbarProps) => {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => setMounted(true), []);
 
   const [user, setUser] = useState({ 
     name: 'Alex Smith', 
@@ -127,8 +130,9 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors"
             title="Toggle Theme"
+            suppressHydrationWarning
           >
-            {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            {mounted ? (theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />) : <div className="h-4 w-4" />}
           </button>
 
           {/* History Button */}
