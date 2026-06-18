@@ -241,7 +241,7 @@ export const HeroSection = ({ onStart }: { onStart?: () => void }) => {
               style={{ aspectRatio: '16 / 9' }}
             >
               <Image
-                src="/hero/dashboard.png"
+                src="/hero/Dashboard.png"
                 alt="TalklyAI Dashboard Preview"
                 width={1200}
                 height={675}
