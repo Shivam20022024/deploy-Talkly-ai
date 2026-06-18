@@ -56,6 +56,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from inbound.routes import inbound_router
+app.include_router(inbound_router, prefix="/api/v1/inbound")
+
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
 
 # Startup logic moved to lifespan context manager above
@@ -356,6 +359,23 @@ async def bolna_webhook(data: dict = Body(...)):
             })
             if potential_call:
                 lead_id = potential_call["call_id"]
+                
+        # If STILL no lead_id, it's a completely new inbound call!
+        if not lead_id:
+            customer_phone = data.get("telephony_data", {}).get("from_number") or data.get("caller_phone_number") or "Unknown Inbound"
+            lead_id = data.get("call_id") or data.get("execution_id") or f"inbound_{int(time.time()*1000)}"
+            
+            await db.calls.insert_one({
+                "call_id": lead_id,
+                "customer_id": customer_phone,
+                "customer_name": "Inbound Caller",
+                "direction": "inbound",
+                "transcript": "",
+                "status": "Active",
+                "created_at": datetime.utcnow(),
+                "language": "English/Hindi"
+            })
+            print(f"Created new INBOUND lead record: {lead_id} from {customer_phone}")
 
     if lead_id:
         update_data = {
@@ -428,6 +448,11 @@ async def process_audio_api(
 
 @app.get("/download/{report_type}")
 async def download_report(report_type: str):
+    if report_type == "excel":
+        file_path = os.path.join(BASE_DIR, "results", "analytics_results.xlsx")
+        if os.path.exists(file_path):
+            return FileResponse(file_path, filename="analytics_results.xlsx")
+        return {"status": "error", "message": "Report not found"}
     # Mock download for demo
     return {"status": "success", "message": f"{report_type} report ready"}
 

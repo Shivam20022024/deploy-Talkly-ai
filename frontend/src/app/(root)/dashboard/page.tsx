@@ -95,7 +95,13 @@ const Dashboard = () => {
           <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-1">Monitor your agents, active calls, and lead qualification metrics.</p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
-          <button className="px-4 py-2 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-white text-[13px] font-semibold rounded-lg border border-gray-200 dark:border-white/5 transition-colors shadow-sm dark:shadow-none">
+          <button 
+            onClick={() => {
+              const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+              window.open(`${apiUrl}/download/excel`, '_blank');
+            }}
+            className="px-4 py-2 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-white text-[13px] font-semibold rounded-lg border border-gray-200 dark:border-white/5 transition-colors shadow-sm dark:shadow-none"
+          >
             Export Report
           </button>
           {/* <button className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-grad-1 text-white dark:text-bg-dark-card text-[13px] font-bold rounded-lg shadow-lg shadow-brand-grad-1/20 hover:shadow-brand-grad-1/40 transition-shadow">

@@ -16,6 +16,7 @@ import {
   Code2,
   Mic,
   LogOut,
+  PhoneIncoming,
   Settings as SettingsIcon
 } from 'lucide-react';
 import Image from 'next/image';
@@ -24,6 +25,7 @@ const mainNav = [
   { name: 'Dashboard', icon: Zap, href: '/dashboard' },
   { name: 'Voice Intelligence', icon: Mic, href: '/voice-intelligence' },
   { name: 'Live Monitoring', icon: Activity, href: '/live-monitoring' },
+  { name: 'Inbound Calls', icon: PhoneIncoming, href: '/inbound' },
 ];
 
 const secondaryNav = [
