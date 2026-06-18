@@ -21,12 +21,13 @@ import subprocess
 from datetime import datetime
 from fastapi import FastAPI, UploadFile, File, HTTPException, Body, Form, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+import io
+import openpyxl
 from fastapi.concurrency import run_in_threadpool
 from process_audio import process_uploaded_audio, get_weekly_excel_file, analyze_transcript_text
 import mongodb
 from fastapi.responses import FileResponse
 from dotenv import load_dotenv
-from report_service import generate_multi_sheet_report
 
 from contextlib import asynccontextmanager
 
@@ -54,6 +55,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+from inbound.routes import inbound_router
+app.include_router(inbound_router, prefix="/api/v1/inbound")
 
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
 
@@ -140,6 +144,125 @@ async def trigger_bolna_call(payload: dict = Body(...)):
     except Exception as e:
         await db.calls.update_one({"call_id": lead_id}, {"$set": {"status": "Error"}})
         raise HTTPException(status_code=500, detail=f"API Error: {str(e)}")
+
+async def process_bulk_calls(phone_numbers: list):
+    api_key = os.environ.get("BOLNA_API_KEY", "").strip()
+    agent_id = os.environ.get("BOLNA_AGENT_ID", "").strip()
+    if not api_key or not agent_id:
+        return
+    db = mongodb.get_db()
+    current_base_url = os.environ.get("BASE_URL", "http://localhost:8000").strip()
+    url = "https://api.bolna.ai/call"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    for idx, phone in enumerate(phone_numbers):
+        phone_str = str(phone).strip()
+        if not phone_str:
+            continue
+            
+        lead_id = f"bulk_{int(time.time() * 1000)}_{idx}"
+        
+        await db.calls.insert_one({
+            "call_id": lead_id,
+            "customer_id": phone_str,
+            "customer_name": "Bulk Phone Lead",
+            "transcript": "",
+            "status": "Initiating",
+            "created_at": datetime.utcnow(),
+            "language": "English/Hindi"
+        })
+        
+        bolna_payload = {
+            "agent_id": agent_id,
+            "recipient_phone_number": phone_str,
+            "webhook_url": f"{current_base_url}/webhooks/bolna",
+            "user_data": {
+                "lead_id": lead_id,
+                "customer_name": "Bulk Phone Lead",
+                "agent_name": "AI Agent"
+            }
+        }
+        
+        try:
+            print(f"Triggering Bulk Bolna call to {phone_str} with webhook_url: {bolna_payload['webhook_url']}")
+            # Run blocking request in threadpool
+            response = await run_in_threadpool(requests.post, url, json=bolna_payload, headers=headers, timeout=30)
+            
+            if response.ok:
+                bolna_data = response.json()
+                execution_id = bolna_data.get("execution_id")
+                if execution_id:
+                    asyncio.create_task(poll_bolna_execution(execution_id, lead_id, api_key))
+            else:
+                await db.calls.update_one({"call_id": lead_id}, {"$set": {"status": "Failed"}})
+                print(f"Bolna Bulk Error for {phone_str}: {response.text}")
+        except Exception as e:
+            await db.calls.update_one({"call_id": lead_id}, {"$set": {"status": "Error"}})
+            print(f"API Bulk Error for {phone_str}: {str(e)}")
+            
+        await asyncio.sleep(0.5)
+
+@app.post("/calls/trigger-bulk")
+async def trigger_bolna_bulk(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        raise HTTPException(status_code=400, detail="Only .xlsx files are supported")
+        
+    contents = await file.read()
+    try:
+        wb = openpyxl.load_workbook(io.BytesIO(contents))
+        sheet = wb.active
+        
+        phone_numbers = []
+        header_row = next(sheet.iter_rows(min_row=1, max_row=1, values_only=True), None)
+        phone_col_idx = 0
+        
+        if header_row:
+            for idx, cell in enumerate(header_row):
+                if cell and str(cell).lower() in ["phone", "phone number", "phone_number", "number", "mobile"]:
+                    phone_col_idx = idx
+                    break
+                    
+        for row in sheet.iter_rows(min_row=2 if header_row else 1, values_only=True):
+            if row and len(row) > phone_col_idx and row[phone_col_idx]:
+                phone_numbers.append(row[phone_col_idx])
+                
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error reading Excel file: {str(e)}")
+        
+    if not phone_numbers:
+        raise HTTPException(status_code=400, detail="No phone numbers found in the Excel file.")
+        
+    background_tasks.add_task(process_bulk_calls, phone_numbers)
+    
+    return {
+        "status": "success",
+        "message": f"Successfully initiated bulk calls for {len(phone_numbers)} numbers.",
+        "count": len(phone_numbers)
+    }
+
+@app.post("/calls/send-email")
+async def send_email(payload: dict = Body(...)):
+    to_email = payload.get("to")
+    subject = payload.get("subject")
+    body = payload.get("body")
+    
+    if not to_email:
+        raise HTTPException(status_code=400, detail="Missing 'to' email address.")
+        
+    print(f"--- Simulating Email Send ---")
+    print(f"To: {to_email}")
+    print(f"Subject: {subject}")
+    print(f"Body Snippet: {str(body)[:100]}...")
+    print(f"-----------------------------")
+    
+    # Simulate network delay
+    await asyncio.sleep(1.5)
+    
+    return {"status": "success", "message": "Email simulated successfully."}
+
 
 async def poll_bolna_execution(execution_id: str, lead_id: str, api_key: str):
     """
@@ -236,6 +359,23 @@ async def bolna_webhook(data: dict = Body(...)):
             })
             if potential_call:
                 lead_id = potential_call["call_id"]
+                
+        # If STILL no lead_id, it's a completely new inbound call!
+        if not lead_id:
+            customer_phone = data.get("telephony_data", {}).get("from_number") or data.get("caller_phone_number") or "Unknown Inbound"
+            lead_id = data.get("call_id") or data.get("execution_id") or f"inbound_{int(time.time()*1000)}"
+            
+            await db.calls.insert_one({
+                "call_id": lead_id,
+                "customer_id": customer_phone,
+                "customer_name": "Inbound Caller",
+                "direction": "inbound",
+                "transcript": "",
+                "status": "Active",
+                "created_at": datetime.utcnow(),
+                "language": "English/Hindi"
+            })
+            print(f"Created new INBOUND lead record: {lead_id} from {customer_phone}")
 
     if lead_id:
         update_data = {
@@ -306,35 +446,15 @@ async def process_audio_api(
         if temp_path and os.path.exists(temp_path): os.remove(temp_path)
         raise HTTPException(status_code=500, detail=str(e))
 
-def cleanup_file(path: str):
-    try:
-        if os.path.exists(path):
-            os.remove(path)
-    except Exception as e:
-        print(f"Failed to cleanup temp file {path}: {e}")
-
 @app.get("/download/{report_type}")
-async def download_report(report_type: str, background_tasks: BackgroundTasks):
-    db = mongodb.get_db()
-    cursor = db.calls.find().sort("created_at", -1)
-    calls_data = []
-    async for d in cursor:
-        d["_id"] = None
-        calls_data.append(d)
-        
-    try:
-        temp_file_path = await run_in_threadpool(generate_multi_sheet_report, calls_data)
-        background_tasks.add_task(cleanup_file, temp_file_path)
-        
-        filename = "TalklyAI_RealEstate_Report.xlsx"
-        return FileResponse(
-            temp_file_path,
-            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            filename=filename
-        )
-    except Exception as e:
-        print(f"Error generating report: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to generate report")
+async def download_report(report_type: str):
+    if report_type == "excel":
+        file_path = os.path.join(BASE_DIR, "results", "analytics_results.xlsx")
+        if os.path.exists(file_path):
+            return FileResponse(file_path, filename="analytics_results.xlsx")
+        return {"status": "error", "message": "Report not found"}
+    # Mock download for demo
+    return {"status": "success", "message": f"{report_type} report ready"}
 
 if __name__ == "__main__":
     import uvicorn

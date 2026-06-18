@@ -38,8 +38,10 @@ async def ensure_indexes():
     await calls.create_index("call_id", unique=True)
     # Index by created_at for fast sorting
     await calls.create_index([("created_at", -1)])
-async def ensure_indexes():
-    db = get_db()
+    # Indexes for inbound calling queries
+    await calls.create_index("direction")
+    await calls.create_index("status")
+    await calls.create_index("intent")
 
     # ✅ WEEKLY AUTO DELETE
     await db.calls.create_index(

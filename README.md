@@ -2,23 +2,6 @@
 
 TalklyAI is an enterprise-grade conversation intelligence platform that transforms unstructured customer conversations into actionable sales intelligence. It helps sales teams detect buyer intent, automate lead scoring, and coach agents at scale.
 
-## 📢 Recent Updates
-
-### New Feature Update: Create Account Page Added
-
-We’ve introduced a new Create Account (User Registration) page to improve the onboarding experience for new users.
-
-#### What’s New
-- **Create Account / Sign Up Page Added**
-- New users can now register directly from the application.
-- Simple and user-friendly registration flow.
-- Improved authentication journey alongside the existing login functionality.
-
-#### Code Updates
-- Integrated frontend changes for the registration page.
-- Updated authentication flow and routing.
-- UI enhancements for a smoother user experience.
-
 ## 🚀 Key Features
 
 - **Voice Intelligence**: Industry-leading transcription and entity extraction for complex sales cycles.
@@ -104,6 +87,15 @@ voice-ai/
 For demonstration purposes, you can use the following credentials on the login page:
 - **Email**: `admin@talkly.ai`
 - **Password**: `admin`
+
+Future roadmap
+
+CRM integration
+Property inventory sync
+Payment workflows
+Document automation
+Broker portal
+Post-sales workflows
 
 ---
 Built for modern sales teams.
