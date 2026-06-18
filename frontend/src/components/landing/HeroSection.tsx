@@ -161,9 +161,9 @@ export const HeroSection = ({ onStart }: { onStart?: () => void }) => {
                 <Image
                   src="/logo-color.png"
                   alt="Logo"
-                  width={60}
-                  height={60}
-                  className="object-contain  "
+                  width={550}
+                  height={453}
+                  className="h-10 sm:h-11 md:h-14 w-auto flex-shrink-0 object-contain"
                   priority
                   unoptimized
                 />
@@ -236,22 +236,25 @@ export const HeroSection = ({ onStart }: { onStart?: () => void }) => {
               initialOffset={50}
               className="from-transparent via-brand-primary to-transparent"
             />
-            <div className="relative w-full aspect-video rounded-lg sm:rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-bg-dark-base shadow-[0_0_40px_rgba(59,130,246,0.15)]">
+            <div
+              className="relative w-full min-h-[220px] sm:min-h-[320px] md:min-h-[420px] rounded-lg sm:rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-bg-dark-base shadow-[0_0_40px_rgba(59,130,246,0.15)]"
+              style={{ aspectRatio: '16 / 9' }}
+            >
               <Image
                 src="/hero/dashboard.png"
                 alt="TalklyAI Dashboard Preview"
-                fill
-                sizes="(max-width: 768px) 100vw, 1200px"
-                className="object-cover dark:hidden"
+                width={1200}
+                height={675}
+                className="w-full h-full object-cover absolute top-0 left-0 transition-opacity duration-300 opacity-100 dark:opacity-0"
                 priority
                 unoptimized
               />
               <Image
                 src="/hero/dashboard-dark.png"
                 alt="TalklyAI Dashboard Preview"
-                fill
-                sizes="(max-width: 768px) 100vw, 1200px"
-                className="object-cover hidden dark:block"
+                width={1200}
+                height={675}
+                className="w-full h-full object-cover absolute top-0 left-0 transition-opacity duration-300 opacity-0 dark:opacity-100"
                 priority
                 unoptimized
               />
@@ -262,4 +265,3 @@ export const HeroSection = ({ onStart }: { onStart?: () => void }) => {
     </section>
   );
 };
-

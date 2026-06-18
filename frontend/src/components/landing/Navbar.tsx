@@ -58,18 +58,18 @@ export const Navbar = () => {
               <Image
                 src="/logo-white.png"
                 alt="Logo"
-                width={50}
-                height={50}
-                className="object-contain hidden dark:block"
+                width={550}
+                height={453}
+                className="h-[42px] w-auto flex-shrink-0 object-contain hidden dark:block"
                 priority
                 unoptimized
               />
               <Image
                 src="/logo-color.png"
                 alt="Logo"
-                width={50}
-                height={50}
-                className="object-contain   block dark:hidden"
+                width={550}
+                height={453}
+                className="h-[42px] w-auto flex-shrink-0 object-contain block dark:hidden"
                 priority
                 unoptimized
               />
@@ -162,4 +162,3 @@ export const Navbar = () => {
     </>
   );
 };
-
