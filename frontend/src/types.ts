@@ -58,7 +58,12 @@ export interface CallInteraction {
     objectionHandlingScore: number;
   };
   
-  status: "Analyzed" | "Pending" | "Failed";
+  status: "Analyzed" | "Pending" | "Failed" | "Active";
+  direction?: "inbound" | "outbound" | "unknown";
+  analysis?: {
+    action_items?: string[];
+  };
+  converted?: boolean;
 }
 
 export interface CallFromAPI {
@@ -90,6 +95,7 @@ export interface CallFromAPI {
     [k: string]: any;
   };
   created_at?: string;
+  direction?: string;
 }
 
 export type ViewState = 
@@ -100,4 +106,7 @@ export type ViewState =
   | "AGENT_ANALYTICS"
   | "CALL_DETAIL"
   | "LANDING"
-  | "LOGIN";
+  | "LOGIN"
+  | "PHONE_NUMBERS"
+  | "INBOUND_DASHBOARD"
+  | "LANGUAGE_ANALYTICS";

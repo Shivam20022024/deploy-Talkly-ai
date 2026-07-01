@@ -34,9 +34,7 @@ const secondaryNav = [
 ];
 
 const bottomNav = [
-  // { name: 'Integrations', icon: Blocks, href: '#' },
-  // { name: 'API Reference', icon: Code2, href: '#' },
-  // { name: 'Settings', icon: SettingsIcon, href: '#' },
+  { name: 'Org Settings', icon: SettingsIcon, href: '/settings' },
 ];
 
 interface SidebarProps {
@@ -148,7 +146,7 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
         {/* <div className="h-px bg-gray-200 dark:bg-white/5 mx-3" /> */}
 
         {/* Bottom Nav */}
-        {/* <div className="space-y-0.5">
+        <div className="space-y-0.5">
           {bottomNav.map((item) => {
             const isActive = item.href !== '#' && (pathname === item.href || pathname.startsWith(item.href + '/'));
             return (
@@ -158,7 +156,7 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
               </Link>
             );
           })}
-        </div> */}
+        </div>
       </nav>
 
       {/* Usage Stats & Pro Button */}

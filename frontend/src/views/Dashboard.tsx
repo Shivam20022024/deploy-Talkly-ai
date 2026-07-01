@@ -127,6 +127,24 @@ const Dashboard: React.FC<DashboardProps> = ({
     return langs.size || 1;
   }, [interactions]);
 
+  const languageDistribution = useMemo(() => {
+    const counts: Record<string, number> = {};
+    let total = 0;
+    interactions.forEach((i) => {
+      // Normalize language name slightly
+      const lang = i.language ? i.language.split('/')[0].trim() : "English";
+      counts[lang] = (counts[lang] || 0) + 1;
+      total++;
+    });
+    
+    if (total === 0) return [];
+    
+    return Object.entries(counts)
+      .map(([name, count]) => ({ name, value: Math.round((count / total) * 100) }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 4); // Top 4 languages
+  }, [interactions]);
+
   const sentimentData = useMemo(() => {
     const counts = { positive: 0, neutral: 0, negative: 0 };
     interactions.forEach((i) => {
@@ -463,7 +481,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         </h3>
                         <div className="space-y-3">
                            {actionItems && actionItems.length > 0 ? (
-                              actionItems.map((item, idx) => (
+                              actionItems.map((item: string, idx: number) => (
                                  <div key={idx} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-100 shadow-sm hover:border-blue-200 transition-colors group cursor-pointer">
                                     <div className="w-6 h-6 rounded-md border-2 border-slate-200 flex items-center justify-center group-hover:border-blue-500 group-hover:bg-blue-50 transition-colors">
                                        <Check size={14} className="text-blue-600 scale-0 group-hover:scale-100 transition-transform" />
@@ -579,10 +597,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <p className="text-sm text-slate-500 mb-6 relative z-10">Regional language processing dashboard.</p>
                 
                 <div className="space-y-5 relative z-10">
-                   <LanguageProgress label="Hindi" value={45} color="orange" />
-                   <LanguageProgress label="English" value={30} color="blue" />
-                   <LanguageProgress label="Hinglish" value={20} color="purple" />
-                   <LanguageProgress label="Other" value={5} color="slate" />
+                   {languageDistribution.length > 0 ? languageDistribution.map((lang, idx) => {
+                      const colors = ["blue", "orange", "purple", "emerald"];
+                      return <LanguageProgress key={idx} label={lang.name} value={lang.value} color={colors[idx % colors.length]} />
+                   }) : (
+                      <div className="text-slate-500 text-sm italic">No language data available.</div>
+                   )}
                 </div>
 
                 <div className="mt-8 p-4 bg-indigo-50 rounded-2xl border border-indigo-100 flex items-center gap-4">
@@ -599,8 +619,9 @@ const Dashboard: React.FC<DashboardProps> = ({
 
         </div>
 
-        <Card id="leads-table" className="border-none shadow-xl shadow-slate-200/50 rounded-3xl overflow-hidden bg-white">
-           <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div id="leads-table">
+          <Card className="border-none shadow-xl shadow-slate-200/50 rounded-3xl overflow-hidden bg-white">
+             <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div>
                  <h3 className="text-xl font-bold text-slate-900">Multilingual Lead Manager</h3>
                  <p className="text-sm text-slate-500 mt-1">Real-time intelligence from ongoing property sales conversations.</p>
@@ -710,7 +731,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                  </tbody>
               </table>
            </div>
-        </Card>
+          </Card>
+        </div>
 
       </div>
     </div>
@@ -826,6 +848,7 @@ const LanguageProgress: React.FC<{ label: string; value: number; color: string }
       orange: "bg-orange-500",
       purple: "bg-purple-500",
       slate: "bg-slate-500",
+      emerald: "bg-emerald-500"
    };
 
    return (

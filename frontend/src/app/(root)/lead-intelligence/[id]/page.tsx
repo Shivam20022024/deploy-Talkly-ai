@@ -12,6 +12,7 @@ import { useParams } from 'next/navigation';
 export default function LeadDetailView() {
   const params = useParams();
   const [callData, setCallData] = useState<any>(null);
+  const [timelineData, setTimelineData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Email Modal States
@@ -31,6 +32,18 @@ export default function LeadDetailView() {
         if (res.ok) {
           const data = await res.json();
           setCallData(data);
+          
+          // Fetch timeline if we have a customer ID
+          const customerId = data.customer_id;
+          if (customerId) {
+            const timelineRes = await fetch(`${apiUrl}/api/v1/customers/${encodeURIComponent(customerId)}/timeline`);
+            if (timelineRes.ok) {
+              const timelineJson = await timelineRes.json();
+              if (timelineJson.status === "success") {
+                setTimelineData(timelineJson.data);
+              }
+            }
+          }
         }
       } catch (error) {
         console.error("Failed to fetch call details:", error);
@@ -100,7 +113,7 @@ export default function LeadDetailView() {
     aiSummary: callData.analysis?.summary || "No summary available.",
     recommendedEmail: callData.analysis?.follow_up_recommendations?.[0]?.draft || "No draft available.",
     intelligence: {
-      intent: callData.analysis?.intent_score || 0,
+      intent: callData.analysis?.lead_score || callData.analysis?.intent_score || 0,
       conversion: callData.analysis?.conversion_probability || 0,
       requirements: {
         budget: callData.analysis?.property_requirements?.budget || "N/A",
@@ -251,10 +264,10 @@ export default function LeadDetailView() {
             </div>
 
             <div className="space-y-8">
-              {/* Buyer Intent */}
+              {/* Lead Score */}
               <div>
                 <div className="flex justify-between items-end mb-3">
-                  <h4 className="text-[13px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Buyer Intent Score</h4>
+                  <h4 className="text-[13px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Lead Score</h4>
                   <span className="text-xl font-bold text-gray-900 dark:text-white">{lead.intelligence.intent}%</span>
                 </div>
                 <div className="w-full h-2.5 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
@@ -329,6 +342,47 @@ export default function LeadDetailView() {
 
             </div>
           </div>
+        </div>
+      </div>
+      
+      {/* Customer Timeline */}
+      <div className="mt-8">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Customer Timeline</h3>
+        <div className="bg-white dark:bg-bg-dark-surface rounded-2xl border border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none overflow-hidden">
+          {timelineData.length === 0 ? (
+            <div className="p-6 text-center text-gray-500">No timeline data available.</div>
+          ) : (
+            <div className="divide-y divide-gray-100 dark:divide-white/5">
+              {timelineData.map((item, idx) => (
+                <div key={idx} className="p-6 flex flex-col sm:flex-row gap-4 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                  <div className="w-48 flex-shrink-0">
+                    <span className="text-[13px] font-medium text-gray-500 dark:text-gray-400">
+                      {new Date(item.date).toLocaleString()}
+                    </span>
+                    <div className="mt-1 flex gap-2">
+                       <span className="px-2 py-0.5 text-[11px] bg-theme-50 dark:bg-brand-primary/10 text-theme-600 dark:text-brand-primary rounded font-semibold uppercase">{item.direction}</span>
+                       <span className="px-2 py-0.5 text-[11px] bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 rounded font-semibold uppercase">{item.status}</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-theme-600 dark:text-brand-primary" />
+                      <span className="font-bold text-gray-900 dark:text-white">Call Interaction</span>
+                    </div>
+                    <p className="text-[14px] text-gray-600 dark:text-gray-300">
+                      {item.summary || "No summary available."}
+                    </p>
+                    {item.action_items && item.action_items.length > 0 && (
+                      <div className="mt-2">
+                        <span className="text-[12px] font-bold text-gray-900 dark:text-white">Action Items: </span>
+                        <span className="text-[13px] text-gray-600 dark:text-gray-400">{item.action_items.join(', ')}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       

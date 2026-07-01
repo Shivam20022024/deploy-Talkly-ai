@@ -22,6 +22,10 @@ type CallStatus = 'Idle' | 'Dialing' | 'Ringing' | 'Connected' | 'AI Speaking' |
 
 export default function LiveMonitoringPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [campaignLanguage, setCampaignLanguage] = useState('English');
+  const [aiVoice, setAiVoice] = useState('Default');
+  const [voiceGender, setVoiceGender] = useState('Female');
+  const [regionalAccent, setRegionalAccent] = useState('Default');
   const [isCallActive, setIsCallActive] = useState(false);
   const [callStatus, setCallStatus] = useState<CallStatus>('Idle');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -125,7 +129,14 @@ export default function LiveMonitoringPage() {
       const res = await fetch(`${apiUrl}/calls/trigger`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone_number: formattedPhone, lead_id: tempId })
+        body: JSON.stringify({ 
+          phone_number: formattedPhone, 
+          lead_id: tempId,
+          campaign_language: campaignLanguage,
+          ai_voice: aiVoice,
+          voice_gender: voiceGender,
+          regional_accent: regionalAccent
+        })
       });
       if (!res.ok) {
         const errorDetail = await res.text();
@@ -145,6 +156,10 @@ export default function LiveMonitoringPage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const formData = new FormData();
       formData.append('file', selectedFile);
+      formData.append('campaign_language', campaignLanguage);
+      formData.append('ai_voice', aiVoice);
+      formData.append('voice_gender', voiceGender);
+      formData.append('regional_accent', regionalAccent);
       
       const res = await fetch(`${apiUrl}/calls/trigger-bulk`, {
         method: 'POST',
@@ -284,7 +299,41 @@ export default function LiveMonitoringPage() {
                           className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-bg-dark-card border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-theme-500/20 focus:border-theme-500 dark:focus:border-brand-primary text-[15px] font-medium text-gray-900 dark:text-white outline-none transition-all shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-600"
                         />
                       </div>
-                      <button 
+                      
+                      {/* Advanced Settings */}
+                      <div className="grid grid-cols-2 gap-3 mt-4 mb-2">
+                        <select 
+                          value={campaignLanguage}
+                          onChange={(e) => setCampaignLanguage(e.target.value)}
+                          className="w-full px-3 py-2.5 bg-white dark:bg-bg-dark-card border border-gray-200 dark:border-white/10 rounded-lg text-[13px] font-medium text-gray-900 dark:text-white outline-none focus:border-theme-500"
+                        >
+                          <option value="English">English</option>
+                          <option value="Hindi">Hindi</option>
+                          <option value="Tamil">Tamil</option>
+                          <option value="Telugu">Telugu</option>
+                          <option value="Kannada">Kannada</option>
+                          <option value="Malayalam">Malayalam</option>
+                          <option value="Bengali">Bengali</option>
+                          <option value="Marathi">Marathi</option>
+                          <option value="Gujarati">Gujarati</option>
+                          <option value="Punjabi">Punjabi</option>
+                          <option value="Bhojpuri">Bhojpuri</option>
+                          <option value="Odia">Odia</option>
+                          <option value="Assamese">Assamese</option>
+                          <option value="Urdu">Urdu</option>
+                        </select>
+                        
+                        <select 
+                          value={voiceGender}
+                          onChange={(e) => setVoiceGender(e.target.value)}
+                          className="w-full px-3 py-2.5 bg-white dark:bg-bg-dark-card border border-gray-200 dark:border-white/10 rounded-lg text-[13px] font-medium text-gray-900 dark:text-white outline-none focus:border-theme-500"
+                        >
+                          <option value="Female">Female Voice</option>
+                          <option value="Male">Male Voice</option>
+                        </select>
+                      </div>
+
+                      <button  
                         onClick={startCall}
                         disabled={!phoneNumber}
                         className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-brand-primary to-brand-grad-1 text-bg-dark-card text-[14px] font-bold rounded-xl shadow-lg shadow-brand-grad-1/20 hover:shadow-brand-grad-1/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"

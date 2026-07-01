@@ -105,35 +105,37 @@ The JSON schema must be:
   "sentiment_confidence": 0.0-1.0,
   "sentiment_reason": "Brief explanation",
   "emotion": "dominant emotion",
-  "language_detected": "e.g. Hindi, Hinglish, English",
-    "intents": ["Purchase Inquiry", "Site Visit Request", "Price Negotiation"],
-    "lead_temperature": "Hot|Warm|Cold",
-    "intent_score": 85,
-    "intent_label": "High Intent Buyer",
-    "conversion_probability": 75,
-    "customer_name": "John Doe",
-    "property_requirements": {
-      "budget": "80L - 1.2Cr",
-      "location": "Sector 54",
-      "propertyType": "Flat",
-      "timeline": "3 months",
-      "loanRequired": true,
-      "investmentPurpose": "Self-Use"
-    },
-    "objections": [
-      { "type": "Price", "severity": "Medium", "content": "Slightly over budget" }
-    ],
-    "follow_up_recommendations": [
-      { "type": "WhatsApp", "priority": "High", "content": "Send brochure", "draft": "Hi John, here is the brochure..." }
-    ],
-    "action_items": ["Schedule site visit"],
-    "agent_performance": {
-      "talkRatio": 0.45,
-      "interruptionCount": 2,
-      "closingStrength": 8,
-      "objectionHandlingScore": 7
-    }
+  "detected_language": "Initial language detected (e.g., Hindi, English, Tamil, Hinglish)",
+  "preferred_language": "Language preferred by customer later in the call (if any switch occurred)",
+  "transcript_language": "Primary language of this transcript text",
+  "intents": ["Purchase Inquiry", "Site Visit Request", "Price Negotiation"],
+  "lead_temperature": "Hot|Warm|Cold",
+  "lead_score": 85,
+  "intent_label": "High Intent Buyer",
+  "conversion_probability": 75,
+  "customer_name": "John Doe",
+  "property_requirements": {
+    "budget": "80L - 1.2Cr",
+    "location": "Sector 54",
+    "propertyType": "Flat",
+    "timeline": "3 months",
+    "loanRequired": true,
+    "investmentPurpose": "Self-Use"
+  },
+  "key_objections": [
+    { "type": "Price", "severity": "Medium", "content": "Slightly over budget" }
+  ],
+  "follow_up_recommendations": [
+    { "type": "WhatsApp", "priority": "High", "content": "Send brochure", "draft": "Hi John, here is the brochure..." }
+  ],
+  "action_items": ["Schedule site visit"],
+  "agent_performance": {
+    "talkRatio": 0.45,
+    "interruptionCount": 2,
+    "closingStrength": 8,
+    "objectionHandlingScore": 7
   }
+}
 
 Transcript to analyze:
 """
@@ -332,8 +334,8 @@ def export_calls_to_excel(calls, path):
     ws.title = "Lead Intelligence Report"
     
     headers = [
-        "Date", "Customer Name", "Language", "Lead Temperature", 
-        "Intent Score (%)", "Conversion Prob (%)", "Budget", "Location", 
+        "Date", "Customer Name", "Detected Language", "Preferred Language", "Transcript Language", "Lead Temperature", 
+        "Lead Score (%)", "Conversion Prob (%)", "Budget", "Location", 
         "Property Type", "Timeline", "Summary", "Sentiment", "Action Items", "Call ID"
     ]
     ws.append(headers)
@@ -346,9 +348,11 @@ def export_calls_to_excel(calls, path):
         row = [
             dt_str,
             call.get("customer_name") or "Phone Lead",
-            call.get("language") or "English",
+            call.get("detected_language") or call.get("language") or "English",
+            call.get("preferred_language") or call.get("detected_language") or call.get("language") or "English",
+            call.get("transcript_language") or call.get("detected_language") or call.get("language") or "English",
             call.get("analysis", {}).get("lead_temperature") or "Warm",
-            call.get("analysis", {}).get("intent_score") or 0,
+            call.get("analysis", {}).get("lead_score") or call.get("analysis", {}).get("intent_score") or 0,
             call.get("analysis", {}).get("conversion_probability") or 0,
             reqs.get("budget") or "N/A",
             reqs.get("location") or "N/A",
@@ -373,7 +377,9 @@ def analyze_transcript_text(transcript):
             "summary": "No transcript available for analysis.",
             "sentiment": "neutral",
             "intents": [],
-            "language_detected": "Unknown",
+            "detected_language": "Unknown",
+            "preferred_language": "Unknown",
+            "transcript_language": "Unknown",
             "property_requirements": {},
             "action_items": []
         }
@@ -390,7 +396,9 @@ def analyze_transcript_text(transcript):
             "summary": "AI Analysis failed to process the transcript.",
             "sentiment": "neutral",
             "intents": [],
-            "language_detected": "Unknown",
+            "detected_language": "Unknown",
+            "preferred_language": "Unknown",
+            "transcript_language": "Unknown",
             "property_requirements": {},
             "action_items": []
         }
@@ -427,7 +435,9 @@ def process_uploaded_audio(audio_path):
     summary = result.get("summary") or "Summary not available"
     sentiment = result.get("sentiment") or "neutral"
     intents = result.get("intents") or []
-    language = result.get("language_detected") or "English"
+    detected_language = result.get("detected_language") or result.get("language_detected") or "English"
+    preferred_language = result.get("preferred_language") or detected_language
+    transcript_language = result.get("transcript_language") or detected_language
     
     customer_name = result.get("customer_name") or "Phone Lead"
     reqs = result.get("property_requirements") or {}
@@ -436,17 +446,20 @@ def process_uploaded_audio(audio_path):
     prop_type = reqs.get("propertyType") or "N/A"
     timeline = reqs.get("timeline") or "N/A"
     
-    intent_score = result.get("intent_score") or 0
+    lead_score = result.get("lead_score") or result.get("intent_score") or 0
     temp = result.get("lead_temperature") or "Warm"
     conv_prob = result.get("conversion_probability") or 0
     action_items = ", ".join(result.get("action_items", []))
+    key_objections = result.get("key_objections", [])
 
     safe_write(os.path.join("transcripts", base + ".txt"), transcript)
 
     row = {
         "Date": _now_ts(),
         "Customer Name": customer_name,
-        "Language": language,
+        "Language": detected_language,
+        "Preferred Language": preferred_language,
+        "Transcript Language": transcript_language,
         "Lead Temperature": temp,
         "Intent Score (%)": intent_score,
         "Conversion Prob (%)": conv_prob,
@@ -457,6 +470,7 @@ def process_uploaded_audio(audio_path):
         "Summary": summary,
         "Sentiment": sentiment,
         "Action Items": action_items,
+        "Lead Score": lead_score,
         "File Name": filename
     }
 
@@ -471,7 +485,10 @@ def process_uploaded_audio(audio_path):
         "summary": summary,
         "sentiment": sentiment,
         "intents": intents,
-        "language": language,
+        "language": detected_language,
+        "detected_language": detected_language,
+        "preferred_language": preferred_language,
+        "transcript_language": transcript_language,
         "analysis": result or {}
     }
 

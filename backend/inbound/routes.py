@@ -10,6 +10,39 @@ inbound_router = APIRouter()
 class TransferRequest(BaseModel):
     destination_number: str
 
+class PurchaseRequest(BaseModel):
+    area_code: str = ""
+
+class WebhookRequest(BaseModel):
+    webhook_url: str
+
+# Mock storage for phone numbers
+mock_phone_numbers = [
+    {"number": "+1234567890", "status": "active", "webhook_url": "https://example.com/api/v1/inbound/webhook"}
+]
+
+@inbound_router.get("/numbers")
+async def get_numbers():
+    return {"status": "success", "numbers": mock_phone_numbers}
+
+@inbound_router.post("/numbers/purchase")
+async def purchase_number(req: PurchaseRequest):
+    new_num = f"+1{req.area_code}5551234"
+    mock_phone_numbers.append({
+        "number": new_num,
+        "status": "active",
+        "webhook_url": ""
+    })
+    return {"status": "success", "number": new_num}
+
+@inbound_router.post("/numbers/{number}/webhook")
+async def configure_webhook(number: str, req: WebhookRequest):
+    for num in mock_phone_numbers:
+        if num["number"] == number:
+            num["webhook_url"] = req.webhook_url
+            return {"status": "success", "message": "Webhook updated"}
+    return {"status": "error", "message": "Number not found"}
+
 @inbound_router.post("/webhook")
 async def inbound_webhook(request: Request):
     """

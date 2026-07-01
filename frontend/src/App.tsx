@@ -8,6 +8,10 @@ import LiveCallAnalyzer from "./views/LiveCallAnalyzer";
 import AgentAnalytics from "./views/AgentAnalytics";
 import LandingPage from "./views/LandingPage";
 import LoginPage from "./views/LoginPage";
+import PhoneNumberManagement from "./views/PhoneNumberManagement";
+import InboundDashboard from "./components/InboundDashboard";
+import LanguageAnalytics from "./components/LanguageAnalytics";
+import HumanTransferPanel from "./components/HumanTransferPanel";
 import { ViewState, CallInteraction, CallFromAPI } from "./types";
 import { api } from "./services/api";
 import { useAuth } from "./contexts/AuthContext";
@@ -63,7 +67,8 @@ function mapApiCallToInteraction(apiCall: any): CallInteraction {
       objectionHandlingScore: Number(analysis.agent_performance?.objectionHandlingScore || apiCall.agent_performance?.objectionHandlingScore || 0) || 0
     },
     
-    status: String(apiCall.status || "Pending") as "Analyzed" | "Pending" | "Failed"
+    status: String(apiCall.status || "Pending") as "Analyzed" | "Pending" | "Failed",
+    direction: (apiCall.direction ? String(apiCall.direction).toLowerCase() : "outbound") as "inbound" | "outbound" | "unknown"
   };
 }
 
@@ -160,6 +165,12 @@ function App() {
         return <CallAnalysisDetail call={selectedCall} onBack={() => navigateTo('LEADS')} />;
       case "AGENT_ANALYTICS":
         return <AgentAnalytics interactions={interactions} />;
+      case "INBOUND_DASHBOARD":
+        return <InboundDashboard interactions={interactions} />;
+      case "LANGUAGE_ANALYTICS":
+        return <LanguageAnalytics interactions={interactions} />;
+      case "PHONE_NUMBERS":
+        return <PhoneNumberManagement />;
       case "LANDING":
         return <LandingPage onStart={() => navigateTo('LOGIN')} />;
       case "LOGIN":
@@ -205,6 +216,12 @@ function App() {
         </header>
 
         {renderView()}
+
+        <HumanTransferPanel 
+          call={interactions.find(i => i.status === 'Active' && i.intentLabel?.toLowerCase().includes('human')) || null}
+          onAccept={() => console.log('Accepted call')}
+          onDecline={() => console.log('Declined call')}
+        />
       </main>
     </div>
   );

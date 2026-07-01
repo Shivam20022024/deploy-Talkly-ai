@@ -15,6 +15,7 @@ import {
   Sparkles,
   Loader2
 } from 'lucide-react';
+import { api } from '../services/api';
 import { CallInteraction } from '../types';
 
 interface CallAnalysisDetailProps {
@@ -40,6 +41,21 @@ const CallAnalysisDetail: React.FC<CallAnalysisDetailProps> = ({ call, onBack })
       window.open(`mailto:?subject=Property Inquiry&body=${message}`, '_blank');
     } else {
       alert(`Action: ${rec.content}`);
+    }
+  };
+
+  const handleTransfer = async () => {
+    let phone = prompt("Enter the phone number to transfer to (e.g. +1234567890):");
+    if (!phone) return;
+    try {
+      const res = await api.transferCall(call.id, phone);
+      if (res.status === 'success') {
+        alert(`Transfer initiated to ${phone}`);
+      } else {
+        alert(res.message || 'Transfer failed');
+      }
+    } catch(err: any) {
+      alert(`Transfer failed: ${err.message}`);
     }
   };
 
@@ -75,8 +91,18 @@ const CallAnalysisDetail: React.FC<CallAnalysisDetailProps> = ({ call, onBack })
                   </span>
                 </div>
               </div>
-              <div className={`badge badge-${(call.leadTemperature || 'Warm').toLowerCase()}`}>
-                {call.leadTemperature || 'Warm'} Lead
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${call.direction === 'inbound' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                  {call.direction === 'inbound' ? 'INBOUND' : 'OUTBOUND'}
+                </span>
+                <div className={`badge badge-${(call.leadTemperature || 'Warm').toLowerCase()}`}>
+                  {call.leadTemperature || 'Warm'} Lead
+                </div>
+                {call.status === 'Active' && call.direction === 'inbound' && (
+                  <button onClick={handleTransfer} className="btn btn-primary text-xs py-1 px-3 ml-2">
+                    Transfer to Human
+                  </button>
+                )}
               </div>
             </div>
 

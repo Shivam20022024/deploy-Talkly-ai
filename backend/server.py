@@ -26,6 +26,10 @@ import openpyxl
 from fastapi.concurrency import run_in_threadpool
 from process_audio import process_uploaded_audio, get_weekly_excel_file, analyze_transcript_text
 import mongodb
+from services.language_service import LanguageService
+from services.intelligence_service import IntelligenceService
+language_service = LanguageService()
+intelligence_service = IntelligenceService()
 from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 
@@ -59,6 +63,18 @@ app.add_middleware(
 from inbound.routes import inbound_router
 app.include_router(inbound_router, prefix="/api/v1/inbound")
 
+@app.get("/api/v1/analytics/dashboard")
+async def get_analytics_dashboard():
+    db = mongodb.get_db()
+    metrics = await intelligence_service.get_dashboard_metrics(db)
+    return {"status": "success", "data": metrics}
+
+@app.get("/api/v1/customers/{customer_id}/timeline")
+async def get_customer_timeline(customer_id: str):
+    db = mongodb.get_db()
+    timeline = await intelligence_service.get_customer_timeline(db, customer_id)
+    return {"status": "success", "data": timeline}
+
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
 
 # Startup logic moved to lifespan context manager above
@@ -86,14 +102,21 @@ async def get_call(call_id: str):
 async def trigger_bolna_call(payload: dict = Body(...)):
     phone_number = payload.get("phone_number")
     lead_id = payload.get("lead_id")
+    campaign_language = payload.get("campaign_language", "English")
+    ai_voice = payload.get("ai_voice", "Default")
+    voice_gender = payload.get("voice_gender", "Female")
+    regional_accent = payload.get("regional_accent", "Default")
 
     api_key = os.environ.get("BOLNA_API_KEY", "").strip()
-    agent_id = os.environ.get("BOLNA_AGENT_ID", "").strip()
+    
+    db = mongodb.get_db()
+    
+    # 2. Dynamically fetch Agent ID based on Database mapping
+    agent_id = await language_service.get_agent_id_for_language(db, campaign_language)
 
     if not api_key or not agent_id:
         raise HTTPException(status_code=400, detail="Bolna.ai API Key or Agent ID not configured")
 
-    db = mongodb.get_db()
     
     # Always fetch latest BASE_URL to ensure it reflects current ngrok/tunnel
     current_base_url = os.environ.get("BASE_URL", "http://localhost:8000").strip()
@@ -102,10 +125,17 @@ async def trigger_bolna_call(payload: dict = Body(...)):
         "call_id": lead_id,
         "customer_id": phone_number,
         "customer_name": "Phone Lead",
+        "direction": "outbound",
         "transcript": "",
         "status": "Initiating",
         "created_at": datetime.utcnow(),
-        "language": "English/Hindi"
+        "language": campaign_language,
+        "detected_language": campaign_language,
+        "preferred_language": campaign_language,
+        "transcript_language": campaign_language,
+        "ai_voice": ai_voice,
+        "voice_gender": voice_gender,
+        "regional_accent": regional_accent
     })
 
     url = "https://api.bolna.ai/call"
@@ -121,9 +151,20 @@ async def trigger_bolna_call(payload: dict = Body(...)):
         "user_data": {
             "lead_id": lead_id,
             "customer_name": "Phone Lead",
-            "agent_name": "AI Agent"
+            "agent_name": "AI Agent",
+            "campaign_language": campaign_language,
+            "ai_voice": ai_voice,
+            "voice_gender": voice_gender,
+            "regional_accent": regional_accent
         }
     }
+
+    if campaign_language.lower() != "english":
+        bolna_payload["agent_config"] = {
+            "prompt": {
+                "system_prompt": f"You are an AI sales agent for TalklyAI. You MUST speak entirely in the {campaign_language} language. Please reply naturally in {campaign_language}."
+            }
+        }
 
     try:
         print(f"Triggering Bolna call to {phone_number} with webhook_url: {bolna_payload['webhook_url']}")
@@ -141,16 +182,22 @@ async def trigger_bolna_call(payload: dict = Body(...)):
             asyncio.create_task(poll_bolna_execution(execution_id, lead_id, api_key))
             
         return bolna_data
+    except HTTPException:
+        raise
     except Exception as e:
         await db.calls.update_one({"call_id": lead_id}, {"$set": {"status": "Error"}})
         raise HTTPException(status_code=500, detail=f"API Error: {str(e)}")
 
-async def process_bulk_calls(phone_numbers: list):
+async def process_bulk_calls(phone_numbers: list, campaign_language: str = "English", ai_voice: str = "Default", voice_gender: str = "Female", regional_accent: str = "Default"):
     api_key = os.environ.get("BOLNA_API_KEY", "").strip()
-    agent_id = os.environ.get("BOLNA_AGENT_ID", "").strip()
+    
+    db = mongodb.get_db()
+    
+    # Dynamically fetch Agent ID based on Database mapping
+    agent_id = await language_service.get_agent_id_for_language(db, campaign_language)
+    
     if not api_key or not agent_id:
         return
-    db = mongodb.get_db()
     current_base_url = os.environ.get("BASE_URL", "http://localhost:8000").strip()
     url = "https://api.bolna.ai/call"
     headers = {
@@ -169,10 +216,17 @@ async def process_bulk_calls(phone_numbers: list):
             "call_id": lead_id,
             "customer_id": phone_str,
             "customer_name": "Bulk Phone Lead",
+            "direction": "outbound",
             "transcript": "",
             "status": "Initiating",
             "created_at": datetime.utcnow(),
-            "language": "English/Hindi"
+            "language": campaign_language,
+            "detected_language": campaign_language,
+            "preferred_language": campaign_language,
+            "transcript_language": campaign_language,
+            "ai_voice": ai_voice,
+            "voice_gender": voice_gender,
+            "regional_accent": regional_accent
         })
         
         bolna_payload = {
@@ -182,9 +236,20 @@ async def process_bulk_calls(phone_numbers: list):
             "user_data": {
                 "lead_id": lead_id,
                 "customer_name": "Bulk Phone Lead",
-                "agent_name": "AI Agent"
+                "agent_name": "AI Agent",
+                "campaign_language": campaign_language,
+                "ai_voice": ai_voice,
+                "voice_gender": voice_gender,
+                "regional_accent": regional_accent
             }
         }
+        
+        if campaign_language.lower() != "english":
+            bolna_payload["agent_config"] = {
+                "prompt": {
+                    "system_prompt": f"You are an AI sales agent for TalklyAI. You MUST speak entirely in the {campaign_language} language. Please reply naturally in {campaign_language}."
+                }
+            }
         
         try:
             print(f"Triggering Bulk Bolna call to {phone_str} with webhook_url: {bolna_payload['webhook_url']}")
@@ -199,14 +264,24 @@ async def process_bulk_calls(phone_numbers: list):
             else:
                 await db.calls.update_one({"call_id": lead_id}, {"$set": {"status": "Failed"}})
                 print(f"Bolna Bulk Error for {phone_str}: {response.text}")
+        except HTTPException:
+            raise
         except Exception as e:
+            print(f"Error processing bulk call for {phone_str}: {e}")
             await db.calls.update_one({"call_id": lead_id}, {"$set": {"status": "Error"}})
             print(f"API Bulk Error for {phone_str}: {str(e)}")
             
         await asyncio.sleep(0.5)
 
 @app.post("/calls/trigger-bulk")
-async def trigger_bolna_bulk(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def trigger_bolna_bulk(
+    background_tasks: BackgroundTasks, 
+    file: UploadFile = File(...),
+    campaign_language: str = Form("English"),
+    ai_voice: str = Form("Default"),
+    voice_gender: str = Form("Female"),
+    regional_accent: str = Form("Default")
+):
     if not file.filename.endswith(('.xlsx', '.xls')):
         raise HTTPException(status_code=400, detail="Only .xlsx files are supported")
         
@@ -235,7 +310,7 @@ async def trigger_bolna_bulk(background_tasks: BackgroundTasks, file: UploadFile
     if not phone_numbers:
         raise HTTPException(status_code=400, detail="No phone numbers found in the Excel file.")
         
-    background_tasks.add_task(process_bulk_calls, phone_numbers)
+    background_tasks.add_task(process_bulk_calls, phone_numbers, campaign_language, ai_voice, voice_gender, regional_accent)
     
     return {
         "status": "success",
@@ -288,7 +363,7 @@ async def poll_bolna_execution(execution_id: str, lead_id: str, api_key: str):
                 # Force UTF-8 decoding for Hindi/International characters
                 response.encoding = 'utf-8'
                 data = response.json()
-                transcript = data.get("transcript", "")
+                transcript = data.get("transcript") or ""
                 status = data.get("status", "Active")
                 
                 with open("bolna_polling.log", "a") as f:
@@ -373,7 +448,10 @@ async def bolna_webhook(data: dict = Body(...)):
                 "transcript": "",
                 "status": "Active",
                 "created_at": datetime.utcnow(),
-                "language": "English/Hindi"
+                "language": "Detecting...",
+                "detected_language": "Unknown",
+                "preferred_language": "Unknown",
+                "transcript_language": "Unknown"
             })
             print(f"Created new INBOUND lead record: {lead_id} from {customer_phone}")
 
@@ -388,10 +466,15 @@ async def bolna_webhook(data: dict = Body(...)):
             try:
                 analysis_result = await run_in_threadpool(analyze_transcript_text, transcript)
                 if analysis_result:
+                    detected = analysis_result.get("detected_language") or analysis_result.get("language_detected") or "English"
                     update_data.update({
                         "status": "Analyzed",
                         "summary": analysis_result.get("summary"),
                         "sentiment": analysis_result.get("sentiment"),
+                        "language": detected,
+                        "detected_language": detected,
+                        "preferred_language": analysis_result.get("preferred_language") or detected,
+                        "transcript_language": analysis_result.get("transcript_language") or detected,
                         "analysis": analysis_result
                     })
                 else:
@@ -426,6 +509,7 @@ async def process_audio_api(
             "call_id": unique_call_id,
             "customer_id": result.get("analysis", {}).get("customer_name") or "Phone Lead",
             "customer_name": result.get("analysis", {}).get("customer_name") or "Phone Lead",
+            "direction": "outbound",
             "agent_name": agent_name,
             "employee_id": employee_id,
             "employee_email": employee_email,

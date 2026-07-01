@@ -8,7 +8,9 @@ import {
   BarChart3, 
   PhoneCall,
   LogOut,
-  Sparkles
+  Sparkles,
+  PhoneIncoming,
+  Globe
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -24,6 +26,9 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => {
     { id: 'WHATSAPP_ANALYZER' as ViewState, label: 'Voice Note Intelligence', icon: Mic },
     { id: 'LIVE_CALL' as ViewState, label: 'Live Analysis', icon: PhoneCall },
     { id: 'AGENT_ANALYTICS' as ViewState, label: 'Agent Performance', icon: BarChart3 },
+    { id: 'INBOUND_DASHBOARD' as ViewState, label: 'Inbound Calls', icon: PhoneIncoming },
+    { id: 'LANGUAGE_ANALYTICS' as ViewState, label: 'Language Analytics', icon: Globe },
+    { id: 'PHONE_NUMBERS' as ViewState, label: 'Phone Numbers', icon: PhoneCall },
   ];
 
   return (

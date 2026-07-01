@@ -66,4 +66,33 @@ export const api = {
   },
   downloadWeeklyCallsExcel: () => { window.open(`${BASE}/download/weekly-calls`, "_blank"); },
   downloadWeeklySalesExcel: () => { window.open(`${BASE}/download/weekly-sales`, "_blank"); },
+
+  getInboundNumbers: async (): Promise<any> => {
+    const res = await fetch(`${BASE}/api/v1/inbound/numbers`);
+    return handleJSON(res);
+  },
+  purchaseNumber: async (areaCode: string): Promise<any> => {
+    const res = await fetch(`${BASE}/api/v1/inbound/numbers/purchase`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ area_code: areaCode }),
+    });
+    return handleJSON(res);
+  },
+  configureWebhook: async (number: string, webhookUrl: string): Promise<any> => {
+    const res = await fetch(`${BASE}/api/v1/inbound/numbers/${encodeURIComponent(number)}/webhook`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ webhook_url: webhookUrl }),
+    });
+    return handleJSON(res);
+  },
+  transferCall: async (callId: string, destinationNumber: string): Promise<any> => {
+    const res = await fetch(`${BASE}/api/v1/inbound/${encodeURIComponent(callId)}/transfer`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ destination_number: destinationNumber }),
+    });
+    return handleJSON(res);
+  },
 };

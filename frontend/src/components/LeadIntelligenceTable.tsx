@@ -19,6 +19,11 @@ interface LeadIntelligenceTableProps {
 
 const LeadIntelligenceTable: React.FC<LeadIntelligenceTableProps> = ({ interactions, onSelectCall }) => {
   const [callingId, setCallingId] = useState<string | null>(null);
+  const [filterDirection, setFilterDirection] = useState<'all' | 'inbound' | 'outbound'>('all');
+
+  const filteredInteractions = interactions.filter(i => 
+    filterDirection === 'all' || (i.direction || 'outbound') === filterDirection
+  );
 
   const handleCallLead = async (callId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -85,6 +90,15 @@ const LeadIntelligenceTable: React.FC<LeadIntelligenceTableProps> = ({ interacti
             />
           </div>
           <div className="flex gap-2">
+            <select 
+              className="btn btn-outline py-2 border-slate-200 text-slate-600 outline-none cursor-pointer"
+              value={filterDirection}
+              onChange={(e) => setFilterDirection(e.target.value as any)}
+            >
+              <option value="all">All Directions</option>
+              <option value="inbound">Inbound</option>
+              <option value="outbound">Outbound</option>
+            </select>
             <button className="btn btn-outline py-2 flex items-center gap-2">
               <Filter size={16} />
               Filters
@@ -105,6 +119,7 @@ const LeadIntelligenceTable: React.FC<LeadIntelligenceTableProps> = ({ interacti
             <thead>
               <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">
                 <th className="px-6 py-4">Lead / Customer</th>
+                <th className="px-6 py-4">Direction</th>
                 <th className="px-6 py-4">Language</th>
                 <th className="px-6 py-4">Temperature</th>
                 <th className="px-6 py-4">Intent Score</th>
@@ -114,7 +129,7 @@ const LeadIntelligenceTable: React.FC<LeadIntelligenceTableProps> = ({ interacti
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {interactions.map((call) => (
+              {filteredInteractions.map((call) => (
                 <tr 
                   key={call.id} 
                   onClick={() => onSelectCall(call.id)}
@@ -127,6 +142,11 @@ const LeadIntelligenceTable: React.FC<LeadIntelligenceTableProps> = ({ interacti
                       </span>
                       <span className="text-[10px] text-slate-400 font-medium">#{call.id}</span>
                     </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${call.direction === 'inbound' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                      {call.direction === 'inbound' ? 'INBOUND' : 'OUTBOUND'}
+                    </span>
                   </td>
                   <td className="px-6 py-4 text-xs font-medium text-slate-600">{call.language}</td>
                   <td className="px-6 py-4">

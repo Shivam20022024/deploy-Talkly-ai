@@ -48,3 +48,7 @@ async def ensure_indexes():
         "expiresAt",
         expireAfterSeconds=0
     )
+
+    # Indexes for language routing
+    language_mappings = db.language_mappings
+    await language_mappings.create_index("language", unique=True)

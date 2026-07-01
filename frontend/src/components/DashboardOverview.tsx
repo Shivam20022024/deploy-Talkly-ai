@@ -31,17 +31,22 @@ interface DashboardOverviewProps {
 
 const DashboardOverview: React.FC<DashboardOverviewProps> = ({ interactions }) => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [filterDirection, setFilterDirection] = useState<'all' | 'inbound' | 'outbound'>('all');
 
-  const hotLeads = interactions.filter(i => i.leadTemperature === 'Hot').length;
-  const avgIntent = interactions.length > 0 
-    ? Math.round(interactions.reduce((acc, i) => acc + i.intentScore, 0) / interactions.length) 
+  const filteredInteractions = interactions.filter(i => 
+    filterDirection === 'all' || (i.direction || 'outbound') === filterDirection
+  );
+
+  const hotLeads = filteredInteractions.filter(i => i.leadTemperature === 'Hot').length;
+  const avgIntent = filteredInteractions.length > 0 
+    ? Math.round(filteredInteractions.reduce((acc, i) => acc + i.intentScore, 0) / filteredInteractions.length) 
     : 0;
-  const conversionRate = interactions.length > 0 
-    ? Math.round(interactions.reduce((acc, i) => acc + i.conversionProbability, 0) / interactions.length) 
+  const conversionRate = filteredInteractions.length > 0 
+    ? Math.round(filteredInteractions.reduce((acc, i) => acc + i.conversionProbability, 0) / filteredInteractions.length) 
     : 0;
 
   const stats = [
-    { label: 'Total Sales Calls', value: interactions.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', change: '+12%', up: true },
+    { label: 'Total Sales Calls', value: filteredInteractions.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', change: '+12%', up: true },
     { label: 'Hot Leads', value: hotLeads, icon: Flame, color: 'text-red-600', bg: 'bg-red-50', change: '+5%', up: true },
     { label: 'Avg Buyer Intent', value: `${avgIntent}%`, icon: Target, color: 'text-purple-600', bg: 'bg-purple-50', change: '+8%', up: true },
     { label: 'Conv. Probability', value: `${conversionRate}%`, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50', change: '-2%', up: false },
@@ -49,14 +54,14 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ interactions }) =
 
   const leadTempData = [
     { name: 'Hot', value: hotLeads, color: '#ef4444' },
-    { name: 'Warm', value: interactions.filter(i => i.leadTemperature === 'Warm').length, color: '#f59e0b' },
-    { name: 'Cold', value: interactions.filter(i => i.leadTemperature === 'Cold').length, color: '#3b82f6' },
+    { name: 'Warm', value: filteredInteractions.filter(i => i.leadTemperature === 'Warm').length, color: '#f59e0b' },
+    { name: 'Cold', value: filteredInteractions.filter(i => i.leadTemperature === 'Cold').length, color: '#3b82f6' },
   ];
 
   // Group interactions by day of week for the chart
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const weeklyCallsData = days.map(day => {
-    const count = interactions.filter(i => {
+    const count = filteredInteractions.filter(i => {
       const date = new Date(i.date);
       return days[date.getDay()] === day;
     }).length;
@@ -85,6 +90,26 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ interactions }) =
           <p className="text-slate-400">AI-powered intelligence and actionable insights from customer voice conversations</p>
         </div>
         <div className="flex gap-3">
+          <div className="bg-slate-100 p-1 rounded-xl flex items-center mr-2">
+            <button 
+              onClick={() => setFilterDirection('all')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${filterDirection === 'all' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              All Calls
+            </button>
+            <button 
+              onClick={() => setFilterDirection('inbound')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${filterDirection === 'inbound' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Inbound
+            </button>
+            <button 
+              onClick={() => setFilterDirection('outbound')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${filterDirection === 'outbound' ? 'bg-white shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Outbound
+            </button>
+          </div>
           <button className="btn btn-outline">Last 7 Days</button>
           <button 
             className="btn btn-primary flex items-center gap-2 disabled:opacity-70"
