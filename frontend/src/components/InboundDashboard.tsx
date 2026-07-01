@@ -18,8 +18,8 @@ export default function InboundDashboard({ interactions }: InboundDashboardProps
     ? Math.round((analyzedCalls.length / totalCalls) * 100) 
     : 0;
 
-  const avgDuration = inboundCalls.length > 0
-    ? Math.round(inboundCalls.reduce((acc, curr) => acc + curr.durationSeconds, 0) / inboundCalls.length)
+  const avgDuration = inboundCalls.length > 0 
+    ? Math.round(inboundCalls.reduce((acc, curr) => acc + (curr.durationSeconds || 0), 0) / inboundCalls.length) 
     : 0;
 
   return (
