@@ -125,11 +125,11 @@ const AgentAnalytics: React.FC<AgentAnalyticsProps> = ({ interactions }) => {
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={stats.agentData.length > 1 ? stats.agentData : [
-                { name: 'Mon', conversion: 40 },
-                { name: 'Tue', conversion: 55 },
-                { name: 'Wed', conversion: 48 },
-                { name: 'Thu', conversion: 70 },
-                { name: 'Fri', conversion: 65 },
+                { name: 'Mon', conversion: 40, calls: 10, avgClosing: "8/10" },
+                { name: 'Tue', conversion: 55, calls: 15, avgClosing: "8/10" },
+                { name: 'Wed', conversion: 48, calls: 12, avgClosing: "8/10" },
+                { name: 'Thu', conversion: 70, calls: 20, avgClosing: "8/10" },
+                { name: 'Fri', conversion: 65, calls: 18, avgClosing: "8/10" },
               ]}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12}} />
