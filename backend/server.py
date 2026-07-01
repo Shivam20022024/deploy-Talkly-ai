@@ -63,6 +63,11 @@ app.add_middleware(
 from inbound.routes import inbound_router
 app.include_router(inbound_router, prefix="/api/v1/inbound")
 
+@app.get("/")
+@app.head("/")
+async def health_check():
+    return {"status": "ok", "service": "TalklyAI Backend"}
+
 @app.get("/api/v1/analytics/dashboard")
 async def get_analytics_dashboard():
     db = mongodb.get_db()
