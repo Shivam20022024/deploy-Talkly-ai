@@ -109,4 +109,5 @@ export type ViewState =
   | "LOGIN"
   | "PHONE_NUMBERS"
   | "INBOUND_DASHBOARD"
-  | "LANGUAGE_ANALYTICS";
+  | "LANGUAGE_ANALYTICS"
+  | "ANALYTICS";
