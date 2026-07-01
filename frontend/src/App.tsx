@@ -136,7 +136,7 @@ function App() {
           <div className="text-red-500 mb-4 text-4xl">⚠️</div>
           <h3 className="text-xl font-bold mb-2">Connection Error</h3>
           <p className="text-secondary mb-6">{error}</p>
-          <button onClick={loadCalls} className="btn btn-primary">Retry Connection</button>
+          <button onClick={() => loadCalls()} className="btn btn-primary">Retry Connection</button>
         </div>
       );
     }
