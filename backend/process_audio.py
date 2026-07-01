@@ -461,7 +461,7 @@ def process_uploaded_audio(audio_path):
         "Preferred Language": preferred_language,
         "Transcript Language": transcript_language,
         "Lead Temperature": temp,
-        "Intent Score (%)": intent_score,
+        "Intent Score (%)": lead_score,
         "Conversion Prob (%)": conv_prob,
         "Budget": budget,
         "Location": location,
