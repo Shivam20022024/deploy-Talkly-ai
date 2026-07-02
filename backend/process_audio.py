@@ -1,5 +1,6 @@
 import base64
 import json
+from services.followup_service import followup_service
 import mimetypes
 import os
 import re
@@ -479,7 +480,7 @@ def process_uploaded_audio(audio_path):
         write_excel(get_weekly_excel_file(), row)
     except Exception as e: print(f"Excel logging failed: {e}")
 
-    return {
+    result_dict = {
         "call_id": base,
         "transcript": transcript,
         "summary": summary,
@@ -491,6 +492,14 @@ def process_uploaded_audio(audio_path):
         "transcript_language": transcript_language,
         "analysis": result or {}
     }
+
+    print("Drafting follow-up email...")
+    draft = followup_service.generate_followup_draft(result_dict)
+    if draft:
+        result_dict["analysis"]["followup_draft"] = draft
+        print("Follow-up email drafted successfully.")
+
+    return result_dict
 
 if __name__ == "__main__":
     print("process_audio.py ready")

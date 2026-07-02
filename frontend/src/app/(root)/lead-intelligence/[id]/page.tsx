@@ -21,6 +21,7 @@ export default function LeadDetailView() {
   const [emailSubject, setEmailSubject] = useState("Follow up regarding your property search");
   const [emailBody, setEmailBody] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isSyncingCRM, setIsSyncingCRM] = useState(false);
 
   useEffect(() => {
     if (!params?.id) return;
@@ -112,7 +113,9 @@ export default function LeadDetailView() {
     language: callData.language || callData.analysis?.language_detected || "English",
     temperature: callData.analysis?.lead_temperature || "Cold Lead",
     aiSummary: callData.analysis?.summary || "No summary available.",
-    recommendedEmail: callData.analysis?.follow_up_recommendations?.[0]?.draft || "No draft available.",
+    crmSynced: callData.crm_synced || false,
+    recommendedEmailBody: callData.analysis?.followup_draft?.body || callData.analysis?.follow_up_recommendations?.[0]?.draft || "No draft available.",
+    recommendedEmailSubject: callData.analysis?.followup_draft?.subject || "Follow up regarding your property search",
     intelligence: {
       intent: callData.analysis?.lead_score || callData.analysis?.intent_score || 0,
       conversion: callData.analysis?.conversion_probability || 0,
@@ -128,7 +131,8 @@ export default function LeadDetailView() {
   };
 
   const handleOpenEmailModal = () => {
-    setEmailBody(lead.recommendedEmail);
+    setEmailBody(lead.recommendedEmailBody);
+    setEmailSubject(lead.recommendedEmailSubject);
     setIsEmailModalOpen(true);
   };
 
@@ -136,14 +140,8 @@ export default function LeadDetailView() {
     setIsSending(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      const res = await fetch(`${apiUrl}/calls/send-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: emailTo,
-          subject: emailSubject,
-          body: emailBody
-        })
+      const res = await fetch(`${apiUrl}/api/v1/calls/${lead.id}/send-followup`, {
+        method: 'POST'
       });
       if (res.ok) {
         alert("Email sent successfully!");
@@ -156,6 +154,24 @@ export default function LeadDetailView() {
       alert("Error sending email");
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleSyncCRM = async () => {
+    setIsSyncingCRM(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const res = await fetch(`${apiUrl}/api/v1/calls/${lead.id}/sync-crm`, { method: 'POST' });
+      if (res.ok) {
+        alert("Synced to CRM successfully!");
+        setCallData((prev: any) => ({...prev, crm_synced: true}));
+      } else {
+        alert("Failed to sync to CRM");
+      }
+    } catch (err) {
+      alert("Error syncing to CRM");
+    } finally {
+      setIsSyncingCRM(false);
     }
   };
 
@@ -172,6 +188,9 @@ export default function LeadDetailView() {
         <span className="text-[13px] font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10">{lead.duration}</span>
         <span className="text-[13px] font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10">{lead.language}</span>
         <span className="text-[13px] font-semibold text-theme-600 dark:text-brand-primary bg-theme-50 dark:bg-brand-primary/10 px-3 py-1.5 rounded-lg border border-theme-100 dark:border-brand-primary/20">{lead.temperature}</span>
+        {lead.crmSynced && (
+          <span className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-400/20 flex items-center gap-1"><Brain className="w-3 h-3" /> CRM Synced</span>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -199,10 +218,18 @@ export default function LeadDetailView() {
               <div className="flex-1">
                 <h3 className="text-[13px] font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2">Recommended Follow-Up</h3>
                 <p className="text-[14px] text-gray-600 dark:text-gray-300 italic">
-                  "{lead.recommendedEmail}"
+                  "{lead.recommendedEmailBody.substring(0, 150)}..."
                 </p>
               </div>
-              <div className="flex-shrink-0 flex items-end gap-3">
+              <div className="flex-shrink-0 flex items-end gap-3 flex-wrap">
+                <button 
+                  onClick={handleSyncCRM}
+                  disabled={isSyncingCRM || lead.crmSynced}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white dark:bg-bg-dark-card border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 px-5 py-2.5 rounded-lg text-[13px] font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+                >
+                  {isSyncingCRM ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />} 
+                  {lead.crmSynced ? 'Synced to CRM' : 'Sync to CRM'}
+                </button>
                 <button 
                   onClick={handleOpenEmailModal}
                   className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-brand-primary to-brand-grad-1 text-bg-dark-card px-5 py-2.5 rounded-lg text-[13px] font-bold shadow-lg shadow-brand-grad-1/20 hover:shadow-brand-grad-1/40 transition-shadow"
@@ -210,7 +237,7 @@ export default function LeadDetailView() {
                   <Mail className="w-4 h-4" /> Send Email
                 </button>
                 <a 
-                  href={`https://web.whatsapp.com/send?phone=${String(lead.customer_id).replace(/\D/g, '')}&text=${encodeURIComponent(lead.recommendedEmail)}`}
+                  href={`https://web.whatsapp.com/send?phone=${String(lead.customer_id).replace(/\D/g, '')}&text=${encodeURIComponent(lead.recommendedEmailBody)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-2.5 rounded-lg text-[13px] font-bold shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-shadow"

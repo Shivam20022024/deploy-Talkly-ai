@@ -545,6 +545,40 @@ async def download_report(report_type: str):
     # Mock download for demo
     return {"status": "success", "message": f"{report_type} report ready"}
 
+# --- Phase 3 CRM & Follow-Up Endpoints ---
+
+from services.crm_service import crm_service
+
+@app.post("/api/v1/calls/{call_id}/sync-crm")
+async def sync_call_to_crm(call_id: str):
+    try:
+        db = mongodb.get_db()
+        await crm_service.sync_call_to_crm(db, call_id)
+        return {"status": "success", "message": "Successfully synced to CRM."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/calls/{call_id}/send-followup")
+async def send_followup_email(call_id: str):
+    # Simulates sending an email
+    try:
+        db = mongodb.get_db()
+        import asyncio
+        await asyncio.sleep(1) # Simulate network delay
+        
+        # Mark email as sent in DB
+        await db.calls.update_one(
+            {"call_id": call_id},
+            {"$set": {
+                "followup_sent": True,
+                "followup_sent_at": datetime.utcnow().isoformat()
+            }}
+        )
+        return {"status": "success", "message": "Email sent successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
