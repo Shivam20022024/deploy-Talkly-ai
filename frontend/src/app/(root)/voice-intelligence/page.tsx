@@ -44,7 +44,7 @@ export default function VoiceIntelligencePage() {
       formData.append("file", file);
       formData.append("agent_name", "AI Agent");
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
       const res = await fetch(`${apiUrl}/process-audio`, {
         method: 'POST',
         body: formData,

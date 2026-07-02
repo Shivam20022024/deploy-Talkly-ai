@@ -28,7 +28,7 @@ export default function LeadDetailView() {
     
     const fetchCall = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
         const res = await fetch(`${apiUrl}/calls/${params.id}`);
         if (res.ok) {
           const data = await res.json();
@@ -139,7 +139,7 @@ export default function LeadDetailView() {
   const handleSendEmail = async () => {
     setIsSending(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
       const res = await fetch(`${apiUrl}/api/v1/calls/${lead.id}/send-followup`, {
         method: 'POST'
       });
@@ -160,7 +160,7 @@ export default function LeadDetailView() {
   const handleSyncCRM = async () => {
     setIsSyncingCRM(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
       const res = await fetch(`${apiUrl}/api/v1/calls/${lead.id}/sync-crm`, { method: 'POST' });
       if (res.ok) {
         alert("Synced to CRM successfully!");

@@ -1,7 +1,7 @@
 // src/services/api.ts
 import { CallFromAPI } from "../types";
 
-const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const BASE = process.env.NEXT_PUBLIC_API_URL || "https://deploy-talkly-ai.onrender.com";
 
 async function handleJSON(res: Response) {
   if (!res.ok) {

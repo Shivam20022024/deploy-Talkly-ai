@@ -65,7 +65,7 @@ export default function LiveMonitoringPage() {
     if (isCallActive && currentCallId) {
       pollInterval = setInterval(async () => {
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
           const res = await fetch(`${apiUrl}/calls/${currentCallId}`);
           if (res.ok) {
             const callData = await res.json();
@@ -125,7 +125,7 @@ export default function LiveMonitoringPage() {
     setElapsed(0);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
       const res = await fetch(`${apiUrl}/calls/trigger`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -153,7 +153,7 @@ export default function LiveMonitoringPage() {
     if (!selectedFile) return;
     setIsUploading(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
       const formData = new FormData();
       formData.append('file', selectedFile);
       formData.append('campaign_language', campaignLanguage);
@@ -188,7 +188,7 @@ export default function LiveMonitoringPage() {
     setIsCallActive(false);
     
     let attempts = 0;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
     const pollFinal = setInterval(async () => {
       attempts++;
       try {

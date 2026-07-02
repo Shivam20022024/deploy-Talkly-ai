@@ -17,7 +17,7 @@ export default function InboundPage() {
   useEffect(() => {
     const fetchInboundCalls = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
         const res = await fetch(`${apiUrl}/api/v1/inbound/calls`);
         if (res.ok) {
           const data = await res.json();
