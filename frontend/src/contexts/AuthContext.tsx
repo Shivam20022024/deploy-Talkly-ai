@@ -10,6 +10,7 @@ interface User {
   role: string;
   company_id: string;
   company_name: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
