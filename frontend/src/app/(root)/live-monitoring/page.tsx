@@ -1,4 +1,5 @@
 'use client';
+import { fetchWithAuth } from '@/services/api';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { 
@@ -65,8 +66,8 @@ export default function LiveMonitoringPage() {
     if (isCallActive && currentCallId) {
       pollInterval = setInterval(async () => {
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
-          const res = await fetch(`${apiUrl}/calls/${currentCallId}`);
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+          const res = await fetchWithAuth(`${apiUrl}/calls/${currentCallId}`);
           if (res.ok) {
             const callData = await res.json();
             
@@ -125,8 +126,8 @@ export default function LiveMonitoringPage() {
     setElapsed(0);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
-      const res = await fetch(`${apiUrl}/calls/trigger`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetchWithAuth(`${apiUrl}/calls/trigger`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -153,7 +154,7 @@ export default function LiveMonitoringPage() {
     if (!selectedFile) return;
     setIsUploading(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       const formData = new FormData();
       formData.append('file', selectedFile);
       formData.append('campaign_language', campaignLanguage);
@@ -161,7 +162,7 @@ export default function LiveMonitoringPage() {
       formData.append('voice_gender', voiceGender);
       formData.append('regional_accent', regionalAccent);
       
-      const res = await fetch(`${apiUrl}/calls/trigger-bulk`, {
+      const res = await fetchWithAuth(`${apiUrl}/calls/trigger-bulk`, {
         method: 'POST',
         body: formData
       });
@@ -188,11 +189,11 @@ export default function LiveMonitoringPage() {
     setIsCallActive(false);
     
     let attempts = 0;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
     const pollFinal = setInterval(async () => {
       attempts++;
       try {
-        const res = await fetch(`${apiUrl}/calls/${currentCallId}`);
+        const res = await fetchWithAuth(`${apiUrl}/calls/${currentCallId}`);
         if (res.ok) {
           const callData = await res.json();
           if (callData.status === 'Analyzed' || callData.status === 'Completed' || attempts > 10) {

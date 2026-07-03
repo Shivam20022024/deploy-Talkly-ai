@@ -1,4 +1,5 @@
 'use client';
+import { fetchWithAuth } from '@/services/api';
 
 import React, { useState, useMemo } from 'react';
 import { 
@@ -28,8 +29,8 @@ export default function LeadIntelligencePage() {
   React.useEffect(() => {
     const fetchCalls = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
-        const res = await fetch(`${apiUrl}/calls?limit=100`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const res = await fetchWithAuth(`${apiUrl}/calls?limit=100`);
         if (res.ok) {
           const data = await res.json();
           const mapped = data.map((call: any, index: number) => {

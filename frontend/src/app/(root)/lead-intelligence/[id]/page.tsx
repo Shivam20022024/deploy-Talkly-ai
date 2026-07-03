@@ -1,4 +1,5 @@
 'use client';
+import { fetchWithAuth } from '@/services/api';
 
 import React, { useState, useEffect } from 'react';
 import { 
@@ -28,8 +29,8 @@ export default function LeadDetailView() {
     
     const fetchCall = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
-        const res = await fetch(`${apiUrl}/calls/${params.id}`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const res = await fetchWithAuth(`${apiUrl}/calls/${params.id}`);
         if (res.ok) {
           const data = await res.json();
           setCallData(data);
@@ -37,7 +38,7 @@ export default function LeadDetailView() {
           // Fetch timeline if we have a customer ID
           const customerId = data.customer_id;
           if (customerId) {
-            const timelineRes = await fetch(`${apiUrl}/api/v1/customers/${encodeURIComponent(customerId)}/timeline`);
+            const timelineRes = await fetchWithAuth(`${apiUrl}/api/v1/customers/${encodeURIComponent(customerId)}/timeline`);
             if (timelineRes.ok) {
               const timelineJson = await timelineRes.json();
               if (timelineJson.status === "success") {
@@ -139,8 +140,8 @@ export default function LeadDetailView() {
   const handleSendEmail = async () => {
     setIsSending(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
-      const res = await fetch(`${apiUrl}/api/v1/calls/${lead.id}/send-followup`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetchWithAuth(`${apiUrl}/api/v1/calls/${lead.id}/send-followup`, {
         method: 'POST'
       });
       if (res.ok) {
@@ -160,8 +161,8 @@ export default function LeadDetailView() {
   const handleSyncCRM = async () => {
     setIsSyncingCRM(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
-      const res = await fetch(`${apiUrl}/api/v1/calls/${lead.id}/sync-crm`, { method: 'POST' });
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetchWithAuth(`${apiUrl}/api/v1/calls/${lead.id}/sync-crm`, { method: 'POST' });
       if (res.ok) {
         alert("Synced to CRM successfully!");
         setCallData((prev: any) => ({...prev, crm_synced: true}));

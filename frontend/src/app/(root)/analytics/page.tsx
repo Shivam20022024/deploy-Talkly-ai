@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithAuth } from '@/services/api';
 
 import React, { useEffect, useState } from "react";
 import {
@@ -21,8 +22,8 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
-    fetch(`${apiUrl}/api/v1/analytics/dashboard`)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    fetchWithAuth(`${apiUrl}/api/v1/analytics/dashboard`)
       .then((res) => res.json())
       .then((json) => {
         if (json.status === "success") {

@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithAuth } from '@/services/api';
 
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import dynamic from 'next/dynamic';
@@ -34,8 +35,8 @@ export default function AgentPerformancePage() {
   useEffect(() => {
     const fetchCalls = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
-        const res = await fetch(`${apiUrl}/calls?limit=200`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const res = await fetchWithAuth(`${apiUrl}/calls?limit=200`);
         if (res.ok) {
           const data = await res.json();
           setCalls(data);

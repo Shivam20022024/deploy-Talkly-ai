@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithAuth } from '@/services/api';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -15,9 +16,9 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchCalls = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
         // Increased limit to 10000 to ensure all calls are fetched and calculated
-        const res = await fetch(`${apiUrl}/calls?limit=10000`);
+        const res = await fetchWithAuth(`${apiUrl}/calls?limit=10000`);
         if (res.ok) {
           const data = await res.json();
           setCalls(data);
@@ -97,7 +98,7 @@ const Dashboard = () => {
         <div className="flex items-center gap-3 flex-shrink-0">
           <button 
             onClick={() => {
-              const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
+              const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
               window.open(`${apiUrl}/download/excel`, '_blank');
             }}
             className="px-4 py-2 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-white text-[13px] font-semibold rounded-lg border border-gray-200 dark:border-white/5 transition-colors shadow-sm dark:shadow-none"

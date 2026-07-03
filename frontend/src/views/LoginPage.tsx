@@ -163,7 +163,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
 
         <div className="text-center mt-6">
           <p className="text-sm text-slate-500 font-medium">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <a href="#" className="text-blue-600 font-bold hover:text-blue-700 transition-colors">
               Request Access
             </a>

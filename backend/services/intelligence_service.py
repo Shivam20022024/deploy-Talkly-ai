@@ -7,22 +7,23 @@ class IntelligenceService:
     Service for calculating AI Business Intelligence metrics across calls.
     """
     
-    async def get_dashboard_metrics(self, db) -> Dict[str, Any]:
+    async def get_dashboard_metrics(self, db, company_id: str) -> Dict[str, Any]:
         """
         Calculates top-level metrics for the BI Dashboard.
         """
         thirty_days_ago = datetime.utcnow() - timedelta(days=30)
         
         # 1. Total Calls
-        total_calls = await db.calls.count_documents({})
+        total_calls = await db.calls.count_documents({"company_id": company_id})
         
         # 2. Funnel Stats
-        hot_leads = await db.calls.count_documents({"analysis.lead_temperature": "Hot"})
-        warm_leads = await db.calls.count_documents({"analysis.lead_temperature": "Warm"})
-        cold_leads = await db.calls.count_documents({"analysis.lead_temperature": "Cold"})
+        hot_leads = await db.calls.count_documents({"company_id": company_id, "analysis.lead_temperature": "Hot"})
+        warm_leads = await db.calls.count_documents({"company_id": company_id, "analysis.lead_temperature": "Warm"})
+        cold_leads = await db.calls.count_documents({"company_id": company_id, "analysis.lead_temperature": "Cold"})
         
         # 3. Sentiment Distribution
         pipeline = [
+            {"$match": {"company_id": company_id}},
             {"$group": {"_id": "$sentiment", "count": {"$sum": 1}}}
         ]
         sentiment_agg = await db.calls.aggregate(pipeline).to_list(length=10)
@@ -30,6 +31,7 @@ class IntelligenceService:
         
         # 4. Top Objections (flattening the key_objections array)
         objection_pipeline = [
+            {"$match": {"company_id": company_id}},
             {"$unwind": "$analysis.key_objections"},
             {"$group": {"_id": "$analysis.key_objections.type", "count": {"$sum": 1}}},
             {"$sort": {"count": -1}},
@@ -40,6 +42,7 @@ class IntelligenceService:
         
         # 5. Language Distribution
         lang_pipeline = [
+            {"$match": {"company_id": company_id}},
             {"$group": {"_id": "$language", "count": {"$sum": 1}}},
             {"$sort": {"count": -1}}
         ]
@@ -48,7 +51,7 @@ class IntelligenceService:
         
         # 6. Average Lead Score
         score_pipeline = [
-            {"$match": {"analysis.lead_score": {"$exists": True}}},
+            {"$match": {"company_id": company_id, "analysis.lead_score": {"$exists": True}}},
             {"$group": {"_id": None, "avg_score": {"$avg": "$analysis.lead_score"}}}
         ]
         score_agg = await db.calls.aggregate(score_pipeline).to_list(length=1)
@@ -71,7 +74,7 @@ class IntelligenceService:
             "average_lead_score": avg_score
         }
 
-    async def get_customer_timeline(self, db, customer_id: str) -> List[Dict[str, Any]]:
+    async def get_customer_timeline(self, db, customer_id: str, company_id: str) -> List[Dict[str, Any]]:
         """
         Fetches the complete timeline of interactions for a given customer phone number.
         """
@@ -79,7 +82,7 @@ class IntelligenceService:
         clean_id = customer_id.replace('+', '').strip()
         
         calls = await db.calls.find(
-            {"customer_id": {"$regex": f"{clean_id}$"}}
+            {"customer_id": {"$regex": f"{clean_id}$"}, "company_id": company_id}
         ).sort("created_at", -1).to_list(length=50)
         
         timeline = []

@@ -17,10 +17,6 @@ const PhoneNumberManagement: React.FC = () => {
   const [webhookUrl, setWebhookUrl] = useState('');
   const [selectedNumber, setSelectedNumber] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadNumbers();
-  }, []);
-
   const loadNumbers = async () => {
     try {
       setLoading(true);
@@ -28,12 +24,19 @@ const PhoneNumberManagement: React.FC = () => {
       if (res.status === 'success') {
         setNumbers(res.numbers);
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to load phone numbers');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+    loadNumbers();
+  }, []);
+
+
 
   const handlePurchase = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +48,7 @@ const PhoneNumberManagement: React.FC = () => {
         setAreaCode('');
         loadNumbers();
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to purchase number');
     } finally {
       setPurchasing(false);
@@ -65,7 +68,7 @@ const PhoneNumberManagement: React.FC = () => {
       } else {
         toast.error(res.message || 'Failed to configure webhook');
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to configure webhook');
     }
   };

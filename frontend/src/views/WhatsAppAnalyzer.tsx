@@ -15,6 +15,7 @@ import { useAuth } from '../contexts/AuthContext';
 const WhatsAppAnalyzer: React.FC = () => {
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,6 +33,7 @@ const WhatsAppAnalyzer: React.FC = () => {
         user?.email
       );
       setResult(response);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const errorMsg = err.response?.data?.detail || "Failed to process voice note. Please check your connection.";
       setError(errorMsg);

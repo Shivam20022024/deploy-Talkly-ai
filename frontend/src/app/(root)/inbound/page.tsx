@@ -1,4 +1,5 @@
 'use client';
+import { fetchWithAuth } from '@/services/api';
 
 import React, { useEffect, useState } from 'react';
 import { PhoneIncoming, Users, Clock, AlertCircle, TrendingUp } from 'lucide-react';
@@ -17,8 +18,8 @@ export default function InboundPage() {
   useEffect(() => {
     const fetchInboundCalls = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://deploy-talkly-ai.onrender.com';
-        const res = await fetch(`${apiUrl}/api/v1/inbound/calls`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const res = await fetchWithAuth(`${apiUrl}/api/v1/inbound/calls`);
         if (res.ok) {
           const data = await res.json();
           setCalls(data.calls || []);

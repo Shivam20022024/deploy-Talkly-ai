@@ -19,7 +19,9 @@ import requests
 import mimetypes
 import subprocess
 from datetime import datetime
-from fastapi import FastAPI, UploadFile, File, HTTPException, Body, Form, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, HTTPException, Body, Form, BackgroundTasks, Depends
+from auth import get_current_user
+from routes.auth_routes import auth_router
 from fastapi.middleware.cors import CORSMiddleware
 import io
 import openpyxl
@@ -62,6 +64,7 @@ app.add_middleware(
 
 from inbound.routes import inbound_router
 app.include_router(inbound_router, prefix="/api/v1/inbound")
+app.include_router(auth_router, prefix="/api/v1/auth")
 
 @app.get("/")
 @app.head("/")
@@ -69,15 +72,15 @@ async def health_check():
     return {"status": "ok", "service": "TalklyAI Backend"}
 
 @app.get("/api/v1/analytics/dashboard")
-async def get_analytics_dashboard():
+async def get_analytics_dashboard(current_user: dict = Depends(get_current_user)):
     db = mongodb.get_db()
-    metrics = await intelligence_service.get_dashboard_metrics(db)
+    metrics = await intelligence_service.get_dashboard_metrics(db, current_user["company_id"])
     return {"status": "success", "data": metrics}
 
 @app.get("/api/v1/customers/{customer_id}/timeline")
-async def get_customer_timeline(customer_id: str):
+async def get_customer_timeline(customer_id: str, current_user: dict = Depends(get_current_user)):
     db = mongodb.get_db()
-    timeline = await intelligence_service.get_customer_timeline(db, customer_id)
+    timeline = await intelligence_service.get_customer_timeline(db, customer_id, current_user["company_id"])
     return {"status": "success", "data": timeline}
 
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
@@ -85,9 +88,9 @@ BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
 # Startup logic moved to lifespan context manager above
 
 @app.get("/calls")
-async def get_calls(limit: int = 20, skip: int = 0):
+async def get_calls(limit: int = 20, skip: int = 0, current_user: dict = Depends(get_current_user)):
     db = mongodb.get_db()
-    cursor = db.calls.find().sort("created_at", -1).skip(skip).limit(limit)
+    cursor = db.calls.find({"company_id": current_user["company_id"]}).sort("created_at", -1).skip(skip).limit(limit)
     calls = []
     async for d in cursor:
         d["_id"] = None
@@ -95,16 +98,16 @@ async def get_calls(limit: int = 20, skip: int = 0):
     return calls
 
 @app.get("/calls/{call_id}")
-async def get_call(call_id: str):
+async def get_call(call_id: str, current_user: dict = Depends(get_current_user)):
     db = mongodb.get_db()
-    doc = await db.calls.find_one({"call_id": call_id})
+    doc = await db.calls.find_one({"call_id": call_id, "company_id": current_user["company_id"]})
     if not doc:
         raise HTTPException(status_code=404, detail="Call not found")
     doc["_id"] = None
     return doc
 
 @app.post("/calls/trigger")
-async def trigger_bolna_call(payload: dict = Body(...)):
+async def trigger_bolna_call(payload: dict = Body(...), current_user: dict = Depends(get_current_user)):
     phone_number = payload.get("phone_number")
     lead_id = payload.get("lead_id")
     campaign_language = payload.get("campaign_language", "English")
@@ -117,7 +120,7 @@ async def trigger_bolna_call(payload: dict = Body(...)):
     db = mongodb.get_db()
     
     # 2. Dynamically fetch Agent ID based on Database mapping
-    agent_id = await language_service.get_agent_id_for_language(db, campaign_language)
+    agent_id = await language_service.get_agent_id_for_language(db, campaign_language, current_user["company_id"])
 
     if not api_key or not agent_id:
         raise HTTPException(status_code=400, detail="Bolna.ai API Key or Agent ID not configured")
@@ -140,7 +143,8 @@ async def trigger_bolna_call(payload: dict = Body(...)):
         "transcript_language": campaign_language,
         "ai_voice": ai_voice,
         "voice_gender": voice_gender,
-        "regional_accent": regional_accent
+        "regional_accent": regional_accent,
+        "company_id": current_user["company_id"]
     })
 
     url = "https://api.bolna.ai/call"
@@ -160,7 +164,8 @@ async def trigger_bolna_call(payload: dict = Body(...)):
             "campaign_language": campaign_language,
             "ai_voice": ai_voice,
             "voice_gender": voice_gender,
-            "regional_accent": regional_accent
+            "regional_accent": regional_accent,
+            "company_id": current_user["company_id"]
         }
     }
 
@@ -193,13 +198,13 @@ async def trigger_bolna_call(payload: dict = Body(...)):
         await db.calls.update_one({"call_id": lead_id}, {"$set": {"status": "Error"}})
         raise HTTPException(status_code=500, detail=f"API Error: {str(e)}")
 
-async def process_bulk_calls(phone_numbers: list, campaign_language: str = "English", ai_voice: str = "Default", voice_gender: str = "Female", regional_accent: str = "Default"):
+async def process_bulk_calls(phone_numbers: list, campaign_language: str = "English", ai_voice: str = "Default", voice_gender: str = "Female", regional_accent: str = "Default", company_id: str = None):
     api_key = os.environ.get("BOLNA_API_KEY", "").strip()
     
     db = mongodb.get_db()
     
     # Dynamically fetch Agent ID based on Database mapping
-    agent_id = await language_service.get_agent_id_for_language(db, campaign_language)
+    agent_id = await language_service.get_agent_id_for_language(db, campaign_language, current_user["company_id"])
     
     if not api_key or not agent_id:
         return
@@ -231,7 +236,8 @@ async def process_bulk_calls(phone_numbers: list, campaign_language: str = "Engl
             "transcript_language": campaign_language,
             "ai_voice": ai_voice,
             "voice_gender": voice_gender,
-            "regional_accent": regional_accent
+            "regional_accent": regional_accent,
+            "company_id": current_user["company_id"]
         })
         
         bolna_payload = {
@@ -285,7 +291,8 @@ async def trigger_bolna_bulk(
     campaign_language: str = Form("English"),
     ai_voice: str = Form("Default"),
     voice_gender: str = Form("Female"),
-    regional_accent: str = Form("Default")
+    regional_accent: str = Form("Default"),
+    current_user: dict = Depends(get_current_user)
 ):
     if not file.filename.endswith(('.xlsx', '.xls')):
         raise HTTPException(status_code=400, detail="Only .xlsx files are supported")
@@ -315,7 +322,7 @@ async def trigger_bolna_bulk(
     if not phone_numbers:
         raise HTTPException(status_code=400, detail="No phone numbers found in the Excel file.")
         
-    background_tasks.add_task(process_bulk_calls, phone_numbers, campaign_language, ai_voice, voice_gender, regional_accent)
+    background_tasks.add_task(process_bulk_calls, phone_numbers, campaign_language, ai_voice, voice_gender, regional_accent, current_user["company_id"])
     
     return {
         "status": "success",
@@ -498,7 +505,8 @@ async def process_audio_api(
     file: UploadFile = File(...), 
     agent_name: str = Form("AI Agent"),
     employee_id: str = Form(None),
-    employee_email: str = Form(None)
+    employee_email: str = Form(None),
+    current_user: dict = Depends(get_current_user)
 ):
     temp_path = None
     try:
@@ -523,7 +531,8 @@ async def process_audio_api(
             "transcript": result.get("transcript"),
             "analysis": result.get("analysis", {}),
             "created_at": now,
-            "status": "Analyzed"
+            "status": "Analyzed",
+            "company_id": current_user["company_id"]
         }
         db = mongodb.get_db()
         await db.calls.insert_one(doc)

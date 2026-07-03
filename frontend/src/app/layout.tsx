@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Geist, Geist_Mono, Inter, Poppins } from "next/font/google";
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { AuthProvider } from '@/contexts/AuthContext';
 import './globals.css';
 
 const fontSans = Inter({
@@ -35,10 +36,10 @@ export default function RootLayout({
       lang="en"
        className={`${fontSans.variable} ${fontBricolage.variable} ${poppins.variable} font-sans`} suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <AuthProvider>
           {children}
-        </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

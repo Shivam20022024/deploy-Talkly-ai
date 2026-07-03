@@ -50,20 +50,28 @@ class LanguageService:
             return detected
         return None
 
-    async def get_agent_id_for_language(self, db, language: str) -> str:
+    async def get_agent_id_for_language(self, db, language: str, company_id: str = None) -> str:
         """
         Dynamically fetches the Bolna Agent ID for a requested language from the DB.
         Falls back to English if not found.
         """
         import os
         
+        query = {"language": {"$regex": f"^{language}$", "$options": "i"}}
+        if company_id:
+            query["company_id"] = company_id
+            
         # 1. Query the database
-        mapping = await db.language_mappings.find_one({"language": {"$regex": f"^{language}$", "$options": "i"}})
+        mapping = await db.language_mappings.find_one(query)
         if mapping and mapping.get("bolna_agent_id"):
             return mapping["bolna_agent_id"]
             
         # 2. Fallback to English DB configuration
-        mapping_en = await db.language_mappings.find_one({"language": "English"})
+        query_en = {"language": "English"}
+        if company_id:
+            query_en["company_id"] = company_id
+            
+        mapping_en = await db.language_mappings.find_one(query_en)
         if mapping_en and mapping_en.get("bolna_agent_id"):
             return mapping_en["bolna_agent_id"]
             

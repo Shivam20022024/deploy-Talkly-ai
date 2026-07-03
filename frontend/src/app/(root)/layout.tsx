@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Sidebar } from '@/components/dashboard/Sidebar';
-import { Topbar } from '@/components/dashboard/Topbar';
+import React, { useState, useEffect } from 'react';
+import { Sidebar } from '../../components/dashboard/Sidebar';
+import { Topbar } from '../../components/dashboard/Topbar';
+import { useAuth } from '../../contexts/AuthContext';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function DashboardLayout({
   children,
@@ -10,6 +12,25 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const auth = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!auth.loading && !auth.user) {
+      document.cookie = 'talkly_token=; path=/; max-age=0; samesite=lax';
+      window.location.href = '/login';
+    }
+  }, [auth.user, auth.loading, router]);
+
+  if (auth.loading || !auth.user) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-bg-dark-base">
+        <div className="w-8 h-8 border-4 border-theme-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-bg-dark-base text-gray-900 dark:text-white overflow-hidden font-sans transition-colors">
@@ -35,4 +56,3 @@ export default function DashboardLayout({
     </div>
   );
 }
-
