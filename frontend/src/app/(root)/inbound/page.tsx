@@ -25,11 +25,36 @@ export default function InboundPage() {
           setCalls(data.calls || []);
           
           const inbound = data.calls || [];
+          let totalSeconds = 0;
+          let count = 0;
+          
+          inbound.forEach((c: any) => {
+            const dur = c.duration || c.call_duration;
+            if (typeof dur === 'number') {
+              totalSeconds += dur;
+              count++;
+            } else if (typeof dur === 'string') {
+               const num = parseInt(dur);
+               if (!isNaN(num)) {
+                 totalSeconds += num;
+                 count++;
+               }
+            }
+          });
+          
+          let avgDuration = '0m 0s';
+          if (count > 0) {
+            const avg = Math.round(totalSeconds / count);
+            const m = Math.floor(avg / 60);
+            const s = avg % 60;
+            avgDuration = `${m}m ${s}s`;
+          }
+
           setStats({
             totalCalls: inbound.length,
             activeCalls: inbound.filter((c: any) => c.status === 'Active').length,
-            avgDuration: '2m 15s', // Placeholder 
-            missedCalls: 0
+            avgDuration: avgDuration,
+            missedCalls: inbound.filter((c: any) => c.status === 'Missed' || c.status === 'Failed' || c.status === 'no-answer').length || 0
           });
         }
       } catch (err) {
