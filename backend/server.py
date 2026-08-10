@@ -365,9 +365,9 @@ async def poll_bolna_execution(execution_id: str, lead_id: str, api_key: str):
         f.write(f"{datetime.utcnow().isoformat()} - {log_msg}\n")
     
     # Poll for up to 10 minutes
-    for i in range(60): 
+    for i in range(300): 
         try:
-            await asyncio.sleep(10)
+            await asyncio.sleep(2)
             # Use run_in_threadpool for blocking requests.get
             response = await run_in_threadpool(requests.get, url, headers=headers, timeout=15)
             
@@ -381,30 +381,34 @@ async def poll_bolna_execution(execution_id: str, lead_id: str, api_key: str):
                 with open("bolna_polling.log", "a") as f:
                     f.write(f"{datetime.utcnow().isoformat()} - Poll {i}: Status={status}, TranscriptLen={len(transcript)}\n")
 
+                update_data = {
+                    "last_poll_at": datetime.utcnow().isoformat() + "Z"
+                }
                 if transcript:
-                    update_data = {
-                        "transcript": transcript,
-                        "last_poll_at": datetime.utcnow().isoformat() + "Z"
-                    }
+                    update_data["transcript"] = transcript
                     
-                    if status.lower() in ["completed", "finished", "ended"]:
-                        print(f"Polling: Call {lead_id} completed. Triggering analysis...")
-                        analysis_result = await run_in_threadpool(analyze_transcript_text, transcript)
-                        if analysis_result:
-                            update_data.update({
-                                "status": "Analyzed",
-                                "summary": analysis_result.get("summary"),
-                                "sentiment": analysis_result.get("sentiment"),
-                                "analysis": analysis_result
-                            })
-                        else:
-                            update_data["status"] = "Completed"
-                        
-                        await db.calls.update_one({"call_id": lead_id}, {"$set": update_data})
-                        break # Stop polling
+                if status.lower() in ["completed", "finished", "ended"]:
+                    print(f"Polling: Call {lead_id} completed. Triggering analysis...")
+                    analysis_result = await run_in_threadpool(analyze_transcript_text, transcript)
+                    if analysis_result:
+                        update_data.update({
+                            "status": "Analyzed",
+                            "summary": analysis_result.get("summary"),
+                            "sentiment": analysis_result.get("sentiment"),
+                            "analysis": analysis_result
+                        })
                     else:
-                        update_data["status"] = "Active"
-                        await db.calls.update_one({"call_id": lead_id}, {"$set": update_data})
+                        update_data["status"] = "Completed"
+                    
+                    await db.calls.update_one({"call_id": lead_id}, {"$set": update_data})
+                    break # Stop polling
+                elif status.lower() in ["failed", "canceled", "error", "no-answer", "busy", "timeout", "rejected"]:
+                    update_data["status"] = "Failed"
+                    await db.calls.update_one({"call_id": lead_id}, {"$set": update_data})
+                    break # Stop polling
+                else:
+                    update_data["status"] = "Active"
+                    await db.calls.update_one({"call_id": lead_id}, {"$set": update_data})
             else:
                 with open("bolna_polling.log", "a") as f:
                     f.write(f"{datetime.utcnow().isoformat()} - Poll {i}: API Error {response.status_code}\n")
@@ -494,6 +498,8 @@ async def bolna_webhook(data: dict = Body(...)):
             except Exception as e:
                 print(f"Analysis failed for {lead_id}: {str(e)}")
                 update_data["status"] = "Completed"
+        elif status.lower() in ["failed", "canceled", "error", "no-answer", "busy", "timeout", "rejected"]:
+            update_data["status"] = "Failed"
         else:
             update_data["status"] = "Active"
 

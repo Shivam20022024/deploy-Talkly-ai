@@ -64,7 +64,10 @@ const LiveCallAnalyzer: React.FC = () => {
             // Sync Status from Backend
             const backendStatus = callData.status;
             if (backendStatus === 'Ringing') setCallStatus('Ringing');
-            if (backendStatus === 'Failed') setCallStatus('Failed');
+            if (backendStatus === 'Failed') {
+              setCallStatus('Failed');
+              setIsCallActive(false);
+            }
             if (backendStatus === 'Ended' || backendStatus === 'Completed') {
               setCallStatus('Ended');
               setIsCallActive(false);

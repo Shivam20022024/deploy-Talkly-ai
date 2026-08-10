@@ -95,9 +95,26 @@ export default function LiveMonitoringPage() {
             // Sync Status from Backend
             const backendStatus = callData.status;
             if (backendStatus === 'Ringing') setCallStatus('Ringing');
-            if (backendStatus === 'Failed') setCallStatus('Failed');
+            if (backendStatus === 'Failed') {
+              setCallStatus('Failed');
+              setResult({
+                summary: "Call Failed. The customer rejected the call, was busy, or did not answer.",
+                intentScore: 0,
+                leadTemperature: "Cold Lead"
+              });
+              setIsCallActive(false);
+            }
             if (backendStatus === 'Ended' || backendStatus === 'Completed') {
               setCallStatus('Ended');
+              setIsCallActive(false);
+            }
+            if (backendStatus === 'Analyzed') {
+              setResult({
+                summary: callData.summary || "Call analyzed.",
+                intentScore: callData.analysis?.intent_score || 0,
+                leadTemperature: callData.analysis?.lead_temperature || "Warm Lead"
+              });
+              setCallStatus('Idle');
               setIsCallActive(false);
             }
           }
