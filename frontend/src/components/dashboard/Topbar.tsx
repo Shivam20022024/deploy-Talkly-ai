@@ -5,6 +5,7 @@ import { Search, Sun, Moon, RotateCcw, Bell, Menu, User, Settings as SettingsIco
 import { useTheme } from 'next-themes';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -23,6 +24,20 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  const SEARCH_LINKS = [
+    { title: 'Dashboard Overview', href: '/dashboard' },
+    { title: 'Live Monitoring', href: '/live-monitoring' },
+    { title: 'Lead Intelligence', href: '/lead-intelligence' },
+    { title: 'Org Settings', href: '/dashboard/settings' },
+  ];
+
+  const filteredLinks = SEARCH_LINKS.filter(link => 
+    link.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => setMounted(true), []);
 
@@ -75,7 +90,13 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
 
   // Close dropdowns when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => setActiveDropdown(null);
+    const handleClickOutside = (e: MouseEvent) => {
+      setActiveDropdown(null);
+      if (searchInputRef.current && !searchInputRef.current.contains(e.target as Node)) {
+        // give link clicks time to register
+        setTimeout(() => setIsSearchFocused(false), 150);
+      }
+    };
     window.addEventListener('click', handleClickOutside);
     return () => window.removeEventListener('click', handleClickOutside);
   }, []);
@@ -111,15 +132,56 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
           <input
             ref={searchInputRef}
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
             className="block w-full pl-9 pr-10 py-1.5 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-lg text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-theme-300 dark:focus:border-brand-primary/40 focus:bg-white dark:focus:bg-white/[0.05] transition-colors"
             placeholder="Search"
           />
-          <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-            <div className="hidden sm:flex items-center gap-1 text-[9px] font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-white/5 px-1.5 py-0.5 rounded border border-gray-200 dark:border-white/10">
+          <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
+            <button 
+              onClick={() => searchInputRef.current?.focus()}
+              className="hidden sm:flex items-center gap-1 text-[9px] font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 px-1.5 py-0.5 rounded border border-gray-200 dark:border-white/10 transition-colors"
+            >
               <span className="text-xs">⌘</span>
               <span>K</span>
-            </div>
+            </button>
           </div>
+
+          <AnimatePresence>
+            {isSearchFocused && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+                className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-bg-dark-surface border border-gray-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden z-50"
+              >
+                {filteredLinks.length > 0 ? (
+                  <div className="py-2">
+                    <p className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Quick Links</p>
+                    {filteredLinks.map((link, idx) => (
+                      <Link 
+                        key={idx} 
+                        href={link.href}
+                        onClick={() => {
+                          setIsSearchFocused(false);
+                          setSearchQuery('');
+                        }}
+                        className="flex items-center px-4 py-2.5 text-[13px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-theme-600 dark:hover:text-brand-primary transition-colors"
+                      >
+                        {link.title}
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-6 text-center">
+                    <Search className="w-6 h-6 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                    <p className="text-[13px] text-gray-500">No results found for "{searchQuery}"</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
