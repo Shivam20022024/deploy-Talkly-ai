@@ -27,20 +27,20 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
   useEffect(() => setMounted(true), []);
 
   const [user, setUser] = useState({ 
-    name: 'Alex Smith', 
+    name: 'John Doe', 
     role: 'New User', 
-    initials: 'A' 
+    initials: 'JD' 
   });
 
   useEffect(() => {
     try {
-      const match = document.cookie.match(/(^| )talkly_token=([^;]+)/);
-      if (match) {
-        const decoded = JSON.parse(decodeURIComponent(match[2]));
+      const savedUser = localStorage.getItem('talkly_user');
+      if (savedUser) {
+        const decoded = JSON.parse(savedUser);
         setUser({ 
-          name: decoded.name || 'User', 
+          name: decoded.company_name || decoded.name || 'Company', 
           role: decoded.role || 'User',
-          initials: (decoded.avatar && decoded.avatar.length <= 2) ? decoded.avatar : (decoded.name ? decoded.name[0] : 'U')
+          initials: (decoded.company_name) ? decoded.company_name.substring(0, 2).toUpperCase() : (decoded.name ? decoded.name[0] : 'U')
         });
       }
     } catch(e) {}

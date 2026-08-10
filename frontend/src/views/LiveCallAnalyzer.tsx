@@ -69,6 +69,11 @@ const LiveCallAnalyzer: React.FC = () => {
               setCallStatus('Ended');
               setIsCallActive(false);
             }
+            if (backendStatus === 'Analyzed') {
+              setResult(callData);
+              setCallStatus('Idle');
+              setIsCallActive(false);
+            }
           }
         } catch (err) {
           console.error("Polling error:", err);

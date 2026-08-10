@@ -53,12 +53,12 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
 
   React.useEffect(() => {
     try {
-      const match = document.cookie.match(/(^| )talkly_token=([^;]+)/);
-      if (match) {
-        const decoded = JSON.parse(decodeURIComponent(match[2]));
+      const savedUser = localStorage.getItem('talkly_user');
+      if (savedUser) {
+        const decoded = JSON.parse(savedUser);
         setUser({
-          name: decoded.name || 'User',
-          initials: (decoded.avatar && decoded.avatar.length <= 2) ? decoded.avatar : (decoded.name ? decoded.name[0] : 'U'),
+          name: decoded.company_name || decoded.name || 'Company',
+          initials: (decoded.company_name) ? decoded.company_name.substring(0, 2).toUpperCase() : (decoded.name ? decoded.name[0] : 'U'),
           email: decoded.email || ''
         });
       }
