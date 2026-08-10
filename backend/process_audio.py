@@ -404,6 +404,16 @@ def analyze_transcript_text(transcript):
             "action_items": []
         }
     
+    # Enforce Lead Temperature based on Score for consistency
+    score = result.get("lead_score") or result.get("intent_score") or 0
+    if isinstance(score, (int, float)):
+        if score >= 80:
+            result["lead_temperature"] = "Hot"
+        elif score >= 40:
+            result["lead_temperature"] = "Warm"
+        else:
+            result["lead_temperature"] = "Cold"
+            
     return result
 
 def process_uploaded_audio(audio_path):
