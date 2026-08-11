@@ -407,6 +407,10 @@ def analyze_transcript_text(transcript):
     # Enforce Lead Temperature based on Score for consistency
     score = result.get("lead_score") or result.get("intent_score") or 0
     if isinstance(score, (int, float)):
+        # Ensure both fields are populated so the frontend always finds the score
+        result["lead_score"] = score
+        result["intent_score"] = score
+        
         if score >= 80:
             result["lead_temperature"] = "Hot"
         elif score >= 40:
