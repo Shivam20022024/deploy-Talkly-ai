@@ -110,4 +110,31 @@ export type ViewState =
   | "PHONE_NUMBERS"
   | "INBOUND_DASHBOARD"
   | "LANGUAGE_ANALYTICS"
-  | "ANALYTICS";
+  | "ANALYTICS"
+  | "BILLING";
+
+export interface Wallet {
+  id: string;
+  balance: number;
+  currency: string;
+  status: string;
+}
+
+export interface Transaction {
+  id: string;
+  type: "CREDIT" | "DEBIT" | "REFUND" | "ADJUSTMENT";
+  amount: number;
+  currency: string;
+  status: string;
+  description: string;
+  created_at: string;
+}
+
+export interface UsageRecord {
+  id: string;
+  duration_seconds: number;
+  billed_minutes: number;
+  customer_cost: number;
+  service_type: string;
+  created_at: string;
+}

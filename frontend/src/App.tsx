@@ -10,6 +10,7 @@ import AgentAnalytics from "./views/AgentAnalytics";
 import LandingPage from "./views/LandingPage";
 import LoginPage from "./views/LoginPage";
 import PhoneNumberManagement from "./views/PhoneNumberManagement";
+import BillingDashboard from "./views/BillingDashboard";
 import InboundDashboard from "./components/InboundDashboard";
 import LanguageAnalytics from "./components/LanguageAnalytics";
 import HumanTransferPanel from "./components/HumanTransferPanel";
@@ -172,6 +173,8 @@ function App() {
         return <LanguageAnalytics interactions={interactions} />;
       case "PHONE_NUMBERS":
         return <PhoneNumberManagement />;
+      case "BILLING":
+        return <BillingDashboard />;
       case "LANDING":
         return <LandingPage onStart={() => navigateTo('LOGIN')} />;
       case "LOGIN":

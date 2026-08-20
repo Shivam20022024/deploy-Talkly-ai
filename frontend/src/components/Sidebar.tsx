@@ -10,7 +10,8 @@ import {
   LogOut,
   Sparkles,
   PhoneIncoming,
-  Globe
+  Globe,
+  CreditCard
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -29,6 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => {
     { id: 'INBOUND_DASHBOARD' as ViewState, label: 'Inbound Calls', icon: PhoneIncoming },
     { id: 'LANGUAGE_ANALYTICS' as ViewState, label: 'Language Analytics', icon: Globe },
     { id: 'PHONE_NUMBERS' as ViewState, label: 'Phone Numbers', icon: PhoneCall },
+    { id: 'BILLING' as ViewState, label: 'Billing & Wallet', icon: CreditCard },
   ];
 
   return (

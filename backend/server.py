@@ -66,6 +66,9 @@ from inbound.routes import inbound_router
 app.include_router(inbound_router, prefix="/api/v1/inbound")
 app.include_router(auth_router, prefix="/api/v1/auth")
 
+from routes.billing_routes import billing_router
+app.include_router(billing_router, prefix="/api/v1/billing")
+from services.billing_service import billing_service
 @app.get("/")
 @app.head("/")
 async def health_check():
@@ -389,6 +392,15 @@ async def poll_bolna_execution(execution_id: str, lead_id: str, api_key: str):
                     
                 if status.lower() in ["completed", "finished", "ended"]:
                     print(f"Polling: Call {lead_id} completed. Triggering analysis...")
+                    
+                    # Fetch company_id and duration for billing
+                    call_doc = await db.calls.find_one({"call_id": lead_id})
+                    if call_doc and call_doc.get("company_id"):
+                        duration = data.get("duration") or data.get("telephony_data", {}).get("duration") or 60
+                        await billing_service.process_call_billing(
+                            db, lead_id, call_doc["company_id"], call_doc.get("direction", "outbound"), duration
+                        )
+                    
                     analysis_result = await run_in_threadpool(analyze_transcript_text, transcript)
                     if analysis_result:
                         update_data.update({
@@ -479,6 +491,15 @@ async def bolna_webhook(data: dict = Body(...)):
         
         if status.lower() in ["completed", "finished", "ended"]:
             print(f"Call {lead_id} completed. Triggering AI Analysis...")
+            
+            # Fetch company_id and duration for billing
+            call_doc = await db.calls.find_one({"call_id": lead_id})
+            if call_doc and call_doc.get("company_id"):
+                duration = data.get("telephony_data", {}).get("duration") or data.get("duration") or 60
+                await billing_service.process_call_billing(
+                    db, lead_id, call_doc["company_id"], call_doc.get("direction", "outbound"), duration
+                )
+                
             try:
                 analysis_result = await run_in_threadpool(analyze_transcript_text, transcript)
                 if analysis_result:

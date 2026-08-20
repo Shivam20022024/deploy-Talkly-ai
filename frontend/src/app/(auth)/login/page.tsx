@@ -1,20 +1,21 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const LoginPage = () => {
+const LoginContent = () => {
   const router = useRouter();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const searchParams = useSearchParams();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +24,20 @@ const LoginPage = () => {
 
     try {
       await login(email, password);
-      router.push('/dashboard');
+      
+      const redirectPath = searchParams.get('redirect') || '/dashboard';
+      const intent = searchParams.get('intent');
+      const amount = searchParams.get('amount');
+      const plan = searchParams.get('plan');
+      
+      const params = new URLSearchParams();
+      if (intent) params.append('intent', intent);
+      if (amount) params.append('amount', amount);
+      if (plan) params.append('plan', plan);
+      
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      router.push(`${redirectPath}${queryString}`);
+      
     } catch (err: any) {
       setError(err.message || 'Invalid email or password');
     } finally {
@@ -147,7 +161,7 @@ const LoginPage = () => {
         <div className="text-center mt-8 space-y-6">
           <p className="text-[14px] text-gray-500 dark:text-gray-400 font-medium">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-theme-600 dark:text-brand-primary font-bold hover:underline underline-offset-2">
+            <Link href={`/register${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} className="text-theme-600 dark:text-brand-primary font-bold hover:underline underline-offset-2">
               Request Access
             </Link>
           </p>
@@ -163,6 +177,14 @@ const LoginPage = () => {
         </div>
       </motion.div>
     </div>
+  );
+};
+
+const LoginPage = () => {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 };
 

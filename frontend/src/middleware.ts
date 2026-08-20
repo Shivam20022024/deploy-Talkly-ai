@@ -16,8 +16,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Redirect to dashboard if trying to access login page while authenticated
+  // Redirect to dashboard (or intended redirect path) if trying to access login page while authenticated
   if (token && isAuthPage) {
+    const redirectUrl = request.nextUrl.searchParams.get('redirect');
+    if (redirectUrl) {
+      // Reconstruct the URL with all params to pass to the destination
+      const url = new URL(redirectUrl, request.url);
+      request.nextUrl.searchParams.forEach((value, key) => {
+        if (key !== 'redirect') {
+          url.searchParams.set(key, value);
+        }
+      });
+      return NextResponse.redirect(url);
+    }
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

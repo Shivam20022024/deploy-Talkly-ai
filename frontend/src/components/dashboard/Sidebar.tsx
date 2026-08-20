@@ -17,7 +17,8 @@ import {
   Mic,
   LogOut,
   PhoneIncoming,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  CreditCard
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -34,6 +35,7 @@ const secondaryNav = [
 ];
 
 const bottomNav = [
+  { name: 'Billing & Wallet', icon: CreditCard, href: '/billing' },
   { name: 'Org Settings', icon: SettingsIcon, href: '/settings' },
 ];
 

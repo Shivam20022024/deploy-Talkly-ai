@@ -21,8 +21,8 @@ export const Navbar = () => {
 
   const navLinks = [
     { name: 'Features', href: '#features' },
-    // { name: 'Solutions', href: '#solutions' },
     { name: 'How its works', href: '#how-it-works' },
+    { name: 'Pricing', href: '#pricing' },
   ];
 
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {

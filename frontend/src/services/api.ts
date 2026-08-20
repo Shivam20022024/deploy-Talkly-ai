@@ -153,4 +153,37 @@ export const api = {
     });
     return handleJSON(res);
   },
+
+  getWalletDashboard: async (): Promise<any> => {
+    const res = await fetchWithAuth(`${BASE}/api/v1/billing/wallet`);
+    return handleJSON(res);
+  },
+  
+  getTransactions: async (limit = 50, skip = 0): Promise<any> => {
+    const res = await fetchWithAuth(`${BASE}/api/v1/billing/transactions?limit=${limit}&skip=${skip}`);
+    return handleJSON(res);
+  },
+
+  getUsage: async (limit = 50, skip = 0): Promise<any> => {
+    const res = await fetchWithAuth(`${BASE}/api/v1/billing/usage?limit=${limit}&skip=${skip}`);
+    return handleJSON(res);
+  },
+
+  createOrder: async (amount: number, currency: string = "INR"): Promise<any> => {
+    const res = await fetchWithAuth(`${BASE}/api/v1/billing/wallet/create-order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount, currency }),
+    });
+    return handleJSON(res);
+  },
+
+  verifyPayment: async (razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string): Promise<any> => {
+    const res = await fetchWithAuth(`${BASE}/api/v1/billing/wallet/verify-payment`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ razorpay_order_id, razorpay_payment_id, razorpay_signature }),
+    });
+    return handleJSON(res);
+  },
 };
