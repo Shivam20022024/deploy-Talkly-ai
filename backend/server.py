@@ -90,7 +90,7 @@ BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
 
 # Startup logic moved to lifespan context manager above
 
-@app.get("/calls")
+@app.get("/api/v1/calls")
 async def get_calls(limit: int = 20, skip: int = 0, current_user: dict = Depends(get_current_user)):
     db = mongodb.get_db()
     cursor = db.calls.find({"company_id": current_user["company_id"]}).sort("created_at", -1).skip(skip).limit(limit)
@@ -100,7 +100,7 @@ async def get_calls(limit: int = 20, skip: int = 0, current_user: dict = Depends
         calls.append(d)
     return calls
 
-@app.get("/calls/{call_id}")
+@app.get("/api/v1/calls/{call_id}")
 async def get_call(call_id: str, current_user: dict = Depends(get_current_user)):
     db = mongodb.get_db()
     doc = await db.calls.find_one({"call_id": call_id, "company_id": current_user["company_id"]})
@@ -109,7 +109,7 @@ async def get_call(call_id: str, current_user: dict = Depends(get_current_user))
     doc["_id"] = None
     return doc
 
-@app.post("/calls/trigger")
+@app.post("/api/v1/calls/trigger")
 async def trigger_bolna_call(payload: dict = Body(...), current_user: dict = Depends(get_current_user)):
     phone_number = payload.get("phone_number")
     lead_id = payload.get("lead_id")
@@ -287,7 +287,7 @@ async def process_bulk_calls(phone_numbers: list, campaign_language: str = "Engl
             
         await asyncio.sleep(0.5)
 
-@app.post("/calls/trigger-bulk")
+@app.post("/api/v1/calls/trigger-bulk")
 async def trigger_bolna_bulk(
     background_tasks: BackgroundTasks, 
     file: UploadFile = File(...),
@@ -333,7 +333,7 @@ async def trigger_bolna_bulk(
         "count": len(phone_numbers)
     }
 
-@app.post("/calls/send-email")
+@app.post("/api/v1/calls/send-email")
 async def send_email(payload: dict = Body(...)):
     to_email = payload.get("to")
     subject = payload.get("subject")

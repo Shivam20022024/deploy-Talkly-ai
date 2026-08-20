@@ -71,12 +71,12 @@ export const api = {
   },
 
   getAllCalls: async (limit = 200, skip = 0): Promise<CallFromAPI[]> => {
-    const res = await fetchWithAuth(`${BASE}/calls?limit=${limit}&skip=${skip}`);
+    const res = await fetchWithAuth(`${BASE}/api/v1/calls?limit=${limit}&skip=${skip}`);
     return handleJSON(res);
   },
 
   getCallById: async (callId: string): Promise<CallFromAPI> => {
-    const res = await fetchWithAuth(`${BASE}/calls/${encodeURIComponent(callId)}`);
+    const res = await fetchWithAuth(`${BASE}/api/v1/calls/${encodeURIComponent(callId)}`);
     return handleJSON(res);
   },
 
@@ -94,7 +94,7 @@ export const api = {
   },
 
   triggerCall: async (phoneNumber: string, leadId: string): Promise<any> => {
-    const res = await fetchWithAuth(`${BASE}/calls/trigger`, {
+    const res = await fetchWithAuth(`${BASE}/api/v1/calls/trigger`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ phone_number: phoneNumber, lead_id: leadId }),
