@@ -30,7 +30,7 @@ export default function LeadDetailView() {
     const fetchCall = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        const res = await fetchWithAuth(`${apiUrl}/calls/${params.id}`);
+        const res = await fetchWithAuth(`${apiUrl}/api/v1/calls/${params.id}`);
         if (res.ok) {
           const data = await res.json();
           setCallData(data);

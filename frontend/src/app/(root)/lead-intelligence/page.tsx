@@ -30,7 +30,7 @@ export default function LeadIntelligencePage() {
     const fetchCalls = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        const res = await fetchWithAuth(`${apiUrl}/calls?limit=100`);
+        const res = await fetchWithAuth(`${apiUrl}/api/v1/calls?limit=100`);
         if (res.ok) {
           const data = await res.json();
           const mapped = data.map((call: any, index: number) => {

@@ -36,7 +36,7 @@ export default function AgentPerformancePage() {
     const fetchCalls = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        const res = await fetchWithAuth(`${apiUrl}/calls?limit=200`);
+        const res = await fetchWithAuth(`${apiUrl}/api/v1/calls?limit=200`);
         if (res.ok) {
           const data = await res.json();
           setCalls(data);

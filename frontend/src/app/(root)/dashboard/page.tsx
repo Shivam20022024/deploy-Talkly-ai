@@ -18,7 +18,7 @@ const Dashboard = () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
         // Increased limit to 10000 to ensure all calls are fetched and calculated
-        const res = await fetchWithAuth(`${apiUrl}/calls?limit=10000`);
+        const res = await fetchWithAuth(`${apiUrl}/api/v1/calls?limit=10000`);
         if (res.ok) {
           const data = await res.json();
           setCalls(data);

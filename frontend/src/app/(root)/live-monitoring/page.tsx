@@ -67,7 +67,7 @@ export default function LiveMonitoringPage() {
       pollInterval = setInterval(async () => {
         try {
           const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-          const res = await fetchWithAuth(`${apiUrl}/calls/${currentCallId}`);
+          const res = await fetchWithAuth(`${apiUrl}/api/v1/calls/${currentCallId}`);
           if (res.ok) {
             const callData = await res.json();
             
@@ -144,7 +144,7 @@ export default function LiveMonitoringPage() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-      const res = await fetchWithAuth(`${apiUrl}/calls/trigger`, {
+      const res = await fetchWithAuth(`${apiUrl}/api/v1/calls/trigger`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -179,7 +179,7 @@ export default function LiveMonitoringPage() {
       formData.append('voice_gender', voiceGender);
       formData.append('regional_accent', regionalAccent);
       
-      const res = await fetchWithAuth(`${apiUrl}/calls/trigger-bulk`, {
+      const res = await fetchWithAuth(`${apiUrl}/api/v1/calls/trigger-bulk`, {
         method: 'POST',
         body: formData
       });
@@ -210,7 +210,7 @@ export default function LiveMonitoringPage() {
     const pollFinal = setInterval(async () => {
       attempts++;
       try {
-        const res = await fetchWithAuth(`${apiUrl}/calls/${currentCallId}`);
+        const res = await fetchWithAuth(`${apiUrl}/api/v1/calls/${currentCallId}`);
         if (res.ok) {
           const callData = await res.json();
           if (callData.status === 'Analyzed' || callData.status === 'Completed' || attempts > 10) {
