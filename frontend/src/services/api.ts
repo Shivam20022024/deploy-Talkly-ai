@@ -86,7 +86,7 @@ export const api = {
     if (agentName) formData.append("agent_name", agentName);
     if (employeeId) formData.append("employee_id", employeeId);
     if (employeeEmail) formData.append("employee_email", employeeEmail);
-    const res = await fetchWithAuth(`${BASE}/process-audio`, {
+    const res = await fetchWithAuth(`${BASE}/api/v1/process-audio`, {
       method: "POST",
       body: formData,
     });

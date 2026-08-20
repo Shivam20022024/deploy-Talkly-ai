@@ -46,7 +46,7 @@ export default function VoiceIntelligencePage() {
       formData.append("agent_name", "AI Agent");
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-      const res = await fetchWithAuth(`${apiUrl}/process-audio`, {
+      const res = await fetchWithAuth(`${apiUrl}/api/v1/process-audio`, {
         method: 'POST',
         body: formData,
       });

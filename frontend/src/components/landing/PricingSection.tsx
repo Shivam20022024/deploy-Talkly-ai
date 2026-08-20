@@ -10,7 +10,7 @@ export const PricingSection = () => {
   return (
     <section id="pricing" className="py-24 relative overflow-hidden bg-slate-50 dark:bg-background">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-theme-100/40 via-transparent to-transparent dark:from-brand-primary/10" />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.div
@@ -22,7 +22,7 @@ export const PricingSection = () => {
             <CreditCard size={16} />
             <span>Pricing Options</span>
           </motion.div>
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -31,7 +31,7 @@ export const PricingSection = () => {
           >
             Simple, Flexible Pricing
           </motion.h2>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -41,7 +41,7 @@ export const PricingSection = () => {
             Pay only for what you use, or choose a plan that fits your business.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -49,7 +49,7 @@ export const PricingSection = () => {
             className="flex items-center justify-center mt-10 gap-4"
           >
             <span className={`text-sm font-medium ${!isAnnual ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>Monthly</span>
-            <button 
+            <button
               onClick={() => setIsAnnual(!isAnnual)}
               className="relative inline-flex h-6 w-11 items-center rounded-full bg-theme-600 dark:bg-brand-primary transition-colors focus:outline-none"
             >
@@ -62,9 +62,9 @@ export const PricingSection = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-          
+
           {/* Pay As You Go */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -79,7 +79,7 @@ export const PricingSection = () => {
               <div className="text-3xl font-bold text-slate-900 dark:text-white mb-1">Top Up</div>
               <p className="text-sm text-slate-500">Wallet balance never expires.</p>
             </div>
-            
+
             <ul className="space-y-4 mb-8 flex-1">
               <li className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
                 <Check className="w-5 h-5 text-theme-500 shrink-0" />
@@ -91,11 +91,19 @@ export const PricingSection = () => {
               </li>
               <li className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
                 <Check className="w-5 h-5 text-theme-500 shrink-0" />
+                <span>1 AI Voice Agent</span>
+              </li>
+              <li className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
+                <Check className="w-5 h-5 text-theme-500 shrink-0" />
                 <span>Standard Voice Models</span>
               </li>
+              <li className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
+                <Check className="w-5 h-5 text-theme-500 shrink-0" />
+                <span>Wallet balance never expires</span>
+              </li>
             </ul>
-            
-            <Link 
+
+            <Link
               href="/login?redirect=/billing&intent=buy_credits&amount=1000"
               className="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-900 dark:text-white text-sm font-semibold rounded-xl text-center transition-colors"
             >
@@ -104,7 +112,7 @@ export const PricingSection = () => {
           </motion.div>
 
           {/* Starter Plan */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -122,7 +130,7 @@ export const PricingSection = () => {
               </div>
               {isAnnual && <p className="text-xs text-green-600 mt-1">Billed ₹9,588 yearly</p>}
             </div>
-            
+
             <ul className="space-y-4 mb-8 flex-1">
               <li className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
                 <Check className="w-5 h-5 text-theme-500 shrink-0" />
@@ -141,8 +149,8 @@ export const PricingSection = () => {
                 <span>Standard Integrations</span>
               </li>
             </ul>
-            
-            <Link 
+
+            <Link
               href="/login?redirect=/billing&intent=subscribe&plan=starter"
               className="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-900 dark:text-white text-sm font-semibold rounded-xl text-center transition-colors"
             >
@@ -151,7 +159,7 @@ export const PricingSection = () => {
           </motion.div>
 
           {/* Professional Plan (Highlighted) */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -174,7 +182,7 @@ export const PricingSection = () => {
               </div>
               {isAnnual && <p className="text-xs text-white/90 mt-1">Billed ₹28,788 yearly</p>}
             </div>
-            
+
             <ul className="space-y-4 mb-8 flex-1">
               <li className="flex items-start gap-3 text-sm text-white/90">
                 <Check className="w-5 h-5 text-white shrink-0" />
@@ -182,7 +190,7 @@ export const PricingSection = () => {
               </li>
               <li className="flex items-start gap-3 text-sm text-white/90">
                 <Check className="w-5 h-5 text-white shrink-0" />
-                <span>Multiple AI Agents</span>
+                <span>1 AI Voice Agent</span>
               </li>
               <li className="flex items-start gap-3 text-sm text-white/90">
                 <Check className="w-5 h-5 text-white shrink-0" />
@@ -190,15 +198,23 @@ export const PricingSection = () => {
               </li>
               <li className="flex items-start gap-3 text-sm text-white/90">
                 <Check className="w-5 h-5 text-white shrink-0" />
-                <span>Premium Voices</span>
+                <span>Premium Voice Models</span>
               </li>
               <li className="flex items-start gap-3 text-sm text-white/90">
                 <Check className="w-5 h-5 text-white shrink-0" />
                 <span>CRM Integrations</span>
               </li>
+              <li className="flex items-start gap-3 text-sm text-white/90">
+                <Check className="w-5 h-5 text-white shrink-0" />
+                <span>Higher usage limits</span>
+              </li>
+              <li className="flex items-start gap-3 text-sm text-white/90">
+                <Check className="w-5 h-5 text-white shrink-0" />
+                <span>Priority Support</span>
+              </li>
             </ul>
-            
-            <Link 
+
+            <Link
               href="/login?redirect=/billing&intent=subscribe&plan=professional"
               className="w-full py-3 px-4 bg-white text-theme-700 dark:text-brand-primary text-sm font-bold rounded-xl text-center hover:bg-slate-50 transition-colors shadow-lg"
             >
@@ -207,7 +223,7 @@ export const PricingSection = () => {
           </motion.div>
 
           {/* Enterprise Plan */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -222,7 +238,7 @@ export const PricingSection = () => {
               <div className="text-3xl font-bold text-slate-900 dark:text-white mb-1">Custom</div>
               <p className="text-sm text-slate-500">Contact us for pricing</p>
             </div>
-            
+
             <ul className="space-y-4 mb-8 flex-1">
               <li className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
                 <Check className="w-5 h-5 text-slate-400 shrink-0" />
@@ -230,7 +246,11 @@ export const PricingSection = () => {
               </li>
               <li className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
                 <Check className="w-5 h-5 text-slate-400 shrink-0" />
-                <span>Multiple Companies/Users</span>
+                <span>Multiple AI Agents</span>
+              </li>
+              <li className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
+                <Check className="w-5 h-5 text-slate-400 shrink-0" />
+                <span>Multiple Users</span>
               </li>
               <li className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
                 <Check className="w-5 h-5 text-slate-400 shrink-0" />
@@ -238,11 +258,15 @@ export const PricingSection = () => {
               </li>
               <li className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
                 <Check className="w-5 h-5 text-slate-400 shrink-0" />
+                <span>Custom Workflows</span>
+              </li>
+              <li className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
+                <Check className="w-5 h-5 text-slate-400 shrink-0" />
                 <span>Dedicated Support & SLA</span>
               </li>
             </ul>
-            
-            <Link 
+
+            <Link
               href="mailto:sales@talkly.ai"
               className="w-full py-3 px-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold rounded-xl text-center hover:opacity-90 transition-opacity"
             >

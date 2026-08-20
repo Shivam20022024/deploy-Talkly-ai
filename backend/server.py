@@ -527,7 +527,7 @@ async def bolna_webhook(data: dict = Body(...)):
         await db.calls.update_one({"call_id": lead_id}, {"$set": update_data})
     return {"status": "success"}
 
-@app.post("/process-audio")
+@app.post("/api/v1/process-audio")
 async def process_audio_api(
     file: UploadFile = File(...), 
     agent_name: str = Form("AI Agent"),
