@@ -66,6 +66,9 @@ from inbound.routes import inbound_router
 app.include_router(inbound_router, prefix="/api/v1/inbound")
 app.include_router(auth_router, prefix="/api/v1/auth")
 
+from routes.super_admin_routes import super_admin_router
+app.include_router(super_admin_router, prefix="/api/v1/super-admin")
+
 from routes.billing_routes import billing_router
 app.include_router(billing_router, prefix="/api/v1/billing")
 from services.billing_service import billing_service
@@ -201,13 +204,13 @@ async def trigger_bolna_call(payload: dict = Body(...), current_user: dict = Dep
         await db.calls.update_one({"call_id": lead_id}, {"$set": {"status": "Error"}})
         raise HTTPException(status_code=500, detail=f"API Error: {str(e)}")
 
-async def process_bulk_calls(phone_numbers: list, campaign_language: str = "English", ai_voice: str = "Default", voice_gender: str = "Female", regional_accent: str = "Default", company_id: str = None):
+async def process_bulk_calls(contacts: list, campaign_language: str = "English", ai_voice: str = "Default", voice_gender: str = "Female", regional_accent: str = "Default", company_id: str = None):
     api_key = os.environ.get("BOLNA_API_KEY", "").strip()
     
     db = mongodb.get_db()
     
     # Dynamically fetch Agent ID based on Database mapping
-    agent_id = await language_service.get_agent_id_for_language(db, campaign_language, current_user["company_id"])
+    agent_id = await language_service.get_agent_id_for_language(db, campaign_language, company_id)
     
     if not api_key or not agent_id:
         return
@@ -218,8 +221,17 @@ async def process_bulk_calls(phone_numbers: list, campaign_language: str = "Engl
         "Content-Type": "application/json"
     }
 
-    for idx, phone in enumerate(phone_numbers):
-        phone_str = str(phone).strip()
+    for idx, contact in enumerate(contacts):
+        phone_str = str(contact.get("phone", "")).strip()
+        customer_name = str(contact.get("name", "Bulk Phone Lead")).strip()
+        
+        # Ensure it has a country code (assuming +91 for 10-digit Indian numbers)
+        if phone_str and not phone_str.startswith("+"):
+            if len(phone_str) == 10 and phone_str.isdigit():
+                phone_str = f"+91{phone_str}"
+            else:
+                phone_str = f"+{phone_str}"
+                
         if not phone_str:
             continue
             
@@ -228,7 +240,7 @@ async def process_bulk_calls(phone_numbers: list, campaign_language: str = "Engl
         await db.calls.insert_one({
             "call_id": lead_id,
             "customer_id": phone_str,
-            "customer_name": "Bulk Phone Lead",
+            "customer_name": customer_name,
             "direction": "outbound",
             "transcript": "",
             "status": "Initiating",
@@ -240,7 +252,7 @@ async def process_bulk_calls(phone_numbers: list, campaign_language: str = "Engl
             "ai_voice": ai_voice,
             "voice_gender": voice_gender,
             "regional_accent": regional_accent,
-            "company_id": current_user["company_id"]
+            "company_id": company_id
         })
         
         bolna_payload = {
@@ -249,7 +261,7 @@ async def process_bulk_calls(phone_numbers: list, campaign_language: str = "Engl
             "webhook_url": f"{current_base_url}/webhooks/bolna",
             "user_data": {
                 "lead_id": lead_id,
-                "customer_name": "Bulk Phone Lead",
+                "customer_name": customer_name,
                 "agent_name": "AI Agent",
                 "campaign_language": campaign_language,
                 "ai_voice": ai_voice,
@@ -258,12 +270,7 @@ async def process_bulk_calls(phone_numbers: list, campaign_language: str = "Engl
             }
         }
         
-        if campaign_language.lower() != "english":
-            bolna_payload["agent_config"] = {
-                "prompt": {
-                    "system_prompt": f"You are an AI sales agent for TalklyAI. You MUST speak entirely in the {campaign_language} language. Please reply naturally in {campaign_language}."
-                }
-            }
+        print(f"DEBUG: Parsed name for {phone_str} is -> '{customer_name}'")
         
         try:
             print(f"Triggering Bulk Bolna call to {phone_str} with webhook_url: {bolna_payload['webhook_url']}")
@@ -297,40 +304,71 @@ async def trigger_bolna_bulk(
     regional_accent: str = Form("Default"),
     current_user: dict = Depends(get_current_user)
 ):
-    if not file.filename.endswith(('.xlsx', '.xls')):
-        raise HTTPException(status_code=400, detail="Only .xlsx files are supported")
+    if not file.filename.endswith(('.xlsx', '.xls', '.csv')):
+        raise HTTPException(status_code=400, detail="Only .xlsx and .csv files are supported")
         
     contents = await file.read()
+    contacts = []
+    
     try:
-        wb = openpyxl.load_workbook(io.BytesIO(contents))
-        sheet = wb.active
-        
-        phone_numbers = []
-        header_row = next(sheet.iter_rows(min_row=1, max_row=1, values_only=True), None)
-        phone_col_idx = 0
-        
-        if header_row:
-            for idx, cell in enumerate(header_row):
-                if cell and str(cell).lower() in ["phone", "phone number", "phone_number", "number", "mobile"]:
-                    phone_col_idx = idx
-                    break
-                    
-        for row in sheet.iter_rows(min_row=2 if header_row else 1, values_only=True):
-            if row and len(row) > phone_col_idx and row[phone_col_idx]:
-                phone_numbers.append(row[phone_col_idx])
+        if file.filename.endswith('.csv'):
+            import csv
+            content_str = contents.decode('utf-8', errors='replace')
+            reader = csv.reader(io.StringIO(content_str))
+            
+            rows = list(reader)
+            if rows:
+                header_row = rows[0]
+                phone_col_idx = 0
+                name_col_idx = -1
                 
+                for idx, cell in enumerate(header_row):
+                    cell_str = str(cell).lower().strip() if cell else ""
+                    if cell_str in ["phone", "phone number", "phone_number", "number", "mobile"]:
+                        phone_col_idx = idx
+                    elif cell_str in ["name", "customer name", "customer_name", "first name", "full name"]:
+                        name_col_idx = idx
+                        
+                for row in rows[1:]:
+                    if row and len(row) > phone_col_idx and row[phone_col_idx]:
+                        name = "Bulk Phone Lead"
+                        if name_col_idx != -1 and len(row) > name_col_idx and row[name_col_idx]:
+                            name = str(row[name_col_idx]).strip()
+                        contacts.append({"phone": row[phone_col_idx], "name": name})
+        else:
+            wb = openpyxl.load_workbook(io.BytesIO(contents))
+            sheet = wb.active
+            
+            header_row = next(sheet.iter_rows(min_row=1, max_row=1, values_only=True), None)
+            phone_col_idx = 0
+            name_col_idx = -1
+            
+            if header_row:
+                for idx, cell in enumerate(header_row):
+                    cell_str = str(cell).lower().strip() if cell else ""
+                    if cell_str in ["phone", "phone number", "phone_number", "number", "mobile"]:
+                        phone_col_idx = idx
+                    elif cell_str in ["name", "customer name", "customer_name", "first name", "full name"]:
+                        name_col_idx = idx
+                        
+            for row in sheet.iter_rows(min_row=2 if header_row else 1, values_only=True):
+                if row and len(row) > phone_col_idx and row[phone_col_idx]:
+                    name = "Bulk Phone Lead"
+                    if name_col_idx != -1 and len(row) > name_col_idx and row[name_col_idx]:
+                        name = str(row[name_col_idx]).strip()
+                    contacts.append({"phone": row[phone_col_idx], "name": name})
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error reading Excel file: {str(e)}")
         
-    if not phone_numbers:
+    if not contacts:
         raise HTTPException(status_code=400, detail="No phone numbers found in the Excel file.")
         
-    background_tasks.add_task(process_bulk_calls, phone_numbers, campaign_language, ai_voice, voice_gender, regional_accent, current_user["company_id"])
+    background_tasks.add_task(process_bulk_calls, contacts, campaign_language, ai_voice, voice_gender, regional_accent, current_user["company_id"])
     
     return {
         "status": "success",
-        "message": f"Successfully initiated bulk calls for {len(phone_numbers)} numbers.",
-        "count": len(phone_numbers)
+        "message": f"Successfully initiated bulk calls for {len(contacts)} numbers.",
+        "count": len(contacts)
     }
 
 @app.post("/api/v1/calls/send-email")
@@ -468,6 +506,14 @@ async def bolna_webhook(data: dict = Body(...)):
             customer_phone = data.get("telephony_data", {}).get("from_number") or data.get("caller_phone_number") or "Unknown Inbound"
             lead_id = data.get("call_id") or data.get("execution_id") or f"inbound_{int(time.time()*1000)}"
             
+            # Resolve company_id from agent_id if possible
+            inbound_company_id = "novalantis-legacy-tenant" # fallback
+            agent_id = data.get("agent_id") or data.get("telephony_data", {}).get("agent_id")
+            if agent_id:
+                mapping = await db.language_mappings.find_one({"bolna_agent_id": agent_id})
+                if mapping and mapping.get("company_id"):
+                    inbound_company_id = mapping.get("company_id")
+            
             await db.calls.insert_one({
                 "call_id": lead_id,
                 "customer_id": customer_phone,
@@ -479,7 +525,8 @@ async def bolna_webhook(data: dict = Body(...)):
                 "language": "Detecting...",
                 "detected_language": "Unknown",
                 "preferred_language": "Unknown",
-                "transcript_language": "Unknown"
+                "transcript_language": "Unknown",
+                "company_id": inbound_company_id
             })
             print(f"Created new INBOUND lead record: {lead_id} from {customer_phone}")
 

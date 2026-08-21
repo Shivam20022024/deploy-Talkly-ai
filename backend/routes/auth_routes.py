@@ -31,6 +31,7 @@ async def register_company(payload: dict = Body(...)):
         "company_id": company_id,
         "name": company_name,
         "plan_type": "trial",
+        "status": "ACTIVE",
         "created_at": datetime.utcnow()
     }
     await db.companies.insert_one(company_doc)
@@ -42,14 +43,14 @@ async def register_company(payload: dict = Body(...)):
         "name": user_name,
         "email": email,
         "password_hash": get_password_hash(password),
-        "role": "company_admin",
+        "role": "COMPANY_ADMIN",
         "created_at": datetime.utcnow()
     }
     await db.users.insert_one(user_doc)
     
     # Generate Token
     access_token = create_access_token(
-        data={"sub": user_id, "company_id": company_id, "role": "company_admin", "email": email}
+        data={"sub": user_id, "company_id": company_id, "role": "COMPANY_ADMIN", "email": email}
     )
     
     return {
@@ -60,7 +61,7 @@ async def register_company(payload: dict = Body(...)):
             "id": user_id,
             "name": user_name,
             "email": email,
-            "role": "company_admin",
+            "role": "COMPANY_ADMIN",
             "company_id": company_id,
             "company_name": company_name
         }
@@ -84,7 +85,7 @@ async def login(payload: dict = Body(...)):
     company_name = company["name"] if company else "Unknown"
         
     access_token = create_access_token(
-        data={"sub": user["user_id"], "company_id": user["company_id"], "role": user["role"], "email": email}
+        data={"sub": user["user_id"], "company_id": user["company_id"], "role": user.get("role", "COMPANY_ADMIN"), "email": email}
     )
     
     return {
@@ -94,7 +95,7 @@ async def login(payload: dict = Body(...)):
             "id": user["user_id"],
             "name": user["name"],
             "email": email,
-            "role": user["role"],
+            "role": user.get("role", "COMPANY_ADMIN"),
             "company_id": user["company_id"],
             "company_name": company_name
         }

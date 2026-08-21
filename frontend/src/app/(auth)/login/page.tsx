@@ -23,9 +23,12 @@ const LoginContent = () => {
     setError('');
 
     try {
-      await login(email, password);
+      const user = await login(email, password);
       
-      const redirectPath = searchParams.get('redirect') || '/dashboard';
+      let redirectPath = searchParams.get('redirect');
+      if (!redirectPath) {
+        redirectPath = user?.role === 'SUPER_ADMIN' ? '/super-admin/dashboard' : '/dashboard';
+      }
       const intent = searchParams.get('intent');
       const amount = searchParams.get('amount');
       const plan = searchParams.get('plan');

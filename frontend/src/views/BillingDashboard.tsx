@@ -34,6 +34,14 @@ const BillingDashboard: React.FC = () => {
   useEffect(() => {
     loadData();
     
+    // Load Cashfree script
+    if (!document.getElementById("cashfree-script")) {
+      const script = document.createElement("script");
+      script.id = "cashfree-script";
+      script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+      document.body.appendChild(script);
+    }
+    
     // Check for intents from landing page
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -72,42 +80,35 @@ const BillingDashboard: React.FC = () => {
         return;
       }
 
-      // Real Razorpay integration
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
-        amount: res.order.amount,
-        currency: res.order.currency,
-        name: "TalklyAI",
-        description: "Wallet Recharge",
-        order_id: res.order.id,
-        handler: async function (response: any) {
-          try {
-            await api.verifyPayment(
-              response.razorpay_order_id,
-              response.razorpay_payment_id,
-              response.razorpay_signature
-            );
-            toast.success("Payment successful!");
-            setShowAddCredits(false);
-            setTimeout(loadData, 2000); // Wait for webhook processing
-          } catch (err: any) {
-            toast.error("Payment verification failed");
-          }
-        },
-        prefill: {
-          name: user?.name,
-          email: user?.email,
-        },
-        theme: {
-          color: "#2563eb"
-        }
+      // Real Cashfree integration
+      if (!(window as any).Cashfree) {
+        toast.error("Cashfree SDK failed to load. Please refresh.");
+        return;
+      }
+
+      const cashfree = (window as any).Cashfree({
+        mode: "sandbox" // Change to "production" for live
+      });
+
+      const checkoutOptions = {
+        paymentSessionId: res.order.payment_session_id,
+        redirectTarget: "_modal"
       };
 
-      const rzp = new (window as any).Razorpay(options);
-      rzp.on('payment.failed', function (response: any){
-        toast.error("Payment failed: " + response.error.description);
+      cashfree.checkout(checkoutOptions).then((result: any) => {
+        if (result.error) {
+          toast.error("Payment failed: " + result.error.message);
+        }
+        if (result.paymentDetails) {
+          api.verifyPayment(res.order.id)
+            .then(() => {
+              toast.success("Payment successful!");
+              setShowAddCredits(false);
+              setTimeout(loadData, 2000); // Wait for processing
+            })
+            .catch(() => toast.error("Payment verification failed"));
+        }
       });
-      rzp.open();
       
     } catch (err: any) {
       toast.dismiss();

@@ -10,8 +10,15 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
   if (userStr) {
     headers.set('Authorization', `Bearer ${userStr}`);
   }
+  
+  if (typeof window !== 'undefined') {
+    const impersonateId = localStorage.getItem('talkly_impersonate_id');
+    if (impersonateId) {
+      headers.set('X-Impersonate-Company-ID', impersonateId);
+    }
+  }
 
-  const res = await fetch(url, { ...options, headers });
+  const res = await fetch(url, { cache: 'no-store', ...options, headers });
   
   if (res.status === 401 || res.status === 403) {
     if (typeof window !== 'undefined') {
@@ -178,12 +185,37 @@ export const api = {
     return handleJSON(res);
   },
 
-  verifyPayment: async (razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string): Promise<any> => {
+  verifyPayment: async (order_id: string): Promise<any> => {
     const res = await fetchWithAuth(`${BASE}/api/v1/billing/wallet/verify-payment`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ razorpay_order_id, razorpay_payment_id, razorpay_signature }),
+      body: JSON.stringify({ order_id }),
     });
+    return handleJSON(res);
+  },
+
+  // --- Super Admin APIs ---
+  getSuperAdminDashboard: async (): Promise<any> => {
+    const res = await fetchWithAuth(`${BASE}/api/v1/super-admin/dashboard-stats`);
+    return handleJSON(res);
+  },
+  
+  getSuperAdminCompanies: async (): Promise<any> => {
+    const res = await fetchWithAuth(`${BASE}/api/v1/super-admin/companies`);
+    return handleJSON(res);
+  },
+  
+  updateCompanyStatus: async (companyId: string, status: string): Promise<any> => {
+    const res = await fetchWithAuth(`${BASE}/api/v1/super-admin/companies/${companyId}/status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    return handleJSON(res);
+  },
+  
+  getSuperAdminUsers: async (): Promise<any> => {
+    const res = await fetchWithAuth(`${BASE}/api/v1/super-admin/users`);
     return handleJSON(res);
   },
 };

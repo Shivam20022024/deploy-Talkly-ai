@@ -11,9 +11,28 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Decode token to get role
+  let role = '';
+  if (token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      const payload = JSON.parse(jsonPayload);
+      role = payload.role || '';
+    } catch(e) {}
+  }
+
   // Redirect to login if accessing protected routes without token
   if (!token && !isAuthPage) {
     return NextResponse.redirect(new URL('/login', request.url));
+  }
+  
+  // Protect Super Admin routes
+  if (pathname.startsWith('/super-admin') && role !== 'SUPER_ADMIN') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   // Redirect to dashboard (or intended redirect path) if trying to access login page while authenticated
@@ -28,6 +47,9 @@ export function middleware(request: NextRequest) {
         }
       });
       return NextResponse.redirect(url);
+    }
+    if (role === 'SUPER_ADMIN') {
+      return NextResponse.redirect(new URL('/super-admin/dashboard', request.url));
     }
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }

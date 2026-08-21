@@ -13,9 +13,7 @@ class OrderRequest(BaseModel):
     currency: str = "INR"
 
 class VerifyRequest(BaseModel):
-    razorpay_order_id: str
-    razorpay_payment_id: str
-    razorpay_signature: str
+    order_id: str
 
 @billing_router.get("/wallet")
 async def get_wallet_dashboard(current_user: dict = Depends(get_current_user)):
@@ -54,38 +52,34 @@ async def create_order(req: OrderRequest, current_user: dict = Depends(get_curre
 
 @billing_router.post("/wallet/verify-payment")
 async def verify_payment(req: VerifyRequest, current_user: dict = Depends(get_current_user)):
-    is_valid = payment_provider.verify_payment_signature(
-        order_id=req.razorpay_order_id,
-        payment_id=req.razorpay_payment_id,
-        signature=req.razorpay_signature
-    )
+    order_data = payment_provider.fetch_order(req.order_id)
     
-    if not is_valid:
-        raise HTTPException(status_code=400, detail="Invalid payment signature")
+    if order_data.get("order_status") != "PAID":
+        raise HTTPException(status_code=400, detail="Payment not successful")
         
-    # We should ideally fetch order amount from Razorpay API, 
-    # but for this demo, we'll assume the frontend passed it correctly or verify via webhook.
-    # In a real scenario, this endpoint could just acknowledge and wait for webhook.
-    # We'll rely on the webhook for actual credit, or do it here if we trust the verified order.
-    # Let's mock a fixed 1000 credit if it's the test payload for simplicity in V1, 
-    # or rely on webhook instead. For local testing without webhooks, we'll credit here:
+    amount = order_data["order_amount"]
     
-    # In a production system, you'd fetch the order from Razorpay to get the exact amount:
-    # order_details = payment_provider.fetch_order(req.razorpay_order_id)
-    # amount = order_details['amount'] / 100
-    
-    # For now, let's just use a fixed 1000 INR for testing if verification passes
-    # Wait, we can't hardcode. We should use the webhook.
-    # Actually, Razorpay payment verification means the payment succeeded.
-    # Let's just return success, and the actual credit happens in webhook.
-    return {"status": "success", "message": "Payment verified. Wallet will be credited shortly."}
+    # Credit the user instantly
+    db = mongodb.get_db()
+    from services.billing_service import billing_service
+    await billing_service.add_credits(
+        db=db,
+        company_id=current_user["company_id"],
+        amount=amount,
+        payment_provider="cashfree",
+        provider_transaction_id=req.order_id,
+        description="Wallet top-up via Cashfree"
+    )
+        
+    return {"status": "success", "message": "Payment verified and wallet credited."}
 
-@billing_router.post("/webhook/razorpay")
-async def razorpay_webhook(request: Request):
+@billing_router.post("/webhook/cashfree")
+async def cashfree_webhook(request: Request):
     payload = await request.body()
-    signature = request.headers.get("x-razorpay-signature", "")
+    signature = request.headers.get("x-webhook-signature", "")
+    timestamp = request.headers.get("x-webhook-timestamp", "")
     
-    is_valid = payment_provider.verify_webhook_signature(payload.decode('utf-8'), signature)
+    is_valid = payment_provider.verify_webhook_signature(payload.decode('utf-8'), signature, timestamp)
     
     if not is_valid:
         raise HTTPException(status_code=400, detail="Invalid signature")
@@ -93,23 +87,23 @@ async def razorpay_webhook(request: Request):
     import json
     data = json.loads(payload)
     
-    event = data.get("event")
-    if event == "payment.captured":
-        payment_entity = data["payload"]["payment"]["entity"]
-        amount = payment_entity["amount"] / 100.0
-        company_id = payment_entity.get("notes", {}).get("company_id")
-        transaction_id = payment_entity["id"]
+    if data.get("type") == "PAYMENT_SUCCESS_WEBHOOK":
+        payment_data = data.get("data", {}).get("payment", {})
+        order_data = data.get("data", {}).get("order", {})
+        amount = order_data.get("order_amount", 0)
+        company_id = order_data.get("order_tags", {}).get("company_id")
+        transaction_id = order_data.get("order_id")
         
-        if company_id:
+        if company_id and payment_data.get("payment_status") == "SUCCESS":
             db = mongodb.get_db()
             from services.billing_service import billing_service
             await billing_service.add_credits(
                 db=db,
                 company_id=company_id,
                 amount=amount,
-                payment_provider="razorpay",
+                payment_provider="cashfree",
                 provider_transaction_id=transaction_id,
-                description=f"Wallet top-up via Razorpay"
+                description=f"Wallet top-up via Cashfree webhook"
             )
             
     return {"status": "ok"}
