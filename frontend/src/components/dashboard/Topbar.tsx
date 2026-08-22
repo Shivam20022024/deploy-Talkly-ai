@@ -72,6 +72,7 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
     ?? pathname.split('/').filter(Boolean).at(-1)?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
     ?? 'Dashboard';
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   // Dropdown states
   const [activeDropdown, setActiveDropdown] = useState<'history' | 'notifications' | 'profile' | null>(null);
@@ -79,7 +80,7 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
   // Handle Cmd+K / Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         searchInputRef.current?.focus();
       }
@@ -92,7 +93,7 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       setActiveDropdown(null);
-      if (searchInputRef.current && !searchInputRef.current.contains(e.target as Node)) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
         // give link clicks time to register
         setTimeout(() => setIsSearchFocused(false), 150);
       }
@@ -125,7 +126,7 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
 
       {/* Search Bar */}
       <div className="flex flex-1 justify-end sm:justify-center max-w-md mx-4 sm:mx-6">
-        <div className="relative w-full max-w-[240px] sm:max-w-full group">
+        <div className="relative w-full max-w-[240px] sm:max-w-full group" ref={searchContainerRef}>
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500 group-focus-within:text-theme-600 dark:group-focus-within:text-brand-primary transition-colors" />
           </div>
