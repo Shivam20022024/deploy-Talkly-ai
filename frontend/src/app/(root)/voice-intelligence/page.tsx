@@ -13,13 +13,26 @@ import {
   X,
   AudioLines,
   Bot,
-  ThermometerSun
+  ThermometerSun,
+  Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function VoiceIntelligencePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [result, setResult] = useState<any>(null);
+
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportSuccess, setExportSuccess] = useState(false);
+
+  const handleExportToCRM = async () => {
+    setIsExporting(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setIsExporting(false);
+    setExportSuccess(true);
+    setTimeout(() => setExportSuccess(false), 3000);
+  };
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
@@ -344,9 +357,27 @@ export default function VoiceIntelligencePage() {
                 >
                   Analyze Another
                 </button>
-                <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-grad-1 text-bg-dark-card text-[13px] font-bold rounded-lg shadow-lg shadow-brand-grad-1/20 hover:shadow-brand-grad-1/40 transition-shadow group">
-                  Export to CRM
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <button 
+                  onClick={handleExportToCRM}
+                  disabled={isExporting || exportSuccess}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-grad-1 text-bg-dark-card text-[13px] font-bold rounded-lg shadow-lg shadow-brand-grad-1/20 hover:shadow-brand-grad-1/40 transition-shadow group disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isExporting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-bg-dark-card/30 border-t-bg-dark-card rounded-full animate-spin"></div>
+                      Exporting...
+                    </>
+                  ) : exportSuccess ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Exported to CRM!
+                    </>
+                  ) : (
+                    <>
+                      Export to CRM
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
                 </button>
               </div>
             </div>

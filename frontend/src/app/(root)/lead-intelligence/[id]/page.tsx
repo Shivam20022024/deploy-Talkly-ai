@@ -143,6 +143,7 @@ export default function LeadDetailView() {
   const handleOpenEmailModal = () => {
     setEmailBody(lead.recommendedEmailBody);
     setEmailSubject(lead.recommendedEmailSubject);
+    setEmailTo(lead.email);
     setIsEmailModalOpen(true);
   };
 
