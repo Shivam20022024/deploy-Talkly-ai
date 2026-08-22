@@ -118,6 +118,7 @@ export default function LeadDetailView() {
   const lead = {
     id: callData.call_id || callData._id,
     customer_id: callData.customer_id || "Unknown",
+    email: callData.customer_email || callData.analysis?.contact?.email || "contact@example.com",
     date: callData.created_at ? new Date(callData.created_at).toLocaleString() : "Unknown Date",
     duration: callData.duration || "N/A",
     language: callData.language || callData.analysis?.language_detected || "English",
