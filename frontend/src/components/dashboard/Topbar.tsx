@@ -33,7 +33,6 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
     { title: 'Dashboard Overview', href: '/dashboard' },
     { title: 'Live Monitoring', href: '/live-monitoring' },
     { title: 'Lead Intelligence', href: '/lead-intelligence' },
-    { title: 'Org Settings', href: '/dashboard/settings' },
   ];
 
   const filteredLinks = SEARCH_LINKS.filter(link => 

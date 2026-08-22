@@ -37,7 +37,6 @@ const secondaryNav = [
 
 const bottomNav = [
   { name: 'Billing & Wallet', icon: CreditCard, href: '/billing' },
-  { name: 'Org Settings', icon: SettingsIcon, href: '/settings' },
 ];
 
 interface SidebarProps {
