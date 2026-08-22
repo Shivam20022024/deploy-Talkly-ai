@@ -4,7 +4,7 @@ import { fetchWithAuth } from '@/services/api';
 import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Brain, Phone, Mail, Calendar, MapPin, 
-  Clock, DollarSign, Target, Sparkles, Building, PlayCircle, FastForward, MoreHorizontal,
+  Clock, DollarSign, Target, Sparkles, Building, PlayCircle, PauseCircle, FastForward, MoreHorizontal,
   X, Send, Loader2, MessageCircle
 } from 'lucide-react';
 import Link from 'next/link';
@@ -23,6 +23,15 @@ export default function LeadDetailView() {
   const [emailBody, setEmailBody] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isSyncingCRM, setIsSyncingCRM] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!params?.id) return;
@@ -135,6 +144,24 @@ export default function LeadDetailView() {
     setEmailBody(lead.recommendedEmailBody);
     setEmailSubject(lead.recommendedEmailSubject);
     setIsEmailModalOpen(true);
+  };
+
+  const handlePlayTranscript = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      if (isPlaying) {
+        window.speechSynthesis.cancel();
+        setIsPlaying(false);
+      } else {
+        const textToSpeak = lead.transcript.map(t => `${t.role} says. ${t.text}`).join('. ');
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.onend = () => setIsPlaying(false);
+        utterance.onerror = () => setIsPlaying(false);
+        window.speechSynthesis.speak(utterance);
+        setIsPlaying(true);
+      }
+    } else {
+      alert("Audio playback is not supported in this browser.");
+    }
   };
 
   const handleSendEmail = async () => {
@@ -257,8 +284,12 @@ export default function LeadDetailView() {
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
               </div>
               <div className="flex items-center gap-2">
-                <button className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg text-gray-600 dark:text-gray-400 transition-colors">
-                  <PlayCircle className="w-4 h-4" />
+                <button 
+                  onClick={handlePlayTranscript}
+                  className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg text-gray-600 dark:text-gray-400 transition-colors"
+                  title={isPlaying ? "Stop Transcript Playback" : "Listen to Transcript"}
+                >
+                  {isPlaying ? <PauseCircle className="w-4 h-4 text-theme-500" /> : <PlayCircle className="w-4 h-4" />}
                 </button>
               </div>
             </div>
