@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -41,29 +42,10 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
 
   useEffect(() => setMounted(true), []);
 
-  const [user, setUser] = useState({ 
-    name: 'John Doe', 
-    role: 'New User', 
-    initials: 'JD' 
-  });
-
-  useEffect(() => {
-    try {
-      const savedUser = localStorage.getItem('talkly_user');
-      if (savedUser) {
-        const decoded = JSON.parse(savedUser);
-        setUser({ 
-          name: decoded.company_name || decoded.name || 'Company', 
-          role: decoded.role || 'User',
-          initials: (decoded.company_name) ? decoded.company_name.substring(0, 2).toUpperCase() : (decoded.name ? decoded.name[0] : 'U')
-        });
-      }
-    } catch(e) {}
-  }, []);
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    document.cookie = "talkly_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    window.location.href = '/login';
+    logout();
   };
 
   // Resolve page title: exact match first, then partial prefix match, then format last segment
