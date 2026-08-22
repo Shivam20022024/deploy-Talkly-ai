@@ -205,6 +205,15 @@ export const api = {
     return handleJSON(res);
   },
   
+  createSuperAdminCompany: async (data: any): Promise<any> => {
+    const res = await fetchWithAuth(`${BASE}/api/v1/super-admin/companies`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleJSON(res);
+  },
+  
   updateCompanyStatus: async (companyId: string, status: string): Promise<any> => {
     const res = await fetchWithAuth(`${BASE}/api/v1/super-admin/companies/${companyId}/status`, {
       method: "POST",

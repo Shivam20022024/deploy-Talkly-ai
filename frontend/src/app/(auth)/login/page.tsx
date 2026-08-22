@@ -162,13 +162,6 @@ const LoginContent = () => {
 
         {/* Footer Links */}
         <div className="text-center mt-8 space-y-6">
-          <p className="text-[14px] text-gray-500 dark:text-gray-400 font-medium">
-            Don&apos;t have an account?{' '}
-            <Link href={`/register${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} className="text-theme-600 dark:text-brand-primary font-bold hover:underline underline-offset-2">
-              Request Access
-            </Link>
-          </p>
-
           <div className="flex justify-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 dark:bg-white/[0.02] border border-gray-200/50 dark:border-white/5 backdrop-blur-md">
               <ShieldCheck size={14} className="text-green-500" />

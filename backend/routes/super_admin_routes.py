@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 import mongodb
-from auth import get_current_user, require_super_admin
+import uuid
+from auth import get_current_user, require_super_admin, get_password_hash
 from datetime import datetime
 
 super_admin_router = APIRouter()
@@ -73,6 +74,50 @@ async def get_companies(current_user: dict = Depends(require_super_admin)):
         companies.append(c)
         
     return {"status": "success", "data": companies}
+
+@super_admin_router.post("/companies")
+async def create_company(payload: dict, current_user: dict = Depends(require_super_admin)):
+    company_name = payload.get("company_name")
+    email = payload.get("email")
+    password = payload.get("password")
+    user_name = payload.get("name")
+    
+    if not all([company_name, email, password, user_name]):
+        raise HTTPException(status_code=400, detail="Missing required fields")
+        
+    db = mongodb.get_db()
+    
+    # Check if user already exists
+    existing_user = await db.users.find_one({"email": email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+        
+    company_id = str(uuid.uuid4())
+    user_id = str(uuid.uuid4())
+    
+    # Create Company
+    company_doc = {
+        "company_id": company_id,
+        "name": company_name,
+        "plan_type": "trial",
+        "status": "ACTIVE",
+        "created_at": datetime.utcnow()
+    }
+    await db.companies.insert_one(company_doc)
+    
+    # Create Company Admin User
+    user_doc = {
+        "user_id": user_id,
+        "company_id": company_id,
+        "name": user_name,
+        "email": email,
+        "password_hash": get_password_hash(password),
+        "role": "COMPANY_ADMIN",
+        "created_at": datetime.utcnow()
+    }
+    await db.users.insert_one(user_doc)
+    
+    return {"status": "success", "message": "Company and user created successfully"}
 
 @super_admin_router.post("/companies/{company_id}/status")
 async def update_company_status(company_id: str, payload: dict, current_user: dict = Depends(require_super_admin)):

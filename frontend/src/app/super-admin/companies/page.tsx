@@ -3,12 +3,17 @@ import { useEffect, useState } from 'react';
 import { api } from '@/services/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { Plus, X } from 'lucide-react';
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { impersonate } = useAuth();
   const router = useRouter();
+
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ company_name: '', name: '', email: '', password: '' });
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     loadCompanies();
@@ -41,11 +46,34 @@ export default function CompaniesPage() {
     router.push('/dashboard');
   };
 
+  const handleCreateCompany = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreating(true);
+    try {
+      await api.createSuperAdminCompany(formData);
+      setShowModal(false);
+      setFormData({ company_name: '', name: '', email: '', password: '' });
+      await loadCompanies();
+    } catch (err: any) {
+      alert(err.message || "Failed to create company");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Companies</h1>
-        <p className="text-slate-500 mt-1">Manage all tenants on the TalklyAI platform.</p>
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Companies</h1>
+          <p className="text-slate-500 mt-1">Manage all tenants on the TalklyAI platform.</p>
+        </div>
+        <button 
+          onClick={() => setShowModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+        >
+          <Plus size={16} /> New Company
+        </button>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -88,6 +116,43 @@ export default function CompaniesPage() {
           </tbody>
         </table>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="flex justify-between items-center p-6 border-b border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900">Create New Company</h2>
+              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateCompany} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                <input required type="text" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formData.company_name} onChange={e => setFormData({...formData, company_name: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Admin Name</label>
+                <input required type="text" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Admin Email</label>
+                <input required type="email" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Admin Password</label>
+                <input required type="password" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+              </div>
+              <div className="pt-4 flex justify-end gap-3">
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors">Cancel</button>
+                <button type="submit" disabled={creating} className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
+                  {creating ? 'Creating...' : 'Create Company'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
