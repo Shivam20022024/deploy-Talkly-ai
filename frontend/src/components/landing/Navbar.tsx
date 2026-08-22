@@ -9,7 +9,7 @@ import Image from 'next/image';
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -96,11 +96,11 @@ export const Navbar = () => {
           <div className="hidden md:flex flex-shrink-0 items-center gap-4">
             {mounted && (
               <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
                 className="p-2 text-gray-500 dark:text-gray-400 hover:text-brand-muted dark:hover:text-brand-primary hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
                 aria-label="Toggle theme"
               >
-                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                {resolvedTheme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
               </button>
             )}
             <button onClick={() => window.location.href = "/login"} className="bg-gradient-to-r from-brand-primary to-brand-muted  text-white dark:text-bg-dark-card px-6 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-theme-500/20 transition-all hover:opacity-90 hover:scale-105 active:scale-95">
@@ -112,10 +112,10 @@ export const Navbar = () => {
           <div className="md:hidden flex items-center gap-2">
             {mounted && (
               <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
                 className="p-2 text-gray-500 dark:text-gray-400 hover:text-brand-muted dark:hover:text-brand-primary hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
               >
-                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                {resolvedTheme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
               </button>
             )}
             <button

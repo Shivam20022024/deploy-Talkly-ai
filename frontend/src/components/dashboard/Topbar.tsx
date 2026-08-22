@@ -21,7 +21,7 @@ const PAGE_TITLES: Record<string, string> = {
 };
 
 export const Topbar = ({ onMenuClick }: TopbarProps) => {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -172,12 +172,12 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
         <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
           {/* Theme Toggle */}
           <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors"
             title="Toggle Theme"
             suppressHydrationWarning
           >
-            {mounted ? (theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />) : <div className="h-4 w-4" />}
+            {mounted ? (resolvedTheme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />) : <div className="h-4 w-4" />}
           </button>
 
           {/* History Button */}
