@@ -53,14 +53,14 @@ export const CTASection = ({ onStart }: { onStart?: () => void }) => {
           className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-12 md:mb-16"
         >
           <button
-            onClick={onStart}
+            onClick={() => window.location.href = "/register"}
             className="group relative w-full sm:w-auto px-10 py-4 rounded-full bg-gradient-to-r from-brand-primary to-brand-muted text-white dark:text-bg-dark-card font-bold text-sm shadow-[0_0_40px_rgba(59,130,246,0.15)] transition-all duration-300 hover:shadow-[0_0_60px_rgba(59,130,246,0.25)] hover:scale-[1.03] active:scale-[0.98] overflow-hidden"
           >
             <span className="relative z-10">Book a Demo</span>
             <div className="absolute inset-0 bg-gradient-to-r from-brand-grad-3 to-brand-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </button>
           <button
-            onClick={onStart}
+            onClick={() => window.location.href = "#demo"}
             className="w-full sm:w-auto px-10 py-4 rounded-full border border-gray-200 dark:border-white/[0.08] text-gray-500 dark:text-gray-400 font-semibold text-sm transition-all duration-300 hover:border-theme-300 dark:hover:border-brand-primary/20 hover:text-gray-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/[0.03] hover:scale-[1.03] active:scale-[0.98]"
           >
             View Product Demo
