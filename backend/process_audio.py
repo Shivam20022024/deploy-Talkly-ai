@@ -297,7 +297,7 @@ def openai_refine_transcript(transcript):
     if not transcript or not OPENAI_API_KEY: return transcript
     url = "https://api.openai.com/v1/chat/completions"
     headers = {"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}
-    prompt = f"Assign speaker labels 'Agent' and 'Customer' to this raw transcript based on context. Return ONLY the labeled conversation.\n\nRaw:\n{transcript}"
+    prompt = f"Identify distinct speakers in this raw transcript based on context and assign appropriate labels (e.g., 'Agent', 'Customer', 'Third Party', 'Manager', etc.). Return ONLY the labeled conversation.\n\nRaw:\n{transcript}"
     payload = {"model": OPENAI_ANALYSIS_MODEL, "messages": [{"role": "user", "content": prompt}]}
     try:
         print(f"Refining transcript for speakers...")
