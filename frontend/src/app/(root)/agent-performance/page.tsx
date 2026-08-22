@@ -31,6 +31,7 @@ function ChartFallback() {
 
 export default function AgentPerformancePage() {
   const [calls, setCalls] = useState<any[]>([]);
+  const [showAllInsights, setShowAllInsights] = useState(false);
 
   useEffect(() => {
     const fetchCalls = async () => {
@@ -115,7 +116,7 @@ export default function AgentPerformancePage() {
     // Insights
     const insights = calls
       .filter(c => c.analysis?.agent_performance)
-      .slice(0, 5)
+      .slice(0, showAllInsights ? undefined : 5)
       .map((c, i) => {
         const perf = c.analysis.agent_performance;
         const isPositive = perf.closingStrength >= 7;
@@ -147,7 +148,7 @@ export default function AgentPerformancePage() {
       performanceTrend,
       insights
     };
-  }, [calls]);
+  }, [calls, showAllInsights]);
 
   const cards = [
     { label: 'Avg Talk Ratio', value: stats?.avgTalkRatio || '0:0', icon: MessageCircle },
@@ -334,8 +335,11 @@ export default function AgentPerformancePage() {
             <Sparkles className="w-5 h-5 text-theme-600 dark:text-brand-primary" />
             Recent AI Coaching Insights
           </h3>
-          <button className="text-[13px] font-semibold text-theme-600 dark:text-brand-primary hover:underline">
-            View All Insights
+          <button 
+            onClick={() => setShowAllInsights(!showAllInsights)}
+            className="text-[13px] font-semibold text-theme-600 dark:text-brand-primary hover:underline"
+          >
+            {showAllInsights ? "View Less" : "View All Insights"}
           </button>
         </div>
         
