@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   UsersRound,
   Zap,
@@ -67,9 +68,10 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
     } catch (e) { }
   }, []);
 
+  const { logout } = useAuth();
+  
   const handleLogout = () => {
-    document.cookie = "talkly_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    window.location.href = '/login';
+    logout();
   };
 
   return (

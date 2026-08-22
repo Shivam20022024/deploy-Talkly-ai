@@ -14,6 +14,19 @@ export default function SuperAdminLayout({
   const { user, logout, impersonatedCompany, stopImpersonating } = useAuth();
   const router = useRouter();
 
+  React.useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        const token = localStorage.getItem('talkly_user_token');
+        if (!token) {
+          window.location.reload();
+        }
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
+
   if (user?.role !== 'SUPER_ADMIN') {
     return null; // Let middleware handle redirect
   }

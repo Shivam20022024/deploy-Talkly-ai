@@ -22,6 +22,18 @@ export default function DashboardLayout({
       document.cookie = 'talkly_token=; path=/; max-age=0; samesite=lax';
       window.location.href = '/login';
     }
+
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        // Page was restored from bfcache
+        const token = localStorage.getItem('talkly_user_token');
+        if (!token) {
+          window.location.reload();
+        }
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
   }, [auth.user, auth.loading, router]);
 
   if (auth.loading || !auth.user) {
