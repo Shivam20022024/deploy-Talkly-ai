@@ -103,7 +103,7 @@ export const Navbar = () => {
                 {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
               </button>
             )}
-            <button onClick={() => window.location.href = "/dashboard"} className="bg-gradient-to-r from-brand-primary to-brand-muted  text-white dark:text-bg-dark-card px-6 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-theme-500/20 transition-all hover:opacity-90 hover:scale-105 active:scale-95">
+            <button onClick={() => window.location.href = "#demo"} className="bg-gradient-to-r from-brand-primary to-brand-muted  text-white dark:text-bg-dark-card px-6 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-theme-500/20 transition-all hover:opacity-90 hover:scale-105 active:scale-95">
               Demo
             </button>
           </div>
