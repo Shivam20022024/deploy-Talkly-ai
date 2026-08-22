@@ -19,6 +19,9 @@ import asyncio
 import requests
 import mimetypes
 import subprocess
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 from fastapi import FastAPI, UploadFile, File, HTTPException, Body, Form, BackgroundTasks, Depends
 from auth import get_current_user
@@ -393,16 +396,39 @@ async def send_email(payload: dict = Body(...)):
     if not to_email:
         raise HTTPException(status_code=400, detail="Missing 'to' email address.")
         
-    print(f"--- Simulating Email Send ---")
-    print(f"To: {to_email}")
-    print(f"Subject: {subject}")
-    print(f"Body Snippet: {str(body)[:100]}...")
-    print(f"-----------------------------")
+    smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+    smtp_port = int(os.environ.get("SMTP_PORT", 587))
+    smtp_user = os.environ.get("SMTP_USER")
+    smtp_pass = os.environ.get("SMTP_PASS")
     
-    # Simulate network delay
-    await asyncio.sleep(1.5)
-    
-    return {"status": "success", "message": "Email simulated successfully."}
+    if smtp_user and smtp_pass:
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = smtp_user
+            msg['To'] = to_email
+            msg['Subject'] = subject or "Message from Talkly AI"
+            msg.attach(MIMEText(body or "", 'plain'))
+            
+            server = smtplib.SMTP(smtp_host, smtp_port)
+            server.starttls()
+            server.login(smtp_user, smtp_pass)
+            server.send_message(msg)
+            server.quit()
+            return {"status": "success", "message": "Email sent successfully via SMTP."}
+        except Exception as e:
+            print(f"SMTP Error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
+    else:
+        print(f"--- Simulating Email Send (SMTP config missing) ---")
+        print(f"To: {to_email}")
+        print(f"Subject: {subject}")
+        print(f"Body Snippet: {str(body)[:100]}...")
+        print(f"-----------------------------")
+        
+        # Simulate network delay
+        await asyncio.sleep(1.5)
+        
+        return {"status": "success", "message": "Email simulated (Configure SMTP_USER & SMTP_PASS in .env to send real emails)."}
 
 
 async def poll_bolna_execution(execution_id: str, lead_id: str, api_key: str):
