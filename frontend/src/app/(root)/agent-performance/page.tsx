@@ -3,6 +3,7 @@ import { fetchWithAuth } from '@/services/api';
 
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { 
   User, 
   MessageCircle, 
@@ -363,9 +364,9 @@ export default function AgentPerformancePage() {
                 </p>
               </div>
               <div className="opacity-0 group-hover:opacity-100 transition-opacity self-center pr-2">
-                <button className="p-2 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <Link href={`/lead-intelligence/${insight.id}`} className="p-2 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors block">
                    <ArrowUpRight className="w-4 h-4" />
-                </button>
+                </Link>
               </div>
             </div>
           ))}
