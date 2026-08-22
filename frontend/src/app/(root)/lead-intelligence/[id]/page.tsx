@@ -238,7 +238,7 @@ export default function LeadDetailView() {
                   <Mail className="w-4 h-4" /> Send Email
                 </button>
                 <a 
-                  href={`https://web.whatsapp.com/send?phone=${String(lead.customer_id).replace(/\D/g, '')}&text=${encodeURIComponent(lead.recommendedEmailBody)}`}
+                  href={`https://wa.me/${String(lead.customer_id).replace(/\D/g, '')}?text=${encodeURIComponent(lead.recommendedEmailBody)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-2.5 rounded-lg text-[13px] font-bold shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-shadow"
