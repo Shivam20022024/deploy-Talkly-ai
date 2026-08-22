@@ -53,7 +53,7 @@ export const Navbar = () => {
             : 'bg-white/70 dark:bg-bg-dark-card/60 backdrop-blur-md border border-gray-200/60 dark:border-white/5 shadow-sm'
         }`}>
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer">
+          <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer" onClick={() => window.location.href = '/'}>
           
               <Image
                 src="/logo-white.png"
