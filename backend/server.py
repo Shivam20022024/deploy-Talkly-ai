@@ -12,6 +12,7 @@ if os.path.exists(USER_FFMPEG_BIN):
     os.environ["PATH"] += os.pathsep + USER_FFMPEG_BIN
 
 import time
+import re
 import json
 import uuid
 import asyncio
@@ -337,10 +338,13 @@ async def trigger_bolna_bulk(
                         
                 for row in rows[1:]:
                     if row and len(row) > phone_col_idx and row[phone_col_idx]:
-                        name = "Bulk Phone Lead"
-                        if name_col_idx != -1 and len(row) > name_col_idx and row[name_col_idx]:
-                            name = str(row[name_col_idx]).strip()
-                        contacts.append({"phone": row[phone_col_idx], "name": name})
+                        phone_val = str(row[phone_col_idx]).strip()
+                        digits = re.sub(r'\D', '', phone_val)
+                        if len(digits) >= 10:
+                            name = "Bulk Phone Lead"
+                            if name_col_idx != -1 and len(row) > name_col_idx and row[name_col_idx]:
+                                name = str(row[name_col_idx]).strip()
+                            contacts.append({"phone": phone_val, "name": name})
         else:
             wb = openpyxl.load_workbook(io.BytesIO(contents))
             sheet = wb.active
@@ -359,10 +363,13 @@ async def trigger_bolna_bulk(
                         
             for row in sheet.iter_rows(min_row=2 if header_row else 1, values_only=True):
                 if row and len(row) > phone_col_idx and row[phone_col_idx]:
-                    name = "Bulk Phone Lead"
-                    if name_col_idx != -1 and len(row) > name_col_idx and row[name_col_idx]:
-                        name = str(row[name_col_idx]).strip()
-                    contacts.append({"phone": row[phone_col_idx], "name": name})
+                    phone_val = str(row[phone_col_idx]).strip()
+                    digits = re.sub(r'\D', '', phone_val)
+                    if len(digits) >= 10:
+                        name = "Bulk Phone Lead"
+                        if name_col_idx != -1 and len(row) > name_col_idx and row[name_col_idx]:
+                            name = str(row[name_col_idx]).strip()
+                        contacts.append({"phone": phone_val, "name": name})
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error reading Excel file: {str(e)}")
         
