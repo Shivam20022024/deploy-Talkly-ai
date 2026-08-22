@@ -660,9 +660,18 @@ async def process_audio_api(
 @app.get("/download/{report_type}")
 async def download_report(report_type: str):
     if report_type == "excel":
-        file_path = os.path.join(BASE_DIR, "results", "analytics_results.xlsx")
-        if os.path.exists(file_path):
-            return FileResponse(file_path, filename="analytics_results.xlsx")
+        from process_audio import get_weekly_excel_file
+        file_path = get_weekly_excel_file()
+        # Fallback to absolute path if needed
+        full_path = os.path.join(BASE_DIR, file_path) if not os.path.isabs(file_path) else file_path
+        if os.path.exists(full_path):
+            return FileResponse(full_path, filename=os.path.basename(full_path))
+        
+        # Fallback to cumulative report if weekly doesn't exist
+        fallback_path = os.path.join(BASE_DIR, "results", "analytics_results.xlsx")
+        if os.path.exists(fallback_path):
+            return FileResponse(fallback_path, filename="analytics_results.xlsx")
+            
         return {"status": "error", "message": "Report not found"}
     # Mock download for demo
     return {"status": "success", "message": f"{report_type} report ready"}

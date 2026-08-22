@@ -32,37 +32,53 @@ const Dashboard = () => {
     fetchCalls();
   }, []);
 
-  // Compute Metrics
-  const totalCalls = calls.length;
+  // Compute current week calls
+  const getStartOfWeek = (d: Date) => {
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    date.setDate(diff);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  };
+  const startOfWeek = getStartOfWeek(new Date());
 
-  const validIntentScores = calls.map((c: any) => c.analysis?.intent_score).filter((s) => typeof s === 'number');
+  const currentWeekCalls = calls.filter((c: any) => {
+    const callDate = new Date(c.created_at);
+    return callDate >= startOfWeek;
+  });
+
+  // Compute Metrics
+  const totalCalls = currentWeekCalls.length;
+
+  const validIntentScores = currentWeekCalls.map((c: any) => c.analysis?.intent_score).filter((s) => typeof s === 'number');
   const avgBuyerIntent = validIntentScores.length > 0
     ? Math.round(validIntentScores.reduce((a, b) => a + b, 0) / validIntentScores.length)
     : 0;
 
-  const validConvProbs = calls.map((c: any) => c.analysis?.conversion_probability).filter((s) => typeof s === 'number');
+  const validConvProbs = currentWeekCalls.map((c: any) => c.analysis?.conversion_probability).filter((s) => typeof s === 'number');
   const avgConvProb = validConvProbs.length > 0
     ? Math.round(validConvProbs.reduce((a, b) => a + b, 0) / validConvProbs.length)
     : 0;
 
   // Lead Intelligence
-  const hotLeads = calls.filter((c: any) => c.analysis?.lead_temperature?.includes('Hot')).length;
-  const warmLeads = calls.filter((c: any) => c.analysis?.lead_temperature?.includes('Warm')).length;
-  const coldLeads = calls.filter((c: any) => c.analysis?.lead_temperature?.includes('Cold')).length;
+  const hotLeads = currentWeekCalls.filter((c: any) => c.analysis?.lead_temperature?.includes('Hot')).length;
+  const warmLeads = currentWeekCalls.filter((c: any) => c.analysis?.lead_temperature?.includes('Warm')).length;
+  const coldLeads = currentWeekCalls.filter((c: any) => c.analysis?.lead_temperature?.includes('Cold')).length;
   const totalAnalyzed = hotLeads + warmLeads + coldLeads || 1; // avoid div by 0
 
   const hotPct = Math.round((hotLeads / totalAnalyzed) * 100) || 0;
   const warmPct = Math.round((warmLeads / totalAnalyzed) * 100) || 0;
   const coldPct = Math.round((coldLeads / totalAnalyzed) * 100) || 0;
 
-  // Chart Data calculation (Last 7 Days)
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
+  // Chart Data calculation (Current Week: Mon-Sun)
+  const currentWeekDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startOfWeek);
+    d.setDate(d.getDate() + i);
     return d;
   });
 
-  const chartData = last7Days.map(date => {
+  const chartData = currentWeekDays.map(date => {
     const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
     const callsOnDay = calls.filter(c => {
       if (!c.created_at) return false;
