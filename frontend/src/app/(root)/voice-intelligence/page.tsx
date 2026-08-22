@@ -23,10 +23,9 @@ export default function VoiceIntelligencePage() {
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const [isDragging, setIsDragging] = useState(false);
 
+  const processFile = async (file: File) => {
     setIsUploading(true);
     setError(null);
     setProgress(0);
@@ -65,6 +64,33 @@ export default function VoiceIntelligencePage() {
     } finally {
       clearInterval(timer);
       setIsUploading(false);
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      processFile(file);
+    }
+  };
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const onDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      processFile(file);
     }
   };
 
@@ -123,7 +149,16 @@ export default function VoiceIntelligencePage() {
               {/* Decorative glow */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-brand-primary/10 dark:bg-brand-primary/5 rounded-full blur-[100px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
-              <div className="w-full  border-2 border-dashed border-gray-200 dark:border-white/10 group-hover:border-theme-300 dark:group-hover:border-brand-primary/30 rounded-2xl bg-gray-50/50 dark:bg-white/[0.02] p-8 md:p-12 text-center transition-colors relative z-10">
+              <div
+                onDragOver={onDragOver}
+                onDragLeave={onDragLeave}
+                onDrop={onDrop}
+                className={`w-full border-2 border-dashed rounded-2xl p-8 md:p-12 text-center transition-colors relative z-10 ${
+                  isDragging 
+                    ? 'border-theme-500 dark:border-brand-primary bg-theme-50 dark:bg-brand-primary/10' 
+                    : 'border-gray-200 dark:border-white/10 group-hover:border-theme-300 dark:group-hover:border-brand-primary/30 bg-gray-50/50 dark:bg-white/[0.02]'
+                }`}
+              >
                 {isUploading ? (
                   <div className="flex flex-col items-center w-full animate-in fade-in zoom-in duration-300">
                     <div className="w-16 h-16 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-lg flex items-center justify-center mb-6 relative">
