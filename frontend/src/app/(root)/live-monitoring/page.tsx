@@ -126,8 +126,10 @@ export default function LiveMonitoringPage() {
     return () => clearInterval(pollInterval);
   }, [isCallActive, currentCallId]);
 
+  const isValidPhone = phoneNumber.replace(/\D/g, '').length >= 10;
+
   const startCall = async () => {
-    if (!phoneNumber) return;
+    if (!isValidPhone) return;
     
     let formattedPhone = phoneNumber.trim();
     if (formattedPhone.length === 10 && !formattedPhone.startsWith('+')) {
@@ -321,7 +323,7 @@ export default function LiveMonitoringPage() {
 
                       <button  
                         onClick={startCall}
-                        disabled={!phoneNumber}
+                        disabled={!isValidPhone}
                         className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-brand-primary to-brand-grad-1 text-bg-dark-card text-[14px] font-bold rounded-xl shadow-lg shadow-brand-grad-1/20 hover:shadow-brand-grad-1/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <PhoneCall className="w-4 h-4" /> Start AI Call
