@@ -252,11 +252,11 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
             className="flex items-center gap-2.5 cursor-pointer group"
           >
             <div className="hidden sm:flex flex-col items-end">
-              <span className="text-[13px] font-semibold text-gray-900 dark:text-white leading-none group-hover:text-theme-600 dark:group-hover:text-brand-primary transition-colors">{user.name}</span>
-              <span className="text-[10px] text-gray-500 mt-1">{user.role}</span>
+              <span className="text-[13px] font-semibold text-gray-900 dark:text-white leading-none group-hover:text-theme-600 dark:group-hover:text-brand-primary transition-colors">{user?.name || "Loading..."}</span>
+              <span className="text-[10px] text-gray-500 mt-1">{user?.role || ""}</span>
             </div>
             <div className={`w-8 h-8 rounded-full overflow-hidden border ${activeDropdown === 'profile' ? 'border-theme-600 dark:border-brand-primary' : 'border-gray-200 dark:border-white/10 group-hover:border-gray-300 dark:group-hover:border-white/30'} flex-shrink-0 transition-colors flex items-center justify-center bg-gradient-to-br from-brand-primary to-brand-muted text-white dark:text-bg-dark-base font-black text-sm shadow-sm`}>
-              {user.initials}
+              {user?.name ? user.name.substring(0, 1).toUpperCase() : "?"}
             </div>
           </div>
 
@@ -268,8 +268,8 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
                 className="absolute right-0 mt-3 w-48 bg-white dark:bg-bg-dark-surface border border-gray-200 dark:border-white/10 rounded-xl shadow-xl shadow-black/5 dark:shadow-black/50 py-1 overflow-hidden z-50"
               >
                 <div className="px-4 py-3 border-b border-gray-100 dark:border-white/5 mb-1 sm:hidden">
-                  <p className="text-[13px] font-semibold text-gray-900 dark:text-white">{user.name}</p>
-                  <p className="text-[11px] text-gray-500">{user.role}</p>
+                  <span className="block text-sm font-semibold text-gray-900 dark:text-white">{user?.name || "Loading..."}</span>
+                  <span className="block text-xs text-gray-500">{user?.role || ""}</span>
                 </div>
                 <div className="px-1.5 py-1.5">
                   {/* <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors">
