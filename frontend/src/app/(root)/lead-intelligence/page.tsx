@@ -212,7 +212,7 @@ export default function LeadIntelligencePage() {
                 <th className="px-5 py-3.5 font-semibold text-[11px] uppercase tracking-wider">Intent Score</th>
                 <th className="px-5 py-3.5 font-semibold text-[11px] uppercase tracking-wider">Conversion Prob.</th>
                 <th className="px-5 py-3.5 font-semibold text-[11px] uppercase tracking-wider">Property Info</th>
-                <th className="px-5 py-3.5 font-semibold text-[11px] uppercase tracking-wider text-right">Actions</th>
+                <th className="px-5 py-3.5 font-semibold text-[11px] uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -294,8 +294,8 @@ export default function LeadIntelligencePage() {
                   </td>
 
                   {/* Actions */}
-                  <td className="px-5 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2" onClick={e => e.stopPropagation()}>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                       <div className="relative">
                         <button
                           onClick={() => setMoreOpen(moreOpen === lead.id ? null : lead.id)}
