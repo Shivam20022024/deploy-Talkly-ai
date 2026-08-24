@@ -232,7 +232,7 @@ async def process_bulk_calls(contacts: list, campaign_language: str = "English",
     }
 
     for idx, contact in enumerate(contacts):
-        phone_str = str(contact.get("phone", "")).strip()
+        phone_str = str(contact.get("phone", "")).replace(" ", "").replace("-", "").replace("(", "").replace(")", "").strip()
         customer_name = str(contact.get("name", "Bulk Phone Lead")).strip()
         
         # Ensure it has a country code (assuming +91 for 10-digit Indian numbers)
