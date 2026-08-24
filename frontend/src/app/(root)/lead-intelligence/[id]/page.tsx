@@ -253,12 +253,7 @@ export default function LeadDetailView() {
               </div>
               <div className="flex-shrink-0 flex items-end gap-3 flex-wrap">
                 {/* Sync to CRM button removed */}
-                <button 
-                  onClick={handleOpenEmailModal}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-brand-primary to-brand-grad-1 text-bg-dark-card px-5 py-2.5 rounded-lg text-[13px] font-bold shadow-lg shadow-brand-grad-1/20 hover:shadow-brand-grad-1/40 transition-shadow"
-                >
-                  <Mail className="w-4 h-4" /> Send Email
-                </button>
+                {/* Send Email button removed */}
                 <a 
                   href={`https://wa.me/${String(lead.customer_id).replace(/\D/g, '')}?text=${encodeURIComponent(lead.recommendedEmailBody)}`}
                   target="_blank"
