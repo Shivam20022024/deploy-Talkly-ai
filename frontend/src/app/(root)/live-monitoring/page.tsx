@@ -35,6 +35,7 @@ export default function LiveMonitoringPage() {
   const [currentCallId, setCurrentCallId] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [previewContacts, setPreviewContacts] = useState<{name: string, phone: string}[] | null>(null);
 
   const transcriptEndRef = useRef<HTMLDivElement>(null);
 
@@ -194,8 +195,44 @@ export default function LiveMonitoringPage() {
       const data = await res.json();
       alert(`Success: ${data.message}`);
       setSelectedFile(null);
+      setPreviewContacts(null);
     } catch (err: any) {
       alert(`Bulk upload failed: ${err.message}`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setSelectedFile(file);
+    setPreviewContacts(null);
+    if (!file) return;
+    
+    setIsUploading(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('campaign_language', campaignLanguage);
+      formData.append('ai_voice', aiVoice);
+      formData.append('voice_gender', voiceGender);
+      formData.append('regional_accent', regionalAccent);
+      formData.append('preview_only', 'true');
+      
+      const res = await fetchWithAuth(`${apiUrl}/api/v1/calls/trigger-bulk`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (data.contacts) {
+          setPreviewContacts(data.contacts);
+        }
+      }
+    } catch (err) {
+      console.error("Preview failed", err);
     } finally {
       setIsUploading(false);
     }
@@ -339,10 +376,25 @@ export default function LiveMonitoringPage() {
                         <input 
                           type="file"
                           accept=".xlsx, .xls, .csv"
-                          onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                          onChange={handleFileChange}
                           className="w-full py-3.5 px-4 bg-gray-50 dark:bg-white/[0.02] border border-dashed border-gray-300 dark:border-white/20 rounded-xl text-[13px] text-gray-600 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-[12px] file:font-bold file:bg-theme-100 file:text-theme-700 dark:file:bg-brand-primary/20 dark:file:text-brand-primary hover:file:bg-theme-200 dark:hover:file:bg-brand-primary/30 cursor-pointer transition-all"
                         />
                       </div>
+
+                      {previewContacts && previewContacts.length > 0 && (
+                        <div className="mt-2 mb-4 p-3 border border-gray-200 dark:border-white/10 rounded-xl bg-gray-50 dark:bg-white/5 text-sm text-left">
+                          <p className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Ready to call {previewContacts.length} numbers:</p>
+                          <div className="max-h-32 overflow-y-auto space-y-1 custom-scrollbar pr-2">
+                            {previewContacts.map((c, i) => (
+                              <div key={i} className="flex justify-between items-center text-[12px] text-gray-600 dark:text-gray-400">
+                                <span className="truncate mr-2">{c.name}</span>
+                                <span className="font-mono text-xs">{c.phone}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       <button 
                         onClick={handleBulkUpload}
                         disabled={!selectedFile || isUploading}

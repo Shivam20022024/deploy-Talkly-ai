@@ -322,6 +322,7 @@ async def trigger_bolna_bulk(
     ai_voice: str = Form("Default"),
     voice_gender: str = Form("Female"),
     regional_accent: str = Form("Default"),
+    preview_only: bool = Form(False),
     current_user: dict = Depends(get_current_user)
 ):
     if not file.filename.endswith(('.xlsx', '.xls', '.csv')):
@@ -389,11 +390,20 @@ async def trigger_bolna_bulk(
     if not contacts:
         raise HTTPException(status_code=400, detail="No phone numbers found in the Excel file.")
         
+    if preview_only:
+        return {
+            "status": "success",
+            "message": f"Parsed {len(contacts)} numbers for preview.",
+            "contacts": contacts,
+            "count": len(contacts)
+        }
+        
     background_tasks.add_task(process_bulk_calls, contacts, campaign_language, ai_voice, voice_gender, regional_accent, current_user["company_id"])
     
     return {
         "status": "success",
         "message": f"Successfully initiated bulk calls for {len(contacts)} numbers.",
+        "contacts": contacts,
         "count": len(contacts)
     }
 
