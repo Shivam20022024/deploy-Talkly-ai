@@ -74,7 +74,7 @@ export const Footer = () => {
           <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-[300px] h-[120px] rounded-full bg-theme-100/30 dark:bg-brand-primary/[0.06] blur-[60px] pointer-events-none" />
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">
-              © {new Date().getFullYear()} TalklyAI Technologies Inc. All Rights Reserved.
+              This product is made by Novalantis. All Rights Reserved.
             </p>
             <div className="flex items-center gap-6 text-xs text-gray-400 dark:text-gray-500 font-medium">
               <a href="/privacy" className="hover:text-theme-600 dark:hover:text-brand-primary transition-colors">Privacy Policy</a>

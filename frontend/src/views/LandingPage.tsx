@@ -363,7 +363,7 @@ const LandingPage: React.FC<{ onStart: () => void }> = ({ onStart }) => {
                </div>
 
                <div className="flex flex-col items-center md:items-end gap-4">
-                  <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest">© 2026 TalklyAI Technologies Inc.</p>
+                  <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest">This product is made by Novalantis.</p>
                   <p className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.2em] opacity-50">Built for modern sales teams</p>
                </div>
             </div>
