@@ -77,8 +77,7 @@ export const Footer = () => {
               This product is made by Novalantis. All Rights Reserved.
             </p>
             <div className="flex items-center gap-6 text-xs text-gray-400 dark:text-gray-500 font-medium">
-              <a href="/privacy" className="hover:text-theme-600 dark:hover:text-brand-primary transition-colors">Privacy Policy</a>
-              <a href="/terms" className="hover:text-theme-600 dark:hover:text-brand-primary transition-colors">Terms of Service</a>
+              {/* Privacy and terms links removed */}
             </div>
           </div>
         </div>
