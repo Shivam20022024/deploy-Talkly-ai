@@ -12,7 +12,7 @@ import {
 const Dashboard = () => {
   const [calls, setCalls] = useState<any[]>([]);
   const [overallData, setOverallData] = useState<any>(null);
-  const [timeRange, setTimeRange] = useState<'overall' | 'month' | 'week'>('overall');
+  const [timeRange, setTimeRange] = useState<'overall' | 'month' | 'week'>('week');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
