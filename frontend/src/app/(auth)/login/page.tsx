@@ -161,13 +161,12 @@ const LoginContent = () => {
         {/* Request Access Section */}
         <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/10 flex flex-col items-center">
           <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">or</span>
-          <button 
-            type="button"
-            onClick={() => router.push('/request-access')}
-            className="text-[14px] font-semibold text-theme-600 dark:text-brand-primary hover:text-theme-700 dark:hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer w-full justify-center py-2 rounded-lg hover:bg-theme-50 dark:hover:bg-white/5"
+          <a 
+            href="/request-access"
+            className="text-[14px] font-semibold text-theme-600 dark:text-brand-primary hover:text-theme-700 dark:hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer w-full justify-center py-2 rounded-lg hover:bg-theme-50 dark:hover:bg-white/5 relative z-20 pointer-events-auto"
           >
             Request Access <ArrowRight size={14} strokeWidth={2.5} />
-          </button>
+          </a>
         </div>
         </div>
 
