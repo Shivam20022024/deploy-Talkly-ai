@@ -163,67 +163,7 @@ const RequestAccessPage = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* Industry */}
-              <div className="space-y-1.5">
-                <label className="text-[13px] font-semibold text-gray-700 dark:text-gray-300 ml-1">Industry *</label>
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Briefcase size={16} /></div>
-                  <select name="industry" required value={formData.industry} onChange={handleChange} className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-theme-500/20 focus:border-theme-500 appearance-none">
-                    <option value="" disabled>Select Industry</option>
-                    <option value="Real Estate">Real Estate</option>
-                    <option value="SaaS">SaaS / Software</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Healthcare">Healthcare</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-              </div>
 
-              {/* Company Size */}
-              <div className="space-y-1.5">
-                <label className="text-[13px] font-semibold text-gray-700 dark:text-gray-300 ml-1">Company Size *</label>
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Users size={16} /></div>
-                  <select name="company_size" required value={formData.company_size} onChange={handleChange} className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-theme-500/20 focus:border-theme-500 appearance-none">
-                    <option value="" disabled>Select Size</option>
-                    <option value="1-10">1-10 employees</option>
-                    <option value="11-50">11-50 employees</option>
-                    <option value="51-200">51-200 employees</option>
-                    <option value="201+">201+ employees</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-               {/* Website */}
-               <div className="space-y-1.5">
-                <label className="text-[13px] font-semibold text-gray-700 dark:text-gray-300 ml-1">Website *</label>
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Globe size={16} /></div>
-                  <input type="url" name="website" required placeholder="https://" value={formData.website} onChange={handleChange} className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-theme-500/20 focus:border-theme-500" />
-                </div>
-              </div>
-
-              {/* Expected Minutes */}
-              <div className="space-y-1.5">
-                <label className="text-[13px] font-semibold text-gray-700 dark:text-gray-300 ml-1">Expected Monthly Minutes</label>
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><Clock size={16} /></div>
-                  <input type="text" name="expected_minutes" placeholder="e.g. 5,000" value={formData.expected_minutes} onChange={handleChange} className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-theme-500/20 focus:border-theme-500" />
-                </div>
-              </div>
-            </div>
-
-            {/* Use Case */}
-            <div className="space-y-1.5">
-              <label className="text-[13px] font-semibold text-gray-700 dark:text-gray-300 ml-1">Use Case</label>
-              <div className="relative group">
-                <div className="absolute left-4 top-4 text-gray-400"><MessageSquare size={16} /></div>
-                <textarea name="use_case" rows={3} placeholder="How do you plan to use TalklyAI?" value={formData.use_case} onChange={handleChange} className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-theme-500/20 focus:border-theme-500 resize-none"></textarea>
-              </div>
-            </div>
 
             {error && (
               <div className="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-3 rounded-xl text-[13px] font-medium border border-red-200 dark:border-red-500/20 flex items-start gap-2">
