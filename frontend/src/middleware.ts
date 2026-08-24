@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('talkly_token')?.value;
   const { pathname } = request.nextUrl;
-  const isAuthPage = pathname.startsWith('/login');
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/request-access') || pathname.startsWith('/activate-account');
 
   // Allow access to public routes (like landing page /)
   if (pathname === '/') {
