@@ -32,7 +32,6 @@ const mainNav = [
 
 const secondaryNav = [
   { name: 'Lead Intelligence', icon: Target, href: '/lead-intelligence' },
-  { name: 'Agent Performance', icon: PieChart, href: '/agent-performance' },
 ];
 
 const bottomNav = [
