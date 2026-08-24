@@ -3,7 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { LayoutDashboard, Building2, Users, LogOut, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, LogOut, ArrowLeft, FileText } from 'lucide-react';
 
 export default function SuperAdminLayout({
   children,
@@ -35,6 +35,7 @@ export default function SuperAdminLayout({
     { name: 'Overview', href: '/super-admin/dashboard', icon: LayoutDashboard },
     { name: 'Companies', href: '/super-admin/companies', icon: Building2 },
     { name: 'Users', href: '/super-admin/users', icon: Users },
+    { name: 'Access Requests', href: '/super-admin/access-requests', icon: FileText },
   ];
 
   return (
