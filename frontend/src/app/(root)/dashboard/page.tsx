@@ -365,9 +365,7 @@ const ActivityRow = ({ id, leadType, callId, language, temperature, intentScore,
     </td>
     <td className="px-5 py-4 text-right">
       <div className="flex items-center justify-end gap-2">
-        <button className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white p-1.5 rounded bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
-          <MoreHorizontal className="w-4 h-4" />
-        </button>
+        {/* More options button removed */}
         <Link
           href={`/lead-intelligence/${id}`}
           className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-theme-600 dark:text-brand-primary p-1.5 rounded bg-theme-50 dark:bg-brand-primary/10 border border-theme-100 dark:border-brand-primary/20 hover:bg-theme-600 hover:text-white dark:hover:bg-brand-primary/20 transition-colors group/btn"

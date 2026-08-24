@@ -296,24 +296,7 @@ export default function LeadIntelligencePage() {
                   {/* Actions */}
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                      <div className="relative">
-                        <button
-                          onClick={() => setMoreOpen(moreOpen === lead.id ? null : lead.id)}
-                          className="p-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-                          title="More Options"
-                        >
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
-                        {moreOpen === lead.id && (
-                          <div className="absolute right-0 bottom-full mb-1 w-40 bg-white dark:bg-bg-dark-card border border-gray-200 dark:border-white/10 rounded-xl shadow-xl py-1 z-50">
-                            <button className="w-full text-left px-4 py-2 text-[13px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">Add Note</button>
-                            {/* Send Email removed */}
-                            <button className="w-full text-left px-4 py-2 text-[13px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">Schedule Call</button>
-                            <div className="my-1 border-t border-gray-100 dark:border-white/5" />
-                            <button className="w-full text-left px-4 py-2 text-[13px] text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">Archive Lead</button>
-                          </div>
-                        )}
-                      </div>
+                      {/* More options button removed */}
                       <Link
                         href={`/lead-intelligence/${lead.id}`}
                         className="flex items-center gap-1.5 text-[12px] font-semibold text-theme-600 dark:text-brand-primary px-3 py-2 rounded-lg bg-theme-50 dark:bg-brand-primary/10 border border-theme-100 dark:border-brand-primary/20 hover:bg-theme-600 hover:text-white dark:hover:bg-brand-primary/20 transition-colors group/btn"
