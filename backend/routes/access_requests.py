@@ -44,8 +44,9 @@ async def create_access_request(payload: dict = Body(...)):
     db = mongodb.get_db()
     email = payload.get("email")
     company_name = payload.get("company_name")
+    password = payload.get("password")
     
-    if not email or not company_name:
+    if not email or not company_name or not password:
         raise HTTPException(status_code=400, detail="Missing required fields")
         
     # Check duplicate in users
@@ -76,6 +77,7 @@ async def create_access_request(payload: dict = Body(...)):
         "expected_minutes": payload.get("expected_minutes", ""),
         "use_case": payload.get("use_case", ""),
         "message": payload.get("message", ""),
+        "password_hash": get_password_hash(password),
         "status": "PENDING",
         "created_at": datetime.utcnow(),
     }
@@ -168,41 +170,29 @@ async def approve_access_request(req_id: str, current_user: dict = Depends(requi
     }
     await db.companies.insert_one(company_doc)
     
-    # 3. Create User (No Password Yet)
+    # 3. Create User (Active with Password)
     user_doc = {
         "user_id": user_id,
         "company_id": company_id,
         "name": request["contact_name"],
         "email": request["email"],
-        "password_hash": "", # Intentionally blank, cannot login yet
+        "password_hash": request.get("password_hash", ""),
         "role": "COMPANY_ADMIN",
-        "status": "PENDING_ACTIVATION",
+        "status": "ACTIVE",
         "created_at": datetime.utcnow()
     }
     await db.users.insert_one(user_doc)
     
-    # 4. Generate Activation Token
-    token = str(uuid.uuid4())
-    token_doc = {
-        "token": token,
-        "user_id": user_id,
-        "expires_at": datetime.utcnow() + timedelta(hours=24),
-        "used": False
-    }
-    await db.activation_tokens.insert_one(token_doc)
-    
-    # 5. Send Activation Email
+    # 4. Send Approval Email
     frontend_url = os.environ.get("NEXT_PUBLIC_FRONTEND_URL", "http://localhost:3000")
-    activation_link = f"{frontend_url}/activate-account?token={token}"
+    login_link = f"{frontend_url}/login"
     
     email_body = f"""Hello {request['contact_name']},
 
-Your company access request for TalklyAI has been approved.
-You can now activate your account and create your password.
+Your company access request for TalklyAI has been approved!
+You can now log in to your dashboard using the email and password you provided during registration.
 
-Activate My Account: {activation_link}
-
-Note: This link will expire in 24 hours.
+Login here: {login_link}
 
 Regards,
 TalklyAI Team
@@ -210,7 +200,7 @@ Novalantis
 """
     send_email(
         to_email=request["email"],
-        subject="Your TalklyAI account has been approved",
+        subject="Your TalklyAI account has been approved!",
         body=email_body
     )
     

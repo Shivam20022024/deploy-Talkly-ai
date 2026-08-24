@@ -14,12 +14,7 @@ const RequestAccessPage = () => {
     contact_name: '',
     email: '',
     phone: '',
-    website: '',
-    industry: '',
-    company_size: '',
-    expected_minutes: '',
-    use_case: '',
-    message: ''
+    password: ''
   });
   
   const [isLoading, setIsLoading] = useState(false);
@@ -163,9 +158,14 @@ const RequestAccessPage = () => {
               </div>
             </div>
 
-
-
-            {error && (
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label className="text-[13px] font-semibold text-gray-700 dark:text-gray-300 ml-1">Set Password *</label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+                <input type="password" name="password" required minLength={6} placeholder="Minimum 6 characters" value={formData.password} onChange={handleChange} className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-theme-500/20 focus:border-theme-500" />
+              </div>
+            </div>            {error && (
               <div className="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-3 rounded-xl text-[13px] font-medium border border-red-200 dark:border-red-500/20 flex items-start gap-2">
                 <span>⚠️ {error}</span>
               </div>
