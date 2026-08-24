@@ -98,7 +98,9 @@ def _extract_json_object(text):
 ANALYSIS_SYSTEM_PROMPT = """
 Analyze this real estate sales transcript and return a valid JSON object.
 Focus heavily on identifying buyer interest and specific property requirements.
-CRITICAL SCORING RULE: If the customer states they are busy, hangs up quickly, or does not explicitly discuss property requirements, you MUST set the `lead_score` below 30, set `conversion_probability` below 10, and set `lead_temperature` to "Cold". Do not assume high intent without evidence.
+CRITICAL SCORING RULES:
+1. If the customer states they are busy, hangs up quickly, or does not explicitly discuss property requirements, you MUST set the `lead_score` below 30, set `conversion_probability` below 10, and set `lead_temperature` to "Cold". Do not assume high intent without evidence.
+2. Conversely, if the customer provides explicit requirements (e.g., budget, location, property type) AND states an immediate or very urgent timeline (e.g., "tomorrow", "immediately", "this week"), you MUST set `lead_score` above 80, set `conversion_probability` above 70, and set `lead_temperature` to "Hot".
 
 The JSON schema must be:
 {
