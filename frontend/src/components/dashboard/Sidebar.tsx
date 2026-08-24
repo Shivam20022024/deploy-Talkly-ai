@@ -49,7 +49,8 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
   const [user, setUser] = React.useState({
     name: 'John Doe',
     initials: 'JD',
-    email: 'john@talkly.ai'
+    email: 'john@talkly.ai',
+    role: ''
   });
 
   React.useEffect(() => {
@@ -60,7 +61,8 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
         setUser({
           name: decoded.company_name || decoded.name || 'Company',
           initials: (decoded.company_name) ? decoded.company_name.substring(0, 2).toUpperCase() : (decoded.name ? decoded.name[0] : 'U'),
-          email: decoded.email || ''
+          email: decoded.email || '',
+          role: decoded.role || ''
         });
       }
     } catch (e) { }
@@ -144,6 +146,17 @@ export const Sidebar = ({ onClose }: SidebarProps) => {
             );
           })}
         </div>
+
+        {/* Super Admin Nav */}
+        {user.role === 'SUPER_ADMIN' && (
+          <div className="space-y-0.5 mt-4">
+            <div className="px-3 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Super Admin</div>
+            <Link href="/super-admin/access-requests" className={`flex items-center gap-3 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors ${pathname.startsWith('/super-admin/access-requests') ? 'bg-gray-200 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>
+              <FileText size={16} className={pathname.startsWith('/super-admin/access-requests') ? 'text-theme-600 dark:text-brand-primary' : 'text-gray-400 dark:text-gray-500'} />
+              Access Requests
+            </Link>
+          </div>
+        )}
 
         {/* <div className="h-px bg-gray-200 dark:bg-white/5 mx-3" /> */}
 

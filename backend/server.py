@@ -80,6 +80,9 @@ app.include_router(auth_router, prefix="/api/v1/auth")
 from routes.super_admin_routes import super_admin_router
 app.include_router(super_admin_router, prefix="/api/v1/super-admin")
 
+from routes.access_requests import access_requests_router
+app.include_router(access_requests_router, prefix="/api/v1/access-requests")
+
 from routes.billing_routes import billing_router
 app.include_router(billing_router, prefix="/api/v1/billing")
 from services.billing_service import billing_service

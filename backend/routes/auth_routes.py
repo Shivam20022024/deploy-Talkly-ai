@@ -81,6 +81,9 @@ async def login(payload: dict = Body(...)):
     if not user or not verify_password(password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
         
+    if user.get("status") == "PENDING_ACTIVATION":
+        raise HTTPException(status_code=401, detail="Your account is not activated yet. Please check your email.")
+        
     company = await db.companies.find_one({"company_id": user["company_id"]})
     company_name = company["name"] if company else "Unknown"
         
@@ -101,6 +104,43 @@ async def login(payload: dict = Body(...)):
         }
     }
 
+@auth_router.post("/activate")
+async def activate_account(payload: dict = Body(...)):
+    token = payload.get("token")
+    password = payload.get("password")
+    
+    if not token or not password:
+        raise HTTPException(status_code=400, detail="Missing token or password")
+        
+    db = mongodb.get_db()
+    token_doc = await db.activation_tokens.find_one({"token": token, "used": False})
+    
+    if not token_doc:
+        raise HTTPException(status_code=400, detail="Invalid or expired activation link.")
+        
+    if datetime.utcnow() > token_doc["expires_at"]:
+        raise HTTPException(status_code=400, detail="Your activation link has expired. Please contact support.")
+        
+    user_id = token_doc["user_id"]
+    
+    # Update user
+    await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": {
+            "password_hash": get_password_hash(password),
+            "status": "ACTIVE"
+        }}
+    )
+    
+    # Mark token as used
+    await db.activation_tokens.update_one(
+        {"token": token},
+        {"$set": {"used": True}}
+    )
+    
+    return {"status": "success", "message": "Account activated successfully."}
+
 @auth_router.get("/me")
 async def get_me(current_user: dict = Depends(get_current_user)):
     return current_user
+

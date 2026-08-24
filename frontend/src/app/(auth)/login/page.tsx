@@ -69,9 +69,9 @@ const LoginContent = () => {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-xl shadow-theme-500/20 bg-gradient-to-br from-brand-primary to-brand-muted mb-6"
+            className="px-6 py-3 rounded-2xl flex items-center justify-center shadow-xl shadow-theme-500/20 bg-gradient-to-br from-brand-primary to-brand-muted mb-6"
           >
-            <span className="text-white dark:text-bg-dark-card font-black text-3xl">T</span>
+            <span className="text-white dark:text-bg-dark-card font-black text-2xl tracking-wide">Novalantis</span>
           </motion.div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
             Welcome Back
@@ -158,6 +158,21 @@ const LoginContent = () => {
             </button>
           </form>
 
+        </div>
+
+        {/* Request Access Section */}
+        <div className="mt-6 flex flex-col items-center">
+          <div className="flex items-center w-full max-w-[80%] mx-auto mb-6">
+            <div className="flex-1 border-t border-gray-300 dark:border-white/10"></div>
+            <span className="px-4 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">or</span>
+            <div className="flex-1 border-t border-gray-300 dark:border-white/10"></div>
+          </div>
+          <Link 
+            href="/request-access"
+            className="text-[14px] font-semibold text-gray-600 dark:text-gray-400 hover:text-theme-600 dark:hover:text-brand-primary transition-colors flex items-center gap-1.5"
+          >
+            Request Access <ArrowRight size={14} strokeWidth={2.5} />
+          </Link>
         </div>
 
         {/* Footer Links */}
