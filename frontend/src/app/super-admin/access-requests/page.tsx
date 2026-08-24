@@ -59,7 +59,7 @@ export default function AccessRequestsPage() {
     fetchRequests();
   }, [filter, search]);
 
-  const handleApprove = async (id: str) => {
+  const handleApprove = async (id: string) => {
     if (!window.confirm("Approve access for this company?")) return;
     setActionLoading(true);
     try {
