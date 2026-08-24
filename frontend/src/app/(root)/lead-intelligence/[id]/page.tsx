@@ -88,17 +88,26 @@ export default function LeadDetailView() {
   if (Array.isArray(rawTranscript)) {
      transcriptArray = rawTranscript;
   } else if (typeof rawTranscript === "string") {
-     const lines = rawTranscript.split("\n");
+     // Normalize inline roles that Bolna sometimes returns
+     const normalized = rawTranscript
+        .replace(/assistant:/gi, '\nAgent:')
+        .replace(/agent:/gi, '\nAgent:')
+        .replace(/Customer\n/gi, '\nCustomer:')
+        .replace(/Customer\r\n/gi, '\nCustomer:')
+        .replace(/Customer:/gi, '\nCustomer:')
+        .replace(/User:/gi, '\nCustomer:');
+
+     const lines = normalized.split('\n');
      let currentRole = "Agent";
      let currentText = "";
      
      lines.forEach((line) => {
         const lowerLine = line.toLowerCase().trim();
-        if (lowerLine.startsWith("agent:") || lowerLine.startsWith("ai:")) {
+        if (lowerLine.startsWith("agent:")) {
            if (currentText) transcriptArray.push({ role: currentRole, text: currentText.trim() });
            currentRole = "Agent";
            currentText = line.substring(line.indexOf(":") + 1).trim();
-        } else if (lowerLine.startsWith("customer:") || lowerLine.startsWith("user:") || lowerLine.startsWith("human:")) {
+        } else if (lowerLine.startsWith("customer:")) {
            if (currentText) transcriptArray.push({ role: currentRole, text: currentText.trim() });
            currentRole = "Customer";
            currentText = line.substring(line.indexOf(":") + 1).trim();
@@ -272,15 +281,6 @@ export default function LeadDetailView() {
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-bold text-gray-900 dark:text-white">Live Transcript</h3>
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={handlePlayTranscript}
-                  className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg text-gray-600 dark:text-gray-400 transition-colors"
-                  title={isPlaying ? "Stop Transcript Playback" : "Listen to Transcript"}
-                >
-                  {isPlaying ? <PauseCircle className="w-4 h-4 text-theme-500" /> : <PlayCircle className="w-4 h-4" />}
-                </button>
               </div>
             </div>
             
