@@ -307,7 +307,7 @@ export default function LeadIntelligencePage() {
                         {moreOpen === lead.id && (
                           <div className="absolute right-0 bottom-full mb-1 w-40 bg-white dark:bg-bg-dark-card border border-gray-200 dark:border-white/10 rounded-xl shadow-xl py-1 z-50">
                             <button className="w-full text-left px-4 py-2 text-[13px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">Add Note</button>
-                            <button className="w-full text-left px-4 py-2 text-[13px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">Send Email</button>
+                            {/* Send Email removed */}
                             <button className="w-full text-left px-4 py-2 text-[13px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">Schedule Call</button>
                             <div className="my-1 border-t border-gray-100 dark:border-white/5" />
                             <button className="w-full text-left px-4 py-2 text-[13px] text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">Archive Lead</button>
