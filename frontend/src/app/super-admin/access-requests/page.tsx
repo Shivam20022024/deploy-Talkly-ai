@@ -21,7 +21,7 @@ export default function AccessRequestsPage() {
 
   const fetchStats = async () => {
     try {
-      const token = localStorage.getItem('talkly_token');
+      const token = localStorage.getItem('talkly_user_token');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const res = await fetch(`${apiUrl}/api/v1/access-requests/stats`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -38,7 +38,7 @@ export default function AccessRequestsPage() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('talkly_token');
+      const token = localStorage.getItem('talkly_user_token');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const res = await fetch(`${apiUrl}/api/v1/access-requests?status=${filter}&search=${search}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -63,7 +63,7 @@ export default function AccessRequestsPage() {
     if (!window.confirm("Approve access for this company?")) return;
     setActionLoading(true);
     try {
-      const token = localStorage.getItem('talkly_token');
+      const token = localStorage.getItem('talkly_user_token');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const res = await fetch(`${apiUrl}/api/v1/access-requests/${id}/approve`, {
         method: 'POST',
@@ -91,7 +91,7 @@ export default function AccessRequestsPage() {
     }
     setActionLoading(true);
     try {
-      const token = localStorage.getItem('talkly_token');
+      const token = localStorage.getItem('talkly_user_token');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const res = await fetch(`${apiUrl}/api/v1/access-requests/${selectedRequest.id}/reject`, {
         method: 'POST',
