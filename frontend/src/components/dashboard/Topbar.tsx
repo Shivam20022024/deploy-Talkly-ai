@@ -121,13 +121,7 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
             placeholder="Search"
           />
           <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
-            <button 
-              onClick={() => searchInputRef.current?.focus()}
-              className="hidden sm:flex items-center gap-1 text-[9px] font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 px-1.5 py-0.5 rounded border border-gray-200 dark:border-white/10 transition-colors"
-            >
-              <span className="text-xs">⌘</span>
-              <span>K</span>
-            </button>
+            {/* Search shortcut removed */}
           </div>
 
           <AnimatePresence>
