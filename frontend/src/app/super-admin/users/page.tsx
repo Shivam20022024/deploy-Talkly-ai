@@ -41,8 +41,8 @@ export default function UsersPage() {
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr><td colSpan={4} className="p-6 text-center text-slate-400">Loading...</td></tr>
-            ) : users.map(u => (
-              <tr key={u.user_id} className="hover:bg-slate-50 transition-colors">
+            ) : users.map((u, index) => (
+              <tr key={u.user_id || u.id || u._id || index} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4">
                   <div className="font-medium text-slate-900">{u.name}</div>
                   <div className="text-sm text-slate-500">{u.email}</div>
