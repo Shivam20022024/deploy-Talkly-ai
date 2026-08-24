@@ -12,7 +12,7 @@ import Link from 'next/link';
 // ALL_LEADS replaced by dynamic fetch
 
 const ITEMS_PER_PAGE = 8;
-const AGENTS = ['All Agents', 'Nina (Sales)', 'Nina (Support)', 'Support Bot', 'WhatsApp Assistant'];
+const AGENTS = ['All Agents'];
 const TEMPERATURES = ['Any Temperature', 'Hot Lead', 'Warm Lead', 'Cold Lead'];
 
 export default function LeadIntelligencePage() {
