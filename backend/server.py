@@ -61,6 +61,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000", 
+        "http://localhost:3001",
         "http://127.0.0.1:3000", 
         "http://52.220.153.141:3000",
         "https://talkly.novalantis.ai",
@@ -91,6 +92,12 @@ async def health_check():
 async def get_analytics_dashboard(current_user: dict = Depends(get_current_user)):
     db = mongodb.get_db()
     metrics = await intelligence_service.get_dashboard_metrics(db, current_user["company_id"])
+    return {"status": "success", "data": metrics}
+
+@app.get("/api/v1/analytics/overall")
+async def get_overall_analytics(current_user: dict = Depends(get_current_user)):
+    db = mongodb.get_db()
+    metrics = await intelligence_service.get_overall_dashboard_metrics(db, current_user["company_id"])
     return {"status": "success", "data": metrics}
 
 @app.get("/api/v1/customers/{customer_id}/timeline")
