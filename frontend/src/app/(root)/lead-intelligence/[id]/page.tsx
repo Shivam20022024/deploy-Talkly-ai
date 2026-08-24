@@ -252,14 +252,7 @@ export default function LeadDetailView() {
                 </p>
               </div>
               <div className="flex-shrink-0 flex items-end gap-3 flex-wrap">
-                <button 
-                  onClick={handleSyncCRM}
-                  disabled={isSyncingCRM || lead.crmSynced}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white dark:bg-bg-dark-card border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 px-5 py-2.5 rounded-lg text-[13px] font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
-                >
-                  {isSyncingCRM ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />} 
-                  {lead.crmSynced ? 'Synced to CRM' : 'Sync to CRM'}
-                </button>
+                {/* Sync to CRM button removed */}
                 <button 
                   onClick={handleOpenEmailModal}
                   className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-brand-primary to-brand-grad-1 text-bg-dark-card px-5 py-2.5 rounded-lg text-[13px] font-bold shadow-lg shadow-brand-grad-1/20 hover:shadow-brand-grad-1/40 transition-shadow"
