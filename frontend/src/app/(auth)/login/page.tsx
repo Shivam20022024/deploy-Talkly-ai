@@ -69,15 +69,21 @@ const LoginContent = () => {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="px-6 py-3 rounded-2xl flex items-center justify-center shadow-xl shadow-theme-500/20 bg-gradient-to-br from-brand-primary to-brand-muted mb-6"
+            className="flex items-center justify-center gap-3 mb-8 cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => router.push('/')}
           >
-            <span className="text-white dark:text-bg-dark-card font-black text-2xl tracking-wide">Novalantis</span>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-brand-muted flex items-center justify-center shadow-lg shadow-brand-primary/20">
+              <Sparkles className="w-5 h-5 text-white dark:text-bg-dark-card" />
+            </div>
+            <span className="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300">
+              Novalantis
+            </span>
           </motion.div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
             Welcome Back
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm font-medium text-center px-4">
-            Sign in to access your revenue intelligence dashboard
+            Sign in to manage your calls, leads, and AI agents
           </p>
         </div>
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Lock, ArrowRight, CheckCircle } from 'lucide-react';
+import { Lock, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -78,7 +78,7 @@ const ActivateAccountContent = () => {
           </div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Account Activated!</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-            Your password has been set successfully. You can now log in to access your revenue intelligence dashboard.
+            Your password has been set successfully. You can now log in to manage your calls, leads, and AI agents.
           </p>
           <Link 
             href="/login"
@@ -104,8 +104,19 @@ const ActivateAccountContent = () => {
         className="relative z-10 w-full max-w-[440px]"
       >
         <div className="flex flex-col items-center mb-8">
-          <motion.div className="px-6 py-3 rounded-2xl flex items-center justify-center shadow-xl shadow-theme-500/20 bg-gradient-to-br from-brand-primary to-brand-muted mb-6">
-            <span className="text-white dark:text-bg-dark-card font-black text-2xl tracking-wide">Novalantis</span>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="flex items-center justify-center gap-3 mb-8 cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => router.push('/')}
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-brand-muted flex items-center justify-center shadow-lg shadow-brand-primary/20">
+              <Sparkles className="w-5 h-5 text-white dark:text-bg-dark-card" />
+            </div>
+            <span className="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300">
+              Novalantis
+            </span>
           </motion.div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
             Activate Account
