@@ -138,7 +138,7 @@ const Dashboard = () => {
 
   const exportToCSV = () => {
     // Basic CSV headers
-    const headers = ['Date', 'Call ID', 'Direction', 'Customer Phone', 'Agent', 'Duration (s)', 'Status', 'Intent Score', 'Lead Temperature', 'Summary'];
+    const headers = ['Date', 'Call ID', 'Direction', 'Customer Name', 'Customer Phone', 'Agent', 'Status', 'Intent Score', 'Lead Temperature', 'Summary'];
     
     // Map rows
     const rows = filteredCalls.map(c => {
@@ -147,9 +147,9 @@ const Dashboard = () => {
         new Date(c.created_at).toLocaleString().replace(/,/g, ''),
         c.call_id || '',
         c.direction || '',
-        c.customer?.phone_number || c.to_number || '',
-        c.agent?.name || '',
-        Math.round((c.duration_ms || 0) / 1000) || 0,
+        c.customer_name || c.analysis?.customer_name || c.customer?.name || '',
+        c.customer?.phone_number || c.customer_id || c.to_number || c.phone || '',
+        c.agent?.name || c.agent_name || '',
         c.status || '',
         c.analysis?.intent_score || '',
         c.analysis?.lead_temperature || '',
