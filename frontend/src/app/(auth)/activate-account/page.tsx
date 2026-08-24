@@ -6,7 +6,7 @@ import { Lock, ArrowRight, CheckCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-const ActivateAccountPage = () => {
+const ActivateAccountContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -181,6 +181,12 @@ const ActivateAccountPage = () => {
         </div>
       </motion.div>
     </div>
+  );
+const ActivateAccountPage = () => {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ActivateAccountContent />
+    </React.Suspense>
   );
 };
 
